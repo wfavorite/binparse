@@ -39,7 +39,12 @@ echo "========================================================================="
 
 
 exit
+# Not yet integrated, but things that need to be resolved
+# Validates as a proper number
+./pmath "5 6"
 
+# Prints too many error messages
+./pmath "(3 # 4)"
 
 
 
