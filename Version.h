@@ -7,11 +7,11 @@
   Version History:
 
   PREMERGE.1  1/22/16 - First versioned release
-
+  PREMERGE.2  1/26/16 - Cloned from github.com
 
 
 */
-#define VERSION_STRING "PREMERGE.1"
+#define VERSION_STRING "PREMERGE.2"
 /*
   ToDos:
   [ ] Consider removing all the validate_* code in pmath.c. This should all
