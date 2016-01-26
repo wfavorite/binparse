@@ -17,7 +17,9 @@ int main(int argc, char *argv[])
       return(1);
    else
    {
+
       /* STUB: Debuggery */
+
       printf("ENUM:\n");
       printf("  tag = \"%s\"\n", en->tag);
       printf("  default = \"%s\"\n", en->defval->name);
