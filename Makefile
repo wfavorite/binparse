@@ -37,6 +37,36 @@ support.o: support.c support.h
 	@printf "  $< to $@\n"
 	@$(CC) $(CCOPTS) -c $<
 
+# This is the stuff merged in (not yet tested)
+bp: ccstart main.o bpfparse.o options.o strlib.o
+	@printf "Done.\nLinking..."
+	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o
+	@printf "Done.\n"
+
+main.o: main.c options.h bpfparse.h version.h strlib.h
+	@$(CC) $(CC_OPTS) -c main.c
+	@printf "."
+
+bpfparse.o: bpfparse.c bpfparse.h strlib.h
+	@$(CC) $(CC_OPTS) -c bpfparse.c
+	@printf "."
+
+options.o: options.c options.h
+	@$(CC) $(CC_OPTS) -c options.c
+	@printf "."
+
+strlib.o: strlib.c strlib.h
+	@$(CC) $(CC_OPTS) -c strlib.c
+	@printf "."
+
+# Trial code
+datapoint.o: datapoint.c
+	$(CC) $(CC_OPTS) -c datapoint.c
+
+### --- End of stuff merged in
+
+
+
 ccstart:
 	@printf "Compiling source files.\n"
 

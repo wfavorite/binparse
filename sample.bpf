@@ -1,0 +1,11 @@
+
+# <offset> <size> <tag> <label> <type> <directive>
+0 2 strsz "String Size" uint16 noprint
+2 strsz strdat "The String" ztstr print
+16 4 someval 'Some Value' int32 xxx
+someval 1 somesc "single char" char print
+
+# This line is designed to be an error line (self referential offset)
+boff 4 boff "Bad ofset" uint32 print
+
+
