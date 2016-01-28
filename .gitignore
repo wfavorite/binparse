@@ -1,8 +1,5 @@
 # Object files
 *.o
-*.ko
-*.obj
-*.elf
 
 # Precompiled Headers
 *.gch
@@ -14,19 +11,16 @@
 *.la
 *.lo
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# ^^^^ Copied from the default (trimmed a bit)
+# vvvv My stuff
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+# The binary
+bp
 
-# Debug files
-*.dSYM/
+# test target binaries
+penum
+pmath
+
+# Other bad stuff
+core
+*~

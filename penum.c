@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "penum.h"
-#include "support.h"
+#include "strlib.h"
 
 
 ENVP *parse_enum_pair(int *moved, char *estr);
@@ -149,8 +149,8 @@ Enum *ParseEnum(char *estr)
       return(NULL);
    }
 
-   eb->raw = mkstring(start);
-   eb->tag = mkstring(enumtag);
+   eb->raw = nc_mkstring(start);
+   eb->tag = nc_mkstring(enumtag);
    eb->defval = NULL;
    eb->elist = NULL;
 
@@ -250,11 +250,15 @@ char *parse_envp_name(char *str)
       }
 
       name[i] = 0;
-      /* rv = mkstring(name); */
+
+      rv = nc_mkstring(name);
+
+      /* STUB: The old
       if ( NULL == ( rv = malloc(i + 1) ) )
          return(NULL);
 
       strcpy(rv, name);
+      */
 
       return(rv);
    }
@@ -273,11 +277,15 @@ char *parse_envp_name(char *str)
       }
 
       name[i] = 0;
-      /* rv = mkstring(name); */
+
+      rv = nc_mkstring(name);
+
+      /* STUB: The old
       if ( NULL == ( rv = malloc(i + 1) ) )
          return(NULL);
 
       strcpy(rv, name);
+      */
 
       return(rv);
    }

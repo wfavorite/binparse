@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "pmath.h"
-#include "support.h"
+#include "strlib.h"
 /*
 #define DEBUG(FMTSTR, ...); fprintf(stderr, FMTSTR, ##__VA_ARGS__);
 */
@@ -463,7 +463,7 @@ Entity *parse_token(int *move, char *str)
 
          *move = (int)(str - start);
          newe->type = ETYPE_TAGCP;
-         newe->u.tag = (void *)mkstring(tag);
+         newe->u.tag = (void *)nc_mkstring(tag);
 
          return(newe);
       }
@@ -570,12 +570,7 @@ Entity *new_entity(char *raw)
       return(NULL);
    }
 
-   if ( NULL == (e->raw = mkstring(raw)) )
-   {
-      fprintf(stderr, "ERROR: Unable to allocate memory for entity string.\n");
-      return(NULL);
-   }
-
+   e->raw = nc_mkstring(raw);
    e->type = ETYPE_NOTYP;
    e->u.tag = NULL; /* Null out the union */
 

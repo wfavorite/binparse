@@ -21,6 +21,7 @@
                        the merge. Merging some of the make build dependencies
                        and formatting.
                      - Added in the options.code (still somewhat minimalistic).
+                     - Pulled the support.h/c from the code.
 */
 #define VERSION_STRING "0.5.0"
 /*
