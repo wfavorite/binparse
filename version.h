@@ -38,8 +38,25 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] When ParsePoints are added, the tag identifiers must be compared to
+       insure that they are unique. Tag name collisions are not allowed.
+   [ ] Decide if enum tags can have collisions (with builtins). Decide if
+       builtin enums will be supported.
+   [ ] Will you support "defined"/set values. For example:
+       settag hdroffset 16
+       This would create a tag called hdroffset that is a hard-set value of
+       16 (decimal).
+   [ ] Write the must= clause support.
+   [ ] pmath "5 6" passes, it should not.
+   [ ] Eliminate redundant error messages. Make parsing errors consistent
+       across all fail points.
+   [ ] Write parser for (in-bpf-file) command line options. Such as:
+       setopt c         <---- Same as -c
+       setopt x myarg   <---- Same as -x myarg
    [ ] Create more sample.bpf files - perhaps they should be part of the test
        suite.
+   [ ] Setup 3-dot truncation for strings used in error messages. DO NOT
+       OVERFLOW THE LINE!
    [ ] No documentation of struct members or ParseOptions() in options.h.
    [ ] Some functions in strlib.h are not documented.
    [ ] The datapoint.* code probably needs to go. It was part of the original
