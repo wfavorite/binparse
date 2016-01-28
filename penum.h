@@ -47,6 +47,14 @@ typedef struct enumbase
 Enum *ParseEnum(char *estr);
 
 
+/* =========================================================================
+ * Name: 
+ * Description: 
+ * Paramaters: 
+ * Returns: 0 if not an enum line, non-0 if (possibly) an enum line
+ * Side Effects: None
+ * Notes: 
+ */
 int IsEnumLine(char *estr);
 
 #endif

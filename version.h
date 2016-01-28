@@ -22,7 +22,10 @@
                        and formatting.
                      - Added in the options.code (still somewhat minimalistic).
                      - Pulled the support.h/c from the code.
-                     - Options parsing now supports the basic 
+                     - Options parsing now supports the basic switch input
+                       and setting the config file executable / magic option.
+                     - Integrated (minimally) the enum parsing code.
+                     - grep $TUB * | wc -l ----> 80
 */
 #define VERSION_STRING "0.5.0"
 /*
@@ -35,6 +38,17 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Create more sample.bpf files - perhaps they should be part of the test
+       suite.
+   [ ] No documentation of struct members or ParseOptions() in options.h.
+   [ ] Some functions in strlib.h are not documented.
+   [ ] The datapoint.* code probably needs to go. It was part of the original
+       C++ design.
+   [ ] Start working the $stubs throught the code. Currently at 80 across the
+       entire project. Clear this todo when it is <= 40.
+   [ ] Enum parsing in bpfparse.c::ParseBPFFile() needs to handle the $tubs
+       dealing with return values from ParseEnum() as well as changes to 
+       ParseEnum() itself in terms of input.
    [ ] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
