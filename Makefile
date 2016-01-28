@@ -8,9 +8,9 @@ LDOPTS=
 
 
 # This is the stuff merged in (not yet tested)
-bp: ccstart main.o bpfparse.o options.o strlib.o
+bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o
 	@printf "Done.\nLinking..."
-	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o
+	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o
 	@printf "Done.\n"
 
 # About the test target
@@ -71,7 +71,7 @@ main.o: main.c options.h bpfparse.h version.h strlib.h
 	@$(CC) $(CC_OPTS) -c main.c
 	@printf "."
 
-bpfparse.o: bpfparse.c bpfparse.h strlib.h
+bpfparse.o: bpfparse.c bpfparse.h strlib.h pmath.h penum.h
 	@$(CC) $(CC_OPTS) -c bpfparse.c
 	@printf "."
 

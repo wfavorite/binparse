@@ -22,6 +22,7 @@
                        and formatting.
                      - Added in the options.code (still somewhat minimalistic).
                      - Pulled the support.h/c from the code.
+                     - Options parsing now supports the basic 
 */
 #define VERSION_STRING "0.5.0"
 /*
@@ -34,8 +35,19 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [ ] Pull out all references to support.c. This was always a temp file that
+   [ ] Technically.... You should be able to call the executable bpf file with
+       command line options thusly: ./mybpf -c mybin
+       This means that the args would be:
+        argv[1] = "./mybpf"
+        argv[2] = "-c"
+        argv[3] = "mybin"
+       From that, we see the need to parse command line options "out of
+       order" so to speak. This means that they are incompatible with the
+       getopt() API (as intended - possibly we could advance the pointer
+       when we hit a word/non-dash argument).
+   [_] Pull out all references to support.c. This was always a temp file that
        would be covered by the proper functions in strlib.h/c.
+   [ ] options.c::ParseOptions() should validate the options before returning.
    [ ] The help output has a few different output methods. These are not
        covered in the options struct (with appropriate flags), nor is the
        help output clear on what the options mean. (Specifically: The output
@@ -43,9 +55,9 @@
    [ ] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
+   [ ] Remove the remaining support_c/h.txt files from the project.
    [ ] Remove all unnessary (redundant) error message handling.
    [ ] Hide all the debug messages behind pre-processor directives.
-   [ ] Put this string into the test framework.
    [ ] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [ ] Document the BPF file format somewhere - at least in text. Perhaps
        write a mBNF ruleset for the file.
@@ -70,6 +82,7 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [ ] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Put this string into the test framework.
    [W] Rename the binary directory to "bp". WITHDRAWN: The repo is "binparse"
        so, there you go.
    [X] Doh! You never wrote the code to parse an "enum list". That has the

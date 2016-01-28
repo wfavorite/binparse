@@ -676,7 +676,10 @@ void eat_ws(char **shand)
       out. */
    char *str;
 
-   str = *shand;
+   if ( NULL == (str = *shand) )
+   {
+      
+   }
 
    /* Walk off leading white space */
    while ((*str == ' ')||(*str == '\t'))

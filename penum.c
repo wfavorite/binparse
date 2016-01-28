@@ -8,6 +8,63 @@
 
 ENVP *parse_enum_pair(int *moved, char *estr);
 
+/* ========================================================================= */
+int IsEnumLine(char *estr)
+{
+   /* Handle the enpty string case(s) */
+   if ( NULL == estr )
+      return(0);
+
+   if ( 0 == estr[0] ) /* This is a bit redundant */
+      return(0);
+   
+   /* This would be handled by the calling func, but make sure. */
+   eat_ws(&estr);
+
+   /* The tag string must begin with an expected pattern */
+   if (( estr[0] != 'e' ) ||
+       ( estr[1] != 'n' ) ||
+       ( estr[2] != 'u' ) ||
+       ( estr[3] != 'm' ))
+   {
+      return(0);
+   }
+
+   /* Move ourselves off the tag */
+   while ( (( *estr >= 'a' ) && ( *estr <= 'z' )) || 
+           (( *estr >= 'A' ) && ( *estr <= 'Z' )) || 
+           (( *estr >= '0' ) && ( *estr <= '9' )) ||
+           (*estr == '-' ) || (*estr == '_' ) || (*estr == '.' ) )
+   {
+      estr++;
+   }
+
+   /* There may be white space */
+   eat_ws(&estr);
+
+   /* The next MUST be an '=' */
+   if ( *estr != '=' )
+   {
+      return(0);
+   }
+
+   /* We are on an "=". Move off. */
+   estr++;
+
+   /* There may be white space */
+   eat_ws(&estr);
+
+   /* The next MUST be an '{' */
+   if ( *estr != '{' )
+   {
+      return(0);
+   }
+
+   /* This line may not be valid... but we have tested (sniffed) enough
+      to know that it likely is (or was *intended* to be). So let's
+      consider this an enum line. */
+   return(1);
+}
 
 
 /* ========================================================================= */

@@ -46,4 +46,7 @@ typedef struct enumbase
 /* STUB: The line number needs to be passed as an argument */
 Enum *ParseEnum(char *estr);
 
+
+int IsEnumLine(char *estr);
+
 #endif

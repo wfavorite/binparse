@@ -328,74 +328,95 @@ ParsePoint *get_parse_point(int lineno, char *line)
 /* ========================================================================= */
 RuleSet *ParseBPFFile(Options *o)
 {
-  RuleSet *rs;
-  ParsePoint *pp;
-  File *f;
-  char *line;
-  char *filename;
+   RuleSet *rs;
+   ParsePoint *pp;
+   File *f;
+   char *line;
+   char *filename;
 
-  /* Pull the filename to a more convenient pointer */
-  filename = o->bpffile;
+   /* Pull the filename to a more convenient pointer */
+   filename = o->bpffile;
   
-  if ( NULL == filename )
-  {
-    fprintf(stderr, "ERROR: Borked file name. How did we get this far without a file name?!\n");
-    return(NULL);
-  }
+   if ( NULL == filename )
+   {
+      fprintf(stderr, "ERROR: Borked file name. How did we get this far without a file name?!\n");
+      return(NULL);
+   }
 
-  if ( filename[0] == 0 )
-  {
-    fprintf(stderr, "ERROR: Empty filename cannot be located or parsed.\n       Looks like an internal error.\n");
-    return(NULL);
-  }
+   if ( filename[0] == 0 )
+   {
+      fprintf(stderr, "ERROR: Empty filename cannot be located or parsed.\n       Looks like an internal error.\n");
+      return(NULL);
+   }
 
-  if ( NULL == ( rs = new_ruleset() ) )
-    return(NULL);
+   if ( NULL == ( rs = new_ruleset() ) )
+      return(NULL);
 
-  f = new_file(filename);
+   f = new_file(filename);
 
-  /* Now start pulling lines */
-  while(next_line(f))
-  {
-    /* ...for each line... */
-    line = f->line;
+   /* Now start pulling lines */
+   while(next_line(f))
+   {
+      /* ...for each line... */
+      line = f->line;
 
-    chomp(line);              /* Kill EOL chars */
-    line = leadingwst(line);  /* Kill leading WS */
-    hash_trunc(line);         /* Truncate Hash based comments */
+      chomp(line);              /* Kill EOL chars */
+      line = leadingwst(line);  /* Kill leading WS */
+      hash_trunc(line);         /* Truncate Hash based comments */
 
-    if ( NULL != (pp = get_parse_point(f->lineno, line)) )
-    {
-      add_pp_to_rs(rs, pp); /* This is just not going to fail */
-      if ( o->bVerbose )
+      /* STUB: Sniff the line here */
+      if ( IsEnumLine(line) )
       {
-	printf("  Added parse point rule named \"%s\".\n", pp->tag);
+         /* STUB: Several problems here:
+            STUB:  1. Return value is error?
+            STUB:  2. Pass the File struct, not the line
+            STUB:  3. Add parsed item to the enum list
+         */
+         
+         ParseEnum(line);
+
+         /* Line was enum. Don't try to parse as something else.
+            Instead, go get another line. */
+         continue;
       }
+
+      /* STUB: Check for "set" or "define" lines to parse.
+         STUB:   Note: this is not exatcly defined yet.
+      */
+
+
+      if ( NULL != (pp = get_parse_point(f->lineno, line)) )
+      {
+         add_pp_to_rs(rs, pp); /* This is just not going to fail */
+         if ( o->bVerbose )
+         {
+            printf("  Added parse point rule named \"%s\".\n", pp->tag);
+         }
       
-      if ( o->bDebug )
-      {
-	/* Print verbose debuggery */
-	printf("%03d:%s\n", f->lineno, line);
-	printf(" pp->offset = %lu\n", pp->offset);
-	printf(" pp->otag   = %s\n", pp->otag);
-	printf(" pp->size   = %lu\n", pp->size);
-	printf(" pp->stag   = %s\n", pp->stag);
-	/* STUB: data type? */
-	printf(" pp->tag    = %s\n", pp->tag);
-	printf(" pp->label  = %s\n", pp->label);
+         if ( o->bDebug )
+         {
+            /* Print verbose debuggery */
+            printf("%03d:%s\n", f->lineno, line);
+            printf(" pp->offset = %lu\n", pp->offset);
+            printf(" pp->otag   = %s\n", pp->otag);
+            printf(" pp->size   = %lu\n", pp->size);
+            printf(" pp->stag   = %s\n", pp->stag);
+            /* STUB: data type? */
+            printf(" pp->tag    = %s\n", pp->tag);
+            printf(" pp->label  = %s\n", pp->label);
+         }
       }
-    }
-  }
+   }
   
-  /* Close the file */
-  end_file(f);
+   /* Close the file */
+   end_file(f);
 
-  /* STUB: This would be the location to test for an empty pplist item
-     STUB:   in the RuleList struct. There is reference to this as an
-     STUB:   assert() in the ResolveTags() function. Either check there,
-     STUB:   check here, or write and call a specific check API. Hint:
-     STUB:   you should check here. */
-  return(rs);
+   /* STUB: This would be the location to test for an empty pplist item
+      STUB:   in the RuleList struct. There is reference to this as an
+      STUB:   assert() in the ResolveTags() function. Either check there,
+      STUB:   check here, or write and call a specific check API. Hint:
+      STUB:   you should check here. */
+   return(rs);
 }
 
 /* =========================================================================

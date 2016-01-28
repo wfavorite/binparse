@@ -29,10 +29,16 @@ int main ( int argc, char *argv[] )
     fprintf(stderr, " bDebug = %d\n", o->bDebug);
     fprintf(stderr, " bAbout = %d\n", o->bAbout);
     fprintf(stderr, " bHelp = %d\n", o->bHelp);
+
     if ( o->bpffile )
       fprintf(stderr, "  bpffile = \"%s\"\n", o->bpffile);
     else
       fprintf(stderr, "  bpffile = NULL\n");
+
+    if ( o->binfile )
+      fprintf(stderr, "  binfile = \"%s\"\n", o->binfile);
+    else
+      fprintf(stderr, "  binfile = NULL\n");
   }
 
   /*** Handle all simple options ***/
@@ -73,7 +79,6 @@ int main ( int argc, char *argv[] )
     fprintf(stderr, "Third pass compile starting.\n");
   }
 
-  
   
   /* How:
        Repeatedly rake the linked list for the data. If it is in order*

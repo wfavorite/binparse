@@ -1,3 +1,4 @@
+#!./bp
 
 # <offset> <size> <tag> <label> <type> <directive>
 0 2 strsz "String Size" uint16 noprint
@@ -8,4 +9,7 @@ someval 1 somesc "single char" char print
 # This line is designed to be an error line (self referential offset)
 boff 4 boff "Bad ofset" uint32 print
 
-
+# This is an enum line (considering making it a builtin)
+enumbool = { 0:false; default:true; }
+enumBOOL = { 0:FALSE; default:TRUE; }
+enumBool = { 0:False; default:True; }
