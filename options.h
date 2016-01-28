@@ -9,7 +9,9 @@ typedef struct Options
   int bVerbose;
 
   char *bpffile;
+  char *binfile;
 } Options;
+
 
 Options *ParseOptions(int argc, char *argv[]);
 

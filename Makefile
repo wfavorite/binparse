@@ -5,15 +5,26 @@ LD=gcc
 CCOPTS=-Wall -Werror
 LDOPTS=
 
+
+
+# This is the stuff merged in (not yet tested)
+bp: ccstart main.o bpfparse.o options.o strlib.o
+	@printf "Done.\nLinking..."
+	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o
+	@printf "Done.\n"
+
+
+
+
 # This target was used so that $^ did not expand to "ccstart ..."
 # This looks like the end of that kind of macro expansion.
 test: ccstart pmath penum
 
-pmath: pmath_test.o pmath.o penum.o support.o
+pmath: pmath_test.o pmath.o penum.o strlib.o
 	@printf "Linking object files.\n"
 	@$(LD) $(LD_OPTS) -o pmath $^
 
-penum: penum_test.o penum.o pmath.o support.o
+penum: penum_test.o penum.o pmath.o strlib.o
 	@printf "Linking object files.\n"
 	@$(LD) $(LD_OPTS) -o penum $^
 
@@ -25,23 +36,23 @@ penum_test.o: penum_test.c pmath.h penum.h
 	@printf "  $< to $@\n"
 	@$(CC) $(CCOPTS) -c $<
 
-pmath.o: pmath.c pmath.h support.h
+pmath.o: pmath.c pmath.h strlib.h
 	@printf "  $< to $@\n"
 	@$(CC) $(CCOPTS) -c $<
 
-penum.o: penum.c penum.h support.h
+penum.o: penum.c penum.h strlib.h
 	@printf "  $< to $@\n"
 	@$(CC) $(CCOPTS) -c $<
 
-support.o: support.c support.h
-	@printf "  $< to $@\n"
-	@$(CC) $(CCOPTS) -c $<
+# STUB: Pull this from all code
+#support.o: support.c support.h
+#	@printf "  $< to $@\n"
+#	@$(CC) $(CCOPTS) -c $<
 
-# This is the stuff merged in (not yet tested)
-bp: ccstart main.o bpfparse.o options.o strlib.o
-	@printf "Done.\nLinking..."
-	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o
-	@printf "Done.\n"
+
+
+
+
 
 main.o: main.c options.h bpfparse.h version.h strlib.h
 	@$(CC) $(CC_OPTS) -c main.c
@@ -59,16 +70,22 @@ strlib.o: strlib.c strlib.h
 	@$(CC) $(CC_OPTS) -c strlib.c
 	@printf "."
 
+
+
+
 # Trial code
 datapoint.o: datapoint.c
 	$(CC) $(CC_OPTS) -c datapoint.c
 
-### --- End of stuff merged in
+
+
+
+
 
 
 
 ccstart:
-	@printf "Compiling source files.\n"
+	@printf "Compiling source files."
 
 
 clean: lean
@@ -76,6 +93,8 @@ clean: lean
 	@rm -f pmath
 	@printf "."
 	@rm -f penum
+	@printf "."
+	@rm -f bp
 	@printf ".Done.\n"
 
 lean:

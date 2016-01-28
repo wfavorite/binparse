@@ -3,9 +3,55 @@
 
 #include <stdint.h>
 
+
+/* =========================================================================
+ * Name: mkstring
+ * Desc: Create a malloc()'d string given string input
+ * Params:
+ * Returns:
+ * Side Effects:
+ * Notes: This will NOT print an error message. It is the rare occasion
+ *        where I do not follow the 'error at the point of failure' rule.
+ *        This is because it can be used while stdout/stderr are closed
+ *        and the program may not have a terminal to print to.
+ *
+ *        So... CHECK THE RETURN VALUE (even though the possibility of
+ *        failure is remote), and PRINT YOUR OWN ERROR MESSAGES (however
+ *        your app handles that).
+ *
+ *        See (no check) nc_mkstring() as an alternative.
+ */
 char *mkstring(const char *input);
+
+/* =========================================================================
+ * Name: nc_mkstring   -----> [no check mkstring]
+ * Desc: A mkstring() that you do not need to check return values 
+ * Params:
+ * Returns: A valid result, or exit()
+ * Side Effects: May exit()
+ * Notes: This is the same as mkstring(), but it prints to stderr() and
+ *        exit()s on error. This is designed for use in simple command line
+ *        utilities or daemons *before* they have backgrounded. There is no
+ *        need to check the return value, because if it returned, then the
+ *        malloc() was successful.
+ *
+ *        The thinking here is that we will be allocating strings typically
+ *        early in a small utilities life. If you cannot malloc() there, (or
+ *        *anywhere* for that matter) then you have some larger issues. So
+ *        the odds of failure are low, and if you fail here, the most
+ *        appropriate thing to do is immediately exit and return memory to
+ *        the system.
+ */
 char *nc_mkstring(const char *input);
 
+
+
+
+
+
+
+
+/* STUB: Where is my header? */
 char *mid_trunc(char *str, const char *input, unsigned long len);
 
 /* =========================================================================
@@ -99,7 +145,28 @@ int copy_out_nth_token(char *tostr, unsigned long len, char *istr, int n);
  */
 int isanynum(char *str);
 
-
+/* =========================================================================
+ * Name: eat_ws
+ * Desc: Move the pointer up if it is sitting on white space in a string.
+ * Params: Pointer to a pointer to (aka: handle of) a string
+ * Returns: void
+ * Side Effects: This will move the pointer up to the first non-ws char.
+ * Notes: This function was fairly specific to a way of walking a string.
+ *        While the pointer is on a space or a tab, this will move the
+ *        pointer forward until it hits a non-ws char. 
+ *        Call it thusly:
+ *
+ *        char *mystr;
+ *        
+ *        mystr = mkstring("  Hell of a world!\n");
+ *
+ *        [mystr now points to a leading space]
+ *
+ *        eat_ws(&mystr);
+ *
+ *        [mystr now starts at "H(ell of a world!\n)"]
+ */
+void eat_ws(char **shand);
 
 /* =========================================================================
  * Name: str_to_uint32t
@@ -115,8 +182,5 @@ int isanynum(char *str);
  *        This is a 32bit ul.
  */
 int str_to_uint32t(uint32_t *rval, char *str);
-
-
-
 
 #endif

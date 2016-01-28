@@ -1,46 +1,135 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <unistd.h>
+
 #include "options.h"
 #include "strlib.h"
 
+
+/* ========================================================================= */
 Options *new_options(void)
 {
-  Options *o;
+   Options *o;
 
-  if ( NULL == (o = (Options *)malloc(sizeof(Options))) )
-  {
-    fprintf(stderr, "ERROR: Unable to allocate memory for Options.\n");
-    return(NULL);
-  }
+   if ( NULL == (o = (Options *)malloc(sizeof(Options))) )
+   {
+      fprintf(stderr, "ERROR: Unable to allocate memory for Options.\n");
+      return(NULL);
+   }
 
-  /* Set defaults */
-  o->bDebug = 0;
-  o->bVerbose = 0;
-  o->bHelp = 0;
-  o->bAbout = 0;
-  o->bpffile = NULL;
+   /* Set defaults */
+   o->bDebug = 0;
+   o->bVerbose = 0;
+   o->bHelp = 0;
+   o->bAbout = 0;
+   o->bpffile = NULL;
+   o->binfile = NULL;
 
-  /* Send it off */
-  return(o);
+   /* Send it off */
+   return(o);
 }
 
-
-
-
+/* ========================================================================= */
 Options *ParseOptions(int argc, char *argv[])
 {
-  Options *o;
+   Options *o;
+   int index;
+   int c;
 
-  if ( NULL == ( o = new_options() ) )
-    return(NULL);
+   /* Allocate and initialize a new options struct */
+   if ( NULL == ( o = new_options() ) )
+      return(NULL);
   
-  /* STUB: Parse the options */
+   /* Parse the options */
+   while ( -1 != ( c = getopt(argc, argv, "+ahv" ) ) )
+   {
+      switch(c)
+      {
+      case '+':
+         o->bDebug = 1;
+         break;
+      case 'a':
+         o->bAbout = 1;
+         break;
+      case 'h':
+         o->bHelp = 1;
+         break;
+      case 'v':
+         o->bVerbose = 1;
+         break;  
+      case ':':
+         fprintf (stderr, "ERROR: Missing the argument to the \"-%c\" option.\n", optopt);
+         return(NULL); /* STUB: Just bail */
+         break;
+
+      case '?': /* User entered some unknown/unsupported argument */
+         if (isprint (optopt))
+            fprintf (stderr, "ERROR: Unknown option \"-%c\".\n", optopt);
+         else
+            fprintf (stderr,
+                     "ERROR: Unknown option character `\\x%x'.\n",
+                     optopt);
+         break;
+      default: /* Really an unreachable place */
+         return(o);
+      }
+   }
+
+   /* Read the non-flag options (the bpf and binary files) */
+   index = optind;
+   while ( index < argc )
+   {
+      if ( NULL == o->bpffile )
+      {
+         if (NULL == (o->bpffile = mkstring(argv[index])))
+            return(NULL);
+      }
+      else
+      {
+         if ( NULL == o->binfile )
+         {
+            if (NULL == (o->binfile = mkstring(argv[index])))
+               return(NULL);
+         }
+         else
+         {
+            fprintf(stderr, "ERROR: Extra arguments \"%s\" not understood.\n", argv[index]);
+            return(NULL);
+         }
+      }
+
+      index++;
+   }
+
+   /* No additional processing required if any of these are set */
+   if (( o->bAbout ) || ( o->bHelp ))
+      return(o);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
-  /* STUB: This is where I tweak options (no CL parsing code at this time) */
+   /* STUB: Used to hard-code debug. 
   o->bpffile = nc_mkstring("sample.bpf");
-  o->bVerbose = 1;
-  //o->bHelp = 1;
+   */
 
 
 

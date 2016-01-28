@@ -6,15 +6,7 @@
 
 #include "strlib.h"
 
-
-/* =========================================================================
- * Name: mkstring
- * Desc: Create a malloc()'d string given string input
- * Params:
- * Returns:
- * Side Effects:
- * Notes:
- */
+/* ========================================================================= */
 char *mkstring(const char *input)
 {
   char *str;
@@ -42,18 +34,7 @@ char *mkstring(const char *input)
   return(str);
 }
 
-/* =========================================================================
- * Name: nc_mkstring
- * Desc: A mkstring() that you do not need to check return values 
- * Params:
- * Returns: A valid result, or exit()
- * Side Effects: May exit()
- * Notes: This is the same as mkstring(), but it prints to stderr() and
- *        exit()s on error. This is designed for use in simple command line
- *        utilities or daemons *before* they have backgrounded. There is no
- *        need to check the return value, because if it returned, then the
- *        malloc() was successful.
- */
+/* ========================================================================= */
 char *nc_mkstring(const char *input)
 {
   char *str;
@@ -686,4 +667,21 @@ int str_to_uint32t(uint32_t *rval, char *str)
   return(1);
 }
 
+/* ========================================================================= */
+void eat_ws(char **shand)
+{
+   /* Without the local copy, the compiler complained
+      that the value was never used. It was pass by
+      reference, and the C compiler did not figure that
+      out. */
+   char *str;
+
+   str = *shand;
+
+   /* Walk off leading white space */
+   while ((*str == ' ')||(*str == '\t'))
+      str++;
+
+   *shand = str;
+}
 

@@ -17,8 +17,12 @@
  PREMERGE.2  1/26/16 - Cloned from github.com
  --------------------- END
     0.4.0    1/26/16 - The merge, updates to this file
+    0.5.0    1/28/16 - Making the bp part of the Makefile 'dominate' after
+                       the merge. Merging some of the make build dependencies
+                       and formatting.
+                     - Added in the options.code (still somewhat minimalistic).
 */
-#define VERSION_STRING "0.4.0"
+#define VERSION_STRING "0.5.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
@@ -29,18 +33,18 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Pull out all references to support.c. This was always a temp file that
+       would be covered by the proper functions in strlib.h/c.
+   [ ] The help output has a few different output methods. These are not
+       covered in the options struct (with appropriate flags), nor is the
+       help output clear on what the options mean. (Specifically: The output
+       needs to relate that this option modifies the output format.)
    [ ] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
    [ ] Remove all unnessary (redundant) error message handling.
    [ ] Hide all the debug messages behind pre-processor directives.
    [ ] Put this string into the test framework.
-   [ ] Doh! You never wrote the code to parse an "enum list". That has the
-       following syntax (for a 1-byte boolean):
-	    { 0 = "no"; default = "yes" }
-       This is the point of the EnumList and EnumPair structs at the top of
-	    bpfparse.h.
-   [ ] Rename the binary directory to "bp".
    [ ] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [ ] Document the BPF file format somewhere - at least in text. Perhaps
        write a mBNF ruleset for the file.
@@ -65,6 +69,13 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [ ] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [W] Rename the binary directory to "bp". WITHDRAWN: The repo is "binparse"
+       so, there you go.
+   [X] Doh! You never wrote the code to parse an "enum list". That has the
+       following syntax (for a 1-byte boolean):
+	    { 0 = "no"; default = "yes" }
+       This is the point of the EnumList and EnumPair structs at the top of
+	    bpfparse.h.
    [X] The lineno is not set.
    [X] The ParsePoint list needs to have a 2nd-pass "compile".
    [X] Establish primary data structures.
