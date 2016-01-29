@@ -26,7 +26,10 @@
                        and setting the config file executable / magic option.
                      - Integrated (minimally) the enum parsing code.
                      - grep $TUB * | wc -l ----> 80
-    0.6.0    1/29/16 - 
+    0.6.0    1/29/16 - Enum parsing integration is largely complete.
+                     - Moved in the Entity parsing. Integration requires a
+                       bit of refactoring of code. It is cleaner, but my
+                       scalpel looks more like a hatchet.
 */
 #define VERSION_STRING "0.6.0"
 /*
@@ -39,16 +42,19 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Offset can be 0, but size cannot. This should be validated during one
+       of the passes. Probably during the final pass.
    [ ] When ParsePoints are added, the tag identifiers must be compared to
        insure that they are unique. Tag name collisions are not allowed.
-   [ ] Decide if enum tags can have collisions (with builtins). Decide if
-       builtin enums will be supported.
    [ ] Will you support "defined"/set values. For example:
        settag hdroffset 16
        This would create a tag called hdroffset that is a hard-set value of
        16 (decimal).
    [ ] Write the must= clause support.
-   [ ] pmath "5 6" passes, it should not.
+   [Q] pmath "5 6" passes, it should not. Perhaps it should. It sees 5<space>
+       and considers 5 a valid number. The 6 would be parsed as a different
+       entity / token on the line and fail there. I will keep this here
+       until that is tested. But parsing $(pmath "5 6") into 5 is appropriate. 
    [ ] Eliminate redundant error messages. Make parsing errors consistent
        across all fail points.
    [ ] Write parser for (in-bpf-file) command line options. Such as:
@@ -114,6 +120,8 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [ ] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Decide if enum tags can have collisions (with builtins). Decide if
+       builtin enums will be supported.
    [X] Put this string into the test framework.
    [W] Rename the binary directory to "bp". WITHDRAWN: The repo is "binparse"
        so, there you go.

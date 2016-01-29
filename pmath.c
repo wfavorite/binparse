@@ -5,11 +5,16 @@
 
 #include "pmath.h"
 #include "strlib.h"
-/*
-#define DEBUG(FMTSTR, ...); fprintf(stderr, FMTSTR, ##__VA_ARGS__);
-*/
 
+/* Use this to toggle */
+/* #define PRINT_DEBUG  */
+
+#ifdef PRINT_DEBUG
+#define DEBUG(FMTSTR, ...); fprintf(stderr, FMTSTR, ##__VA_ARGS__);
+#else
 #define DEBUG(x, ...) /* x */
+#endif 
+
 /* ---- Allocators ---- */
 Expression *new_expression(Entity *l_ent, int operation, Entity *r_ent);
 Entity *new_entity(char *raw);
@@ -448,7 +453,7 @@ Entity *parse_token(int *move, char *str)
 
       if ( 0 != (*move = parse_tag(tag, str)) )
       {
-         DEBUG("DEBUG --- parse_numeric(%s, %s) ---> %d\n", tag, str, *move);
+         DEBUG("DEBUG --- parse_tag(%s, %s) ---> %d\n", tag, str, *move);
 
          str += *move;
 
@@ -671,6 +676,14 @@ int parse_numeric(long *val, char *str)
             }
          }
          
+         return((int)(str - start));
+      }
+
+      /* See if the leading zero was the *only* numerid (therefore zero) */
+      if (( *str == ' ' ) || ( *str == '\t' ) || ( *str == 0 ) || ( *str == ')' ))
+      {
+         /* This is a leading zero - that IS zero */
+         *val = 0;
          return((int)(str - start));
       }
 

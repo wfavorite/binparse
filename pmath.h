@@ -1,6 +1,26 @@
 #ifndef PMATH_H
 #define PMATH_H
 
+#include "bpdata.h"
+ 
+/* ========================================================================= */
+Entity *ParseEntity(char *str);
+
+/* ========================================================================= */
+void DBG_dump_entity(int r, Entity *e);
+
+#endif
+
+
+
+
+
+
+
+
+
+
+#ifdef STUB_REMOVE
 /* STUB: This is not a valid define name. Use what is set elsewhere. */
 #define MAX_TAG_LEN 20
 
@@ -36,11 +56,4 @@ typedef struct expression
    struct entity *right;
    int operation;
 } Expression;
- 
-/* ========================================================================= */
-Entity *ParseEntity(char *str);
-
-/* ========================================================================= */
-void DBG_dump_entity(int r, Entity *e);
-
 #endif

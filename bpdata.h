@@ -16,6 +16,65 @@
 
 
 
+
+
+
+
+
+
+
+
+/* ========================================================================= */
+#define ETYPE_NOTYP 0    /* No type - not set                                */
+#define ETYPE_VALUE 1    /* The type is a value                              */
+#define ETYPE_MEXPR 2    /* The type is an expression                        */
+#define ETYPE_TAGCP 3    /* The type is a tag (char *)                       */
+#define ETYPE_TAGRS 4    /* The type is a tag (resolved)                     */
+
+typedef struct entity
+{
+   char *raw;
+   int type;
+   union
+   {
+      long value;
+      struct expression *math;
+      void *tag;
+   } u;
+} Entity;
+
+/* ========================================================================= */
+#define EXPOP_NOP   0     /* No op - initial/error state                     */
+#define EXPOP_ADD   1     /* '+'                                             */
+#define EXPOP_SUB   2     /* '-'                                             */
+#define EXPOP_MUL   3     /* '*'                                             */
+#define EXPOP_DIV   4     /* '/'                                             */
+
+typedef struct expression
+{
+   struct entity *left;
+   struct entity *right;
+   int operation;
+} Expression;
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 typedef int EVType;
 
 typedef struct envp
@@ -93,12 +152,30 @@ typedef struct enumbase
 
 typedef struct ParsePoint
 {
-  unsigned long offset;    /* Valid if otag is NULL                         */
-  char *otag;              /* Use offset if this is NULL                    */
-  struct ParsePoint *opp;  /* Set this (2nd pass) if otag is not NULL       */
-  unsigned long size;      /* This is really too big, but it is consistent  */
-  char *stag;              /* Use size if this is NULL                      */
-  struct ParsePoint *spp;  /* Set this (2nd pass) if stag is not NULL       */
+#ifdef STUB_REMOVE
+   unsigned long offset;    /* Valid if otag is NULL                         */
+   char *otag;              /* Use offset if this is NULL                    */
+   struct ParsePoint *opp;  /* Set this (2nd pass) if otag is not NULL       */
+#endif
+
+   Entity *Offset;
+
+#ifdef STUB_REMOVE
+   unsigned long size;      /* This is really too big, but it is consistent  */
+   char *stag;              /* Use size if this is NULL                      */
+   struct ParsePoint *spp;  /* Set this (2nd pass) if stag is not NULL       */
+#endif
+
+   Entity *Size;
+
+
+
+
+
+
+
+
+
   char *tag;               /* Shorthand name for this data item             */
   char *label;             /* Printable name for this data item             */
   void *data;              /* A pointer to the data item/type               */

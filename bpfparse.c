@@ -9,6 +9,7 @@
 #include "bpfparse.h"
 #include "strlib.h"
 #include "penum.h"
+#include "pmath.h"
 
 #define MAX_LINE_LEN 1024
 
@@ -147,13 +148,21 @@ ParsePoint *new_parsepoint(void)
     return(NULL);
 
   /* Offset related values */
+#ifdef STUB_REMOVE
   pp->offset = 0;
   pp->otag = NULL;
   pp->opp = NULL;
+#endif
+  pp->Offset = NULL;
+
   /* Size related values */
+#ifdef STUB_REMOVE
   pp->size = 0;
   pp->stag = NULL;
   pp->spp = NULL;
+#endif
+  pp->Size = NULL;
+
   /* The tag */
   pp->tag = NULL;
   /* The label */
@@ -184,6 +193,8 @@ ParsePoint *get_parse_point(int lineno, char *line)
   char raw_label[MAX_TOKEN_LEN];
   char raw_dt[MAX_TOKEN_LEN];
   uint32_t nval;
+
+  Entity *e;
   
   if ( strlen(line) <= 10 )
     return(NULL);
@@ -221,11 +232,25 @@ ParsePoint *get_parse_point(int lineno, char *line)
      Set the tags_resolved flag to not-resolved (0) when a tag is inserted. */
   pp->tags_resolved = 1;
   
+  /* STUB: Nope, with the new code, let's assume they are unresolved. */
+  pp->tags_resolved = 0;
+
   /*** Copy everything into the ParsePoint ***/
 
   /* The lineno */
   pp->lineno = lineno;
   
+  /* The offset */
+  if ( NULL != ( e = ParseEntity(raw_offset) ) )
+  {
+     DBG_dump_entity(0, e);
+     pp->Offset = e;
+  }
+
+
+  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+#ifdef STUB_REMOVE_THIS
+
   if ( isanynum(raw_offset) )
   {
     if ( str_to_uint32t(&nval, raw_offset) )
@@ -249,6 +274,20 @@ ParsePoint *get_parse_point(int lineno, char *line)
     /* We have an unresolved tag. Mark our tags as unresolved */
     pp->tags_resolved = 0;
   }
+#endif
+  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+
+
+  /* The offset */
+  if ( NULL != ( e = ParseEntity(raw_size) ) )
+  {
+     DBG_dump_entity(0, e);
+     pp->Size = e;
+  }
+
+
+  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+#ifdef STUB_REMOVE_THIS
 
   if ( isanynum(raw_size) )
   {
@@ -273,6 +312,14 @@ ParsePoint *get_parse_point(int lineno, char *line)
     /* We have an unresolved tag. Mark our tags as unresolved */
     pp->tags_resolved = 0;
   }
+#endif
+  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+
+
+
+
+
+
 
   pp->tag = mkstring(raw_tag);
   pp->label = mkstring(raw_label);
@@ -371,15 +418,9 @@ RuleSet *ParseBPFFile(Options *o)
       line = leadingwst(line);  /* Kill leading WS */
       hash_trunc(line);         /* Truncate Hash based comments */
 
-      /* STUB: Sniff the line here */
+      /* Line sniff for enum */
       if ( IsEnumLine(line) )
       {
-         /* STUB: Several problems here:
-            STUB:  1. Return value is error?
-            STUB:  2. Pass the File struct, not the line
-            STUB:  3. Add parsed item to the enum list
-         */
-         
          if ( NULL != ( e = ParseEnum(line) ) )
          {
             /* This needs to be 'uniquely sorted' into the list (to avoid
@@ -396,9 +437,10 @@ RuleSet *ParseBPFFile(Options *o)
          continue;
       }
 
-      /* STUB: Check for "set" or "define" lines to parse.
-         STUB:   Note: this is not exatcly defined yet.
-      */
+      /* STUB: Line sniff for htagXXXX */
+
+      /* STUB: Line sniff for option */
+
 
 
       if ( NULL != (pp = get_parse_point(f->lineno, line)) )
@@ -413,10 +455,12 @@ RuleSet *ParseBPFFile(Options *o)
          {
             /* Print verbose debuggery */
             printf("%03d:%s\n", f->lineno, line);
-            printf(" pp->offset = %lu\n", pp->offset);
+#ifdef STUB_REMOVE
+            printf(" pp->offset = %lu\n", pp->offset); */
             printf(" pp->otag   = %s\n", pp->otag);
             printf(" pp->size   = %lu\n", pp->size);
             printf(" pp->stag   = %s\n", pp->stag);
+#endif
             /* STUB: data type? */
             printf(" pp->tag    = %s\n", pp->tag);
             printf(" pp->label  = %s\n", pp->label);
@@ -445,41 +489,117 @@ RuleSet *ParseBPFFile(Options *o)
  */
 int resolve_tag(RuleSet *rs, ParsePoint *pp)
 {
-  ParsePoint *thispp;
+   ParsePoint *thispp;
 
-  /*** Resolve the offset tag first ***/
-  if ( pp->otag )
-  {
-    /* Offset is a tag (that needs to be resolved) */
-    thispp = rs->pplist;
-    while ( thispp )
-    {
-      if ( 0 == strcmp(pp->otag, thispp->tag) )
+   /*** Resolve the offset tag first ***/
+   if ( pp->Offset->type == ETYPE_TAGCP )
+   {
+      /* Offset is a tag (that needs to be resolved) */
+      thispp = rs->pplist;
+      while ( thispp )
       {
-	if ( pp == thispp )
-	{
-	  fprintf(stderr, "-------------------------------------------------------------------------------\n");
-	  fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", pp->otag, pp->lineno);
-	  fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
-	  return(1);
-	}
+         if ( 0 == strcmp(pp->Offset->u.tag, thispp->tag) )
+         {
+            if ( pp == thispp )
+            {
+               fprintf(stderr, "-------------------------------------------------------------------------------\n");
+               fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", pp->Offset->u.tag, pp->lineno);
+               fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
+               return(1);
+            }
 	
-	/* Fall through to success */
-	pp->opp = thispp;
+            /* Fall through to success */
+            pp->Offset->u.tag = thispp;
+            pp->Offset->type = ETYPE_TAGRS;    /* Mark tag resolved */
+         }
+         thispp = thispp->next;
       }
-      thispp = thispp->next;
-    }
 
-    if ( NULL == pp->opp )
-    {
-      fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
-      fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", pp->otag);
-      fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-      return(1);
-    }
-  }
+      
+      if ( pp->Offset->type == ETYPE_TAGCP )
+      {
+         fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", pp->Offset->u.tag);
+         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+         return(1);
+      }
+   }
 
-  /*** Resolve the size tag next ***/
+
+
+#ifdef STUB_OLD_METHOD
+   if ( pp->otag )
+   {
+      /* Offset is a tag (that needs to be resolved) */
+      thispp = rs->pplist;
+      while ( thispp )
+      {
+         if ( 0 == strcmp(pp->otag, thispp->tag) )
+         {
+            if ( pp == thispp )
+            {
+               fprintf(stderr, "-------------------------------------------------------------------------------\n");
+               fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", pp->otag, pp->lineno);
+               fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
+               return(1);
+            }
+	
+            /* Fall through to success */
+            pp->opp = thispp;
+         }
+         thispp = thispp->next;
+      }
+
+      if ( NULL == pp->opp )
+      {
+         fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", pp->otag);
+         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+         return(1);
+      }
+   }
+#endif
+
+
+   /*** Resolve the size tag next ***/
+   if ( pp->Size->type == ETYPE_TAGCP )
+   {
+      /* Size is a tag (that needs to be resolved) */
+      thispp = rs->pplist;
+      while ( thispp )
+      {
+         if ( 0 == strcmp(pp->Size->u.tag, thispp->tag) )
+         {
+            if ( pp == thispp )
+            {
+               fprintf(stderr, "-------------------------------------------------------------------------------\n");
+               fprintf(stderr, "Tag resolution failure. Size tag \"%s\" on line %d\n", pp->Size->u.tag, pp->lineno);
+               fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
+               return(1);
+            }
+	
+            /* Fall through to success */
+            pp->Size->u.tag = thispp;
+            pp->Size->type = ETYPE_TAGRS;    /* Mark tag resolved */
+         }
+         thispp = thispp->next;
+      }
+
+      
+      if ( pp->Size->type == ETYPE_TAGCP )
+      {
+         fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the size tag \"%s\"\n", pp->Size->u.tag);
+         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+         return(1);
+      }
+   }
+
+
+
+
+
+#ifdef STUB_OLD_METHOD
   if ( pp->stag )
   {
     /* Size is a tag (that needs to be resolved) */
@@ -510,6 +630,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
       return(1);
     }
   }
+#endif
 
   /* If we got here, then all tags for this item are resolved. */
   pp->tags_resolved = 1;
