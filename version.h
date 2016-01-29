@@ -30,6 +30,10 @@
                      - Moved in the Entity parsing. Integration requires a
                        bit of refactoring of code. It is cleaner, but my
                        scalpel looks more like a hatchet.
+                     - Where I am: The Entity parsing has been moved into
+                       get_parse_point(). Second pass needs to be modified
+                       for this new structure / method.
+                     - grep $TUB * | wc -l ----> 78
 */
 #define VERSION_STRING "0.6.0"
 /*
@@ -42,6 +46,10 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] The calls to ParseEntity() inside get_parse_point() do not have the
+       line numbers passed, nor do they have proper exception handling.
+   [ ] The copy_out_nth_token() code (most likely) does not properly parse
+       (mete out) the tokens. Add the proposed algo to fix this.
    [ ] Offset can be 0, but size cannot. This should be validated during one
        of the passes. Probably during the final pass.
    [ ] When ParsePoints are added, the tag identifiers must be compared to

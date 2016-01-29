@@ -147,22 +147,10 @@ ParsePoint *new_parsepoint(void)
   if (NULL == (pp = (ParsePoint *)malloc(sizeof(ParsePoint))))
     return(NULL);
 
-  /* Offset related values */
-#ifdef STUB_REMOVE
-  pp->offset = 0;
-  pp->otag = NULL;
-  pp->opp = NULL;
-#endif
+  /* Offset value */
   pp->Offset = NULL;
-
-  /* Size related values */
-#ifdef STUB_REMOVE
-  pp->size = 0;
-  pp->stag = NULL;
-  pp->spp = NULL;
-#endif
+  /* Size value */
   pp->Size = NULL;
-
   /* The tag */
   pp->tag = NULL;
   /* The label */
@@ -455,12 +443,7 @@ RuleSet *ParseBPFFile(Options *o)
          {
             /* Print verbose debuggery */
             printf("%03d:%s\n", f->lineno, line);
-#ifdef STUB_REMOVE
-            printf(" pp->offset = %lu\n", pp->offset); */
-            printf(" pp->otag   = %s\n", pp->otag);
-            printf(" pp->size   = %lu\n", pp->size);
-            printf(" pp->stag   = %s\n", pp->stag);
-#endif
+            printf(" pp->Offset->type = %d\n", pp->Offset->type);
             /* STUB: data type? */
             printf(" pp->tag    = %s\n", pp->tag);
             printf(" pp->label  = %s\n", pp->label);
