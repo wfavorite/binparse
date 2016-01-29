@@ -8,6 +8,7 @@
 
 #include "bpfparse.h"
 #include "strlib.h"
+#include "penum.h"
 
 #define MAX_LINE_LEN 1024
 
@@ -19,7 +20,7 @@ typedef struct File
   int eof;       /* Set when eof is reached      */
   char line[MAX_LINE_LEN + 4]; /* 4 keeps me aligned */
 } File;
-  
+
 
 /* ========================================================================= */
 RuleSet *new_ruleset(void)
@@ -32,9 +33,14 @@ RuleSet *new_ruleset(void)
     return(NULL);
   }
 
-  rs->pplist = NULL;    /* Start with an empty list.          */
-  rs->parserr = 0;      /* No errors at this time.            */
-  rs->pass = 0;         /* No pass has been completed         */
+  rs->pplist = NULL;    /* Start with an empty list.                        */
+  rs->parserr = 0;      /* No errors at this time.                          */
+  rs->pass = 0;         /* No pass has been completed                       */
+
+  rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
+  
+  if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
+     return(NULL);
 
   return(rs);
 }
@@ -167,7 +173,6 @@ ParsePoint *new_parsepoint(void)
 }
 
 /* ========================================================================= */
-#define MAX_TOKEN_LEN 64
 /* STUB: You gotta pass the lineno! It is used to fill the pp, but also to
    STUB:    indicate where the error was found in the file. */
 ParsePoint *get_parse_point(int lineno, char *line)
@@ -330,6 +335,7 @@ RuleSet *ParseBPFFile(Options *o)
 {
    RuleSet *rs;
    ParsePoint *pp;
+   Enum *e;
    File *f;
    char *line;
    char *filename;
@@ -349,6 +355,7 @@ RuleSet *ParseBPFFile(Options *o)
       return(NULL);
    }
 
+   /* Create a new base ruleset */
    if ( NULL == ( rs = new_ruleset() ) )
       return(NULL);
 
@@ -373,8 +380,17 @@ RuleSet *ParseBPFFile(Options *o)
             STUB:  3. Add parsed item to the enum list
          */
          
-         ParseEnum(line);
-
+         if ( NULL != ( e = ParseEnum(line) ) )
+         {
+            /* This needs to be 'uniquely sorted' into the list (to avoid
+               collisions). See commentary on the InsertEnum() declaration.  */
+            if ( InsertEnum(rs, e) )
+            {
+               /* Error message at point of failure */
+               return(NULL);
+            }
+         }
+         
          /* Line was enum. Don't try to parse as something else.
             Instead, go get another line. */
          continue;
@@ -498,7 +514,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
   /* If we got here, then all tags for this item are resolved. */
   pp->tags_resolved = 1;
   return(0);
-}  
+} 
 
 /* =========================================================================
  * Name: ResolveTags
@@ -510,29 +526,29 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
  */
 int ResolveTags(RuleSet *rs)
 {
-  ParsePoint *thispp;
+   ParsePoint *thispp;
   
-  assert( NULL != rs );
-  /* STUB: This second assert should not be:
-     STUB:  1. required. It should be checked elsewhere.
-     STUB:  2. an assert(). It should be handled as a message to
-     STUB:     the user that the list is empty. */
-  assert( NULL != rs->pplist );
-
-  thispp = rs->pplist;
-  while ( thispp )
-  {
-    if ( 0 == thispp->tags_resolved ) 
-    {
-      if ( resolve_tag(rs, thispp) )
+   assert( NULL != rs );
+   /* STUB: This second assert should not be:
+      STUB:  1. required. It should be checked elsewhere.
+      STUB:  2. an assert(). It should be handled as a message to
+      STUB:     the user that the list is empty. */
+   assert( NULL != rs->pplist );
+   
+   thispp = rs->pplist;
+   while ( thispp )
+   {
+      if ( 0 == thispp->tags_resolved ) 
       {
-	/* Print the error at point of failure. Standard stuff... */
-	return(1);
+         if ( resolve_tag(rs, thispp) )
+         {
+            /* Print the error at point of failure. Standard stuff... */
+            return(1);
+         }
       }
-    }
-
-    thispp = thispp->next;
-  }
-
-  return(0);
+      
+      thispp = thispp->next;
+   }
+   
+   return(0);
 }

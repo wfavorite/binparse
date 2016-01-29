@@ -53,7 +53,7 @@ pmath.o: pmath.c pmath.h strlib.h
 	@$(CC) $(CCOPTS) -c $<
 	@printf "."
 
-penum.o: penum.c penum.h strlib.h
+penum.o: penum.c penum.h bpdata.h strlib.h
 	@$(CC) $(CCOPTS) -c $<
 	@printf "."
 
@@ -71,7 +71,7 @@ main.o: main.c options.h bpfparse.h version.h strlib.h
 	@$(CC) $(CC_OPTS) -c main.c
 	@printf "."
 
-bpfparse.o: bpfparse.c bpfparse.h strlib.h pmath.h penum.h
+bpfparse.o: bpfparse.c bpfparse.h strlib.h pmath.h penum.h bpdata.h
 	@$(CC) $(CC_OPTS) -c bpfparse.c
 	@printf "."
 

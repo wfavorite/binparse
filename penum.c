@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "penum.h"
 #include "strlib.h"
@@ -240,8 +241,8 @@ Enum *ParseEnum(char *estr)
 }
 
 /* ========================================================================= */
-#define ENVP_NORMAL  0
-#define ENVP_DEFAULT 1
+#define ENVP_NORMAL  0  /* This is a normal name/value pair                  */
+#define ENVP_DEFAULT 1  /* This name value pair has the default value        */
 ENVP *new_envp(int type)
 {
    ENVP *ep;
@@ -257,7 +258,11 @@ ENVP *new_envp(int type)
       else
          ep->next = NULL;
    }
-   /* STUB: Should we {}else{FAIL}? */
+   else
+   {
+      fprintf(stderr, "ERROR: Failed to allocate memory for enum structure.\n");
+      /* Fall through to error (return NULL) */
+   }
 
    return(ep);
 }
@@ -455,4 +460,125 @@ ENVP *parse_enum_pair(int *moved, char *estr)
    }
 
    return(ep);
+}
+
+/* ========================================================================= */
+int InsertEnum(RuleSet *rs, Enum *e)
+{
+   Enum *thise;
+
+   assert(NULL != rs);
+   assert(NULL != e);
+
+   thise = rs->elist;
+   while(thise)
+   {
+      if ( 0 == strcmp(e->tag, thise->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum naming collision. Two enums are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thise = thise->next;
+   }
+
+   /* If we made it here, then we are unique (on the user-defined list) */
+   e->next = rs->elist;
+   rs->elist = e;
+
+   return(0);
+}
+
+/* ========================================================================= */
+Enum *new_enum(char *tag, char *raw)
+{
+   Enum *e;
+
+   if (NULL == (e = (Enum *)malloc(sizeof(Enum))))
+   {
+      fprintf(stderr, "ERROR: Failed to allocate memory for base enum structure.\n");
+      return(NULL);
+   }
+
+   if ( NULL != tag )
+      e->tag = nc_mkstring(tag);
+   else
+      e->tag = NULL;
+
+   if ( NULL != raw )
+      e->raw = nc_mkstring(raw);
+   else
+      e->raw = NULL;
+
+   e->defval = NULL;  /* Pointer to default value ENVP */
+   e->elist = NULL;   /* Linked list of non-default ENVPs */
+   e->next = NULL;    /* Linked list of Enums (a greater thing (not a "sub-"thing)) */
+
+   return(e);
+}
+
+/* ========================================================================= */
+int ApplyBuiltins(RuleSet *rs)
+{
+   Enum *e;
+
+   assert(NULL != rs); /* This should never be NULL */
+
+   /* There are three builtins (at this time). They are largely copies of
+      each other (variants of each other). I put comments on the first 
+      builtin, and just code for the other two. */
+
+
+   /*** enumBool = True/False ***/
+   if ( NULL == ( e = new_enum("enumBool", "enumBool = { 0:False; default:True; }") ) )
+      return(1);
+
+   if ( NULL == ( e->defval = new_envp(ENVP_DEFAULT) ) )
+      return(1); /* Error msg is at point of failure. */
+   /* don't set the value for a default value ENVP */
+   e->defval->name = nc_mkstring("True");
+
+   if ( NULL == ( e->elist = new_envp(ENVP_NORMAL) ) )
+      return(1); /* Error msg is at point of failure. */
+   e->elist->value = 0;
+   e->elist->name = nc_mkstring("False");
+
+   /* Into the linked list */
+   e->next = rs->belist;
+   rs->belist = e;
+
+   /*** enumBOOL = TRUE/FALSE ***/
+   if ( NULL == ( e = new_enum("enumBOOL", "enumBOOL = { 0:FALSE; default:TRUE; }") ) )
+      return(1);
+
+   if ( NULL == ( e->defval = new_envp(ENVP_DEFAULT) ) )
+      return(1);
+   e->defval->name = nc_mkstring("TRUE");
+
+   if ( NULL == ( e->elist = new_envp(ENVP_NORMAL) ) )
+      return(1);
+   e->elist->value = 0;
+   e->elist->name = nc_mkstring("FALSE");
+
+   e->next = rs->belist;
+   rs->belist = e;
+
+   /*** enumbool = true/false ***/
+   if ( NULL == ( e = new_enum("enumbool", "enumbool = { 0:false; default:true; }") ) )
+      return(1);
+
+   if ( NULL == ( e->defval = new_envp(ENVP_DEFAULT) ) )
+      return(1);
+   e->defval->name = nc_mkstring("true");
+
+   if ( NULL == ( e->elist = new_envp(ENVP_NORMAL) ) )
+      return(1);
+   e->elist->value = 0;
+   e->elist->name = nc_mkstring("false");
+
+   e->next = rs->belist;
+   rs->belist = e;
+
+   return(0);
 }

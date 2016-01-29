@@ -26,8 +26,9 @@
                        and setting the config file executable / magic option.
                      - Integrated (minimally) the enum parsing code.
                      - grep $TUB * | wc -l ----> 80
+    0.6.0    1/29/16 - 
 */
-#define VERSION_STRING "0.5.0"
+#define VERSION_STRING "0.6.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should

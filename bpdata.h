@@ -1,62 +1,78 @@
-#ifndef BPFPARSE_H
-#define BPFPARSE_H
+#ifndef BPDATA_H
+#define BPDATA_H
 
-#include "options.h"
-#include "bpdata.h"
 
-/* =========================================================================
- * Name: ParseBPFFile
- * Desc: Parse a RuleSet out of a Binary Parse Format file
- * Params:
- * Returns:
- * Side Effects:
- * Notes:
- */
-RuleSet *ParseBPFFile(Options *o);
 
-/* =========================================================================
- * Name: ResolveTags
- * Desc: Walk through the ParsePoint list and resolve all tags.
- * Params:
- * Returns: 0 on successful tag resolution
- * Side Effects:
- * Notes: Aka: 2nd pass resolution
- */
-int ResolveTags(RuleSet *rs);
+/* This is the value used in bpfparse.c for get_parse_point() */
+#define MAX_TOKEN_LEN 64
 
-#endif
+
+/* STUB: This is not a valid define name. Use what is set elsewhere. */
+#define MAX_TAG_LEN 20
+
+/* STUB: This is proposed. Needs to be properly evaluated */
+#define MAX_EVP_NAME_LEN 16
 
 
 
 
+typedef int EVType;
 
-
-
-
-
-
-
-
-
-
-/*                               STUB REMOVE                                 */
-/* VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV */
-
-
-#ifdef STUB_REMOVE
-/* STUB: This was from an earlier design. I have no clue what it would
-   STUB:   be used for here. */
-typedef struct EnumPair
+typedef struct envp
 {
-   void *value;
-   char *label;
-} EnumPair;
+   EVType value;
+   char *name;
 
-typedef struct EnumList
+   struct envp *next; /* Used to create a linked list... but also to 
+                         flag the type of envp this is:
+                           (next = NULL) ---> normal
+                           (next = this) ---> default value
+                      */
+} ENVP;
+
+
+typedef struct enumbase
 {
-   EnumPair *plist;
-   char *deflabel;
-} EnumList;
+   char *raw;
+   char *tag; /* STUB: This does not need a malloc() could be static */
+   struct envp *defval;  /* A single default value ENVP. Do NOT follow this
+                            as a linked list. The linked list item is
+                            self-referential. It is a way of detecting the
+                            default value when it gets handled around. */
+   struct envp *elist;   /* This is the list of ENVP (enum name value 
+                            pairs) that are the non-default values. */
+   struct enumbase *next;
+} Enum;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*** Defines for the ParsePoint->dt value ***/
 /* First used in get_parse_point() */
@@ -100,12 +116,20 @@ typedef struct ParsePoint
   struct ParsePoint *next; /* Used to build the RuleSet->rulelist of pps    */
 } ParsePoint;
 
+
+
 typedef struct RuleSet
 {
   ParsePoint *pplist;     /* The list of parsed rule data points            */
+   Enum *elist;           /* The list of parsed enums                       */
+   Enum *belist;          /* The list of builtin enums                      */
+
+
   int parserr;
   int pass;               /* The pass that was completed */
 
 } RuleSet;
+
+
 
 #endif
