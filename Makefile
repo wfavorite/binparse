@@ -8,9 +8,9 @@ LDOPTS=
 
 
 # This is the stuff merged in (not yet tested)
-bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o
+bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o
 	@printf "Done.\nLinking..."
-	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o
+	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o
 	@printf "Done.\n"
 
 # About the test target
@@ -33,11 +33,11 @@ bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o
 test: ccstart ldstart pmath penum
 	@printf "Done.\n"
 
-pmath: pmath_test.o pmath.o penum.o strlib.o
+pmath: pmath_test.o pmath.o penum.o strlib.o slfile.o
 	@$(LD) $(LD_OPTS) -o pmath $^
 	@printf "."
 
-penum: penum_test.o penum.o pmath.o strlib.o
+penum: penum_test.o penum.o pmath.o strlib.o slfile.o
 	@$(LD) $(LD_OPTS) -o penum $^
 	@printf "."
 
@@ -57,6 +57,10 @@ penum.o: penum.c penum.h bpdata.h strlib.h
 	@$(CC) $(CCOPTS) -c $<
 	@printf "."
 
+slfile.o: slfile.c slfile.h strlib.h
+	@$(CC) $(CCOPTS) -c $<
+	@printf "."
+
 # STUB: Pull this from all code
 #support.o: support.c support.h
 #	@printf "  $< to $@\n"
@@ -71,7 +75,7 @@ main.o: main.c options.h bpfparse.h version.h strlib.h
 	@$(CC) $(CC_OPTS) -c main.c
 	@printf "."
 
-bpfparse.o: bpfparse.c bpfparse.h strlib.h pmath.h penum.h bpdata.h
+bpfparse.o: bpfparse.c bpfparse.h strlib.h slfile.h pmath.h penum.h bpdata.h
 	@$(CC) $(CC_OPTS) -c bpfparse.c
 	@printf "."
 

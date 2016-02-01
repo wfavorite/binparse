@@ -1,5 +1,8 @@
 #!./bp
 
+# Turn on verbosity
+setopt v true
+
 # <offset> <size> <tag> <label> <type> <directive>
 0 2 strsz "String Size" uint16 noprint
 2 strsz strdat "The String" ztstr print

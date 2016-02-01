@@ -48,9 +48,22 @@ int main ( int argc, char *argv[] )
   if ( o->bHelp )
     return(show_help());
 
+  /*** Zeroth pass: Read options from the bpf file ***/
+  if ( o->bVerbose )
+  {
+     /* Odds are, the verbose flag will not be set when starting. */
+     fprintf(stderr, "Pre-compile pass starting.\n");
+  }
+  
+  if ( ParseBPFOptions(o) )
+     return(1);
+
   /*** First pass: Read in parsed items, without tag resolution ***/
   if ( o->bVerbose )
+  {
+    fprintf(stderr, "Pre-compile pass complete.\n");
     fprintf(stderr, "First pass compile starting.\n");
+  }
 
   /* Read in the BPF file */
   if (NULL == (r = ParseBPFFile(o)))
@@ -126,6 +139,8 @@ int show_about(void)
 {
   printf("bp - A binary parse tool\n");
   printf("   Version: %s\n", VERSION_STRING);
+  printf("   Vera Brittain <vbrittain@vad.gov.uk>\n");
+  printf("   William Favorite <wfavorite@tablespace.net>\n");
 
   fflush(stdout);
 

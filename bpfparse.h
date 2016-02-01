@@ -24,5 +24,13 @@ RuleSet *ParseBPFFile(Options *o);
  */
 int ResolveTags(RuleSet *rs);
 
+/* =========================================================================
+ * Name: ParseBPFOptions                                         (cenotaph)
+ * Desc: Read option setting lines out of bpf file
+ * Params:
+ * Returns: 
+ * Side Effects:
+ * Notes: This is actually in options.h/c
+ */
 #endif
 

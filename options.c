@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <unistd.h>
+#include <assert.h>
 
 #include "options.h"
 #include "strlib.h"
-
+#include "slfile.h"
 
 /* ========================================================================= */
 Options *new_options(void)
@@ -139,4 +139,52 @@ Options *ParseOptions(int argc, char *argv[])
 
 
   return(o);
+}
+
+
+
+
+
+/* ========================================================================= */
+int ParseBPFOptions(Options *o)
+{
+   File *f;
+   char *line;
+
+   /* These items are checked elsewhere. This is just a final firewall,
+      and assert()-like errors would be appropriate for an unset filename
+      at this point in the code. */
+   assert(NULL != o);
+   assert(NULL != o->bpffile);
+
+   f = NewFile(o->bpffile);
+
+   /* Now start pulling lines */
+   while(NextLine(f))
+   {
+      /* ...for each line... */
+      line = f->line;
+
+      chomp(line);              /* Kill EOL chars */
+      line = leadingwst(line);  /* Kill leading WS */
+      hash_trunc(line);         /* Truncate Hash based comments */
+
+      /* Line sniff for setting options */
+      if (( line[0] == 's' ) &&
+          ( line[1] == 'e' ) &&
+          ( line[2] == 't' ) &&
+          ( line[3] == 'o' ) &&
+          ( line[4] == 'p' ) &&
+          ( line[5] == 't' ))
+      {
+
+         /* STUB: No options actually parsed at this time */
+         fprintf(stderr, "DEBUG: %s\n", line);
+      }
+   }
+  
+   /* Close the file */
+   EndFile(f);
+
+   return(0);
 }

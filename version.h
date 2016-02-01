@@ -34,8 +34,13 @@
                        get_parse_point(). Second pass needs to be modified
                        for this new structure / method.
                      - grep $TUB * | wc -l ----> 78
+    0.7.0     2/1/16 - Picked an author.
+                     - Moved file operations out of bpfparse.c to slfile.h/c.
+                       This was because I wanted file parsing in options.c
+                       and wanted to use the same "helper" functionality.
+                       Find additional commentary in slfile.h.
 */
-#define VERSION_STRING "0.6.0"
+#define VERSION_STRING "0.7.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should

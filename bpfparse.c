@@ -10,17 +10,7 @@
 #include "strlib.h"
 #include "penum.h"
 #include "pmath.h"
-
-#define MAX_LINE_LEN 1024
-
-typedef struct File
-{
-  FILE *fh;      /* If not NULL, then it is open */
-  int lineno;
-  int readerr;
-  int eof;       /* Set when eof is reached      */
-  char line[MAX_LINE_LEN + 4]; /* 4 keeps me aligned */
-} File;
+#include "slfile.h"
 
 
 /* ========================================================================= */
@@ -75,68 +65,6 @@ int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
 
   /* This is just not going to fail */
   return(1);
-}
-
-/* ========================================================================= */
-File *new_file(char *filename)
-{
-  File *f;
-
-  if ( NULL == ( f = (File *)malloc(sizeof(File)) ) )
-  {
-    fprintf(stderr, "ERROR: Unable to allocate memory for File structure.\n");
-    return(NULL);
-  }
-
-  /* Some basic defaults */
-  f->fh = NULL;  /* File is closed */
-  f->lineno = 0;
-  f->eof = 0;
-  f->readerr = 0;
-  f->line[0] = 0;
-
-  if (NULL == (f->fh = fopen(filename, "r")))
-  {
-    fprintf(stderr, "ERROR: Unable to open \"%s\".\n", mid_trunc(NULL, filename, 40));
-    return(NULL);
-  }
-
-  return(f);
-}
-
-/* ========================================================================= */
-int next_line(File *f)
-{
-  if ( fgets(f->line, MAX_LINE_LEN, f->fh) )
-  {
-    f->lineno++;
-    /* Fall through to success */
-  }
-  else
-  {
-    f->line[0] = 0;
-    f->eof = 1;
-    return(0);
-  }
-
-  /* Non-zero means keep on trucking... */
-  return(1);
-}
-
-/* ========================================================================= */
-int end_file(File *f)
-{
-  if ( f )
-  {
-    if ( f->fh )
-      fclose(f->fh);
-
-    free(f);
-
-    return(0);
-  }
-
-  return(0);
 }
 
 /* ========================================================================= */
@@ -394,10 +322,11 @@ RuleSet *ParseBPFFile(Options *o)
    if ( NULL == ( rs = new_ruleset() ) )
       return(NULL);
 
-   f = new_file(filename);
+   /* STUB: Wow! You don't check status when opening a file!?!?!? */
+   f = NewFile(filename);
 
    /* Now start pulling lines */
-   while(next_line(f))
+   while(NextLine(f))
    {
       /* ...for each line... */
       line = f->line;
@@ -452,7 +381,7 @@ RuleSet *ParseBPFFile(Options *o)
    }
   
    /* Close the file */
-   end_file(f);
+   EndFile(f);
 
    /* STUB: This would be the location to test for an empty pplist item
       STUB:   in the RuleList struct. There is reference to this as an
