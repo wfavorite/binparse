@@ -382,6 +382,8 @@ int copy_out_nth_token(char *tostr, unsigned long len, char *istr, int n)
   if (NULL == (token = nth_token_location(istr, n)))
     return(1);
 
+  /* STUB: Here you need to handle: (), {} (not really), "", and ''.
+     STUB:    And what about escaped quotes? */
   if (( token[0] == '\"' ) || ( token[0] == '\'' ))
   {
     qterm = token[0];

@@ -108,7 +108,9 @@ ParsePoint *get_parse_point(int lineno, char *line)
   char raw_tag[MAX_TOKEN_LEN];
   char raw_label[MAX_TOKEN_LEN];
   char raw_dt[MAX_TOKEN_LEN];
+  char raw_ppopt[MAX_TOKEN_LEN];
   uint32_t nval;
+  int i;
 
   Entity *e;
   
@@ -130,10 +132,6 @@ ParsePoint *get_parse_point(int lineno, char *line)
 
   if ( copy_out_nth_token(raw_dt, MAX_TOKEN_LEN, line, 5) )
     return(NULL);
-
-  /* STUB: Now try 6, 7, 8, until it fails. Take each read
-     STUB:   item and try to match it to an expected pattern such
-     STUB:   as print, noprint, hex, decimal, etc... */
   
   /* If we got here, then we have sufficient data */
   if ( NULL == (pp = new_parsepoint()) )
@@ -143,6 +141,39 @@ ParsePoint *get_parse_point(int lineno, char *line)
        throw and exception and exit. */
     exit(1);
   }
+
+  /* Parse the options (which are *optional*) after parsing the items
+     that are *required*. We do this because they can be more than one,
+     and trying to hold them in some sort of temporary list is a PITA.
+     So lets parse them right into the parse point struct. For this
+     reason, we create the parse point struct before this last set of
+     item(s). */
+#define STUB_ME_OPTIONS
+
+#ifdef STUB_ME_OPTIONS
+  /* Mutually exclusive options - as it stands, you can only use ONE option in
+     a parse point! This is because they are ALL mutually exclusive. This may
+     not always be the case. */
+
+  /* STUB: Now try 6, 7, 8, until it fails. Take each read
+     STUB:   item and try to match it to an expected pattern such
+     STUB:   as print, noprint, hex, decimal, etc... */
+  i = 6;
+  while ( 0 == copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, i) )
+  {
+     /* STUB: Yank the printf, and replace it with some sort of
+        STUB:   insert_pp_option() function that applies the option to
+        STUB:   the parse point. */
+     fprintf(stderr, "DEBUG PPOPT = \"%s\"\n", raw_ppopt);
+
+     i++;
+  }
+#else
+  /* I "re-use" i here. Rename it this code path is chosen */
+  i = copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, 6);
+#endif
+
+
 
   /* Assume that the tags are resolved (because you may not even have tags.
      Set the tags_resolved flag to not-resolved (0) when a tag is inserted. */
@@ -230,10 +261,6 @@ ParsePoint *get_parse_point(int lineno, char *line)
   }
 #endif
   /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-
-
-
-
 
 
 

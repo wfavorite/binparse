@@ -59,3 +59,23 @@ BPF - Binary Parse Format (The language used by bp)
 <ppopt> := "hidden" | <must=> | <enumtag>
 
 <must=> := "must=" <numeric>
+
+________________________________________________
+Current supported "data types" (see <dt> above):
+  uint8
+  int8
+  uint16
+  int16
+  uint32
+  int32
+  uint64
+  int64
+  char     - uint8 represented as a single char string
+  ztstr    - Zero terminated string (may be "fixed size, but it may also
+             terminate *before* the length with a 0)
+  flstr    - Fixed length string. Print all chars and *force* termination
+
+Notes:
+ - There are no "wide" char strings supported
+ - I propose defining "hard-coded" tags. This would have syntax like that
+   of the enum string. Discussion of this can be found in version.h.

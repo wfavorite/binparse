@@ -39,6 +39,9 @@
                        This was because I wanted file parsing in options.c
                        and wanted to use the same "helper" functionality.
                        Find additional commentary in slfile.h.
+                     - Started on file-based options parsing.
+                     - Wrote a BNF-ish ruleset for the BPF file format.
+                     - Started work on cleanup of get_parse_point().
 */
 #define VERSION_STRING "0.7.0"
 /*
@@ -51,6 +54,10 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] The options parsed in the BPF file override those set on the command
+       line. This is reverse of what it *should* be. (Note: At the time of
+       this writing, command-line options are not allowed when setting your
+       BPF file executable and using file magic to get your bp interperter.)
    [ ] The calls to ParseEntity() inside get_parse_point() do not have the
        line numbers passed, nor do they have proper exception handling.
    [ ] The copy_out_nth_token() code (most likely) does not properly parse
@@ -63,6 +70,13 @@
        settag hdroffset 16
        This would create a tag called hdroffset that is a hard-set value of
        16 (decimal).
+       Notes on this issue:
+       1. The "settag" operator is inconsistent with how enums are set.
+       2. A line beginning with a tagXXX (the enumXXX = method) will be
+          indiscernable from parse point lines that can begin with that
+          same tag (in the offset field).
+       3. "settag" and "setenum" operators seem to make the most sense, and
+          are consistent (with each other).
    [ ] Write the must= clause support.
    [Q] pmath "5 6" passes, it should not. Perhaps it should. It sees 5<space>
        and considers 5 a valid number. The 6 would be parsed as a different
@@ -70,7 +84,7 @@
        until that is tested. But parsing $(pmath "5 6") into 5 is appropriate. 
    [ ] Eliminate redundant error messages. Make parsing errors consistent
        across all fail points.
-   [ ] Write parser for (in-bpf-file) command line options. Such as:
+   [_] Write parser for (in-bpf-file) command line options. Such as:
        setopt c         <---- Same as -c
        setopt x myarg   <---- Same as -x myarg
    [ ] Create more sample.bpf files - perhaps they should be part of the test
@@ -110,8 +124,6 @@
    [ ] Remove all unnessary (redundant) error message handling.
    [ ] Hide all the debug messages behind pre-processor directives.
    [ ] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
-   [ ] Document the BPF file format somewhere - at least in text. Perhaps
-       write a mBNF ruleset for the file.
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
    [ ] You should establish size and allocate memory for the data items.
@@ -133,6 +145,8 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [ ] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Document the BPF file format somewhere - at least in text. Perhaps
+       write a mBNF ruleset for the file.
    [X] Decide if enum tags can have collisions (with builtins). Decide if
        builtin enums will be supported.
    [X] Put this string into the test framework.
