@@ -2,6 +2,7 @@
 
 # Turn on verbosity
 setopt v true
+setopt + off
 
 # <offset> <size> <tag> <label> <type> <directive>
 0 2 strsz "String Size" uint16 noprint

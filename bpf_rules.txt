@@ -1,0 +1,61 @@
+This is a BNF-ish rule set for a BPF file.
+
+BNF - https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_Form
+
+BPF - Binary Parse Format (The language used by bp)
+
+[<item>] <------------ <item> is optional
+{<item>} <------------ <item> may repeat
+[{<item>}] <---------- <item> is optional, and may repeat (0 or more)
+
+<bpf file> := <line statement> {<line statement>}
+
+<line statement> := <parse point> | <setopt> | <enum>
+
+<setopt> := "setopt" <ws> <cmd-line option> <ws> <bool> <eol>
+
+<enum> := <enumtag> <ws> "=" <ws> <enum clause>
+
+<parse point> := <offset> <size> <tag> <label> <dt> [{<ppopt>}]
+
+<offset> := <value>
+
+<size> := <value>
+
+<label> := A(n optionally) quoted string that can have spaces
+
+<dt> := See data types in stdint.h (uint32, int8, string, char, etc...)
+
+<enumtag> := "enum"<ident>
+
+<ident> := 4-6 alpha-numeric chars
+
+<enum clause> := "{" [<ws>] <namevalue> {<namevalue>} [<enum default>] "}"
+
+<namevalue> := <numeric> ":" <estring> ";"
+
+<enum default>:= "default:" <estring> ";"
+
+<numeric> := An integer number (most cases decimal or hex)
+
+<estring> := String with no space, nor terminating chars, ("" if has space).
+
+<cmd-line option> := (See ./bp -h for a list)
+
+<ws> := " " | <tab>
+
+<bool> := "true" | "false" | "off" | "on"    <-----(not case sensitive)
+
+<eol> := "\n"
+
+<value> := <numeric> | <tag> | <equation>
+
+<tag> := Char string, no spaces (refers to / identifies a parse point)
+
+<equation> := "(" <value> <operator> <value> ")"
+
+<operator> := "+" | "-" | "*" | "\"
+
+<ppopt> := "hidden" | <must=> | <enumtag>
+
+<must=> := "must=" <numeric>
