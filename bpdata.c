@@ -3,6 +3,7 @@
 
 #include "bpdata.h"
 
+/* ========================================================================= */
 int CountParsePoints(RuleSet *rs)
 {
    ParsePoint *pp;
@@ -16,6 +17,44 @@ int CountParsePoints(RuleSet *rs)
    {
       ctr++;
       pp = pp->next;
+   }
+
+   return(ctr);
+}
+
+/* ========================================================================= */
+int CountParsedEnums(RuleSet *rs)
+{
+   Enum *e;
+   int ctr;
+
+   assert(NULL != rs);
+
+   ctr = 0;
+   e = rs->elist;
+   while(e)
+   {
+      ctr++;
+      e = e->next;
+   }
+
+   return(ctr);
+}
+
+/* ========================================================================= */
+int CountBuiltinEnums(RuleSet *rs)
+{
+   Enum *e;
+   int ctr;
+
+   assert(NULL != rs);
+
+   ctr = 0;
+   e = rs->belist;
+   while(e)
+   {
+      ctr++;
+      e = e->next;
    }
 
    return(ctr);

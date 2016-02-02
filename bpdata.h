@@ -81,32 +81,25 @@ typedef struct expression
    struct entity *right;
    int operation;
 } Expression;
- 
 
+/* ========================================================================= */
+/* ENVP - Enum Name Value Pair
 
+   This is a struct that ties a value to the string to represent that value
+   in output. (It is a single item in an enum.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-typedef int EVType;
-
+   This can also represent the default value if next points to the struct
+   that next is in. (If it is self referential.) This does not qualify me
+   as a genius... it leans more towards making me look like the fool that
+   I am. This is a circular linked list of one. So it is easy to test for
+   but it is also easy to walk a linked list that never ends. Be careful.  */
 typedef struct envp
 {
-   EVType value;
-   char *name;
-
+   BPInt value;       /* The value to match to activate the enum. Note
+                         that the value is ignored when it is the
+                         "default" value. */
+   char *name;        /* This is the string to represent this specific
+                         value when printing. */
    struct envp *next; /* Used to create a linked list... but also to 
                          flag the type of envp this is:
                            (next = NULL) ---> normal
@@ -114,7 +107,21 @@ typedef struct envp
                       */
 } ENVP;
 
+/* ========================================================================= */
+/* Enum - A complete enum structure
 
+   The ENVP only has a name and value pair. An enum has (potentially) MANY
+   name value pairs. This struct holds them.... By holding a list of ENVPs.
+
+   The defval holds a special ENVP that has no value (beacuse the value
+   is any value not explicitly mentioned in the enum. The next pointer in
+   defval ENVP points to itself.
+
+   A default value is required.
+
+   next is used to link all the enums together. There are two lists of them.
+   One is the builtin list. It consists of enums that are included in the
+   build. The other list is those parsed from the BPF file.                  */
 typedef struct enumbase
 {
    char *raw;
@@ -225,7 +232,34 @@ typedef struct RuleSet
    int pass;               /* The pass that was completed */
 } RuleSet;
 
-
+/* =========================================================================
+ * Name: 
+ * Desc: 
+ * Params:
+ * Returns: 
+ * Side Effects: 
+ * Notes: 
+ */
 int CountParsePoints(RuleSet *rs);
+
+/* =========================================================================
+ * Name: 
+ * Desc: 
+ * Params:
+ * Returns: 
+ * Side Effects: 
+ * Notes: 
+ */
+int CountParsedEnums(RuleSet *rs);
+
+/* =========================================================================
+ * Name: 
+ * Desc: 
+ * Params:
+ * Returns: 
+ * Side Effects: 
+ * Notes: 
+ */
+int CountBuiltinEnums(RuleSet *rs);
 
 #endif

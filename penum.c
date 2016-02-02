@@ -215,8 +215,6 @@ Enum *ParseEnum(char *estr)
    move = 0;
    while ( NULL != ( nvp = parse_enum_pair(&move, estr) ) )
    {
-      /* STUB: printf("DEBUG: Parsed an enum pair.\n"); */
-
       if ( nvp->next )
       {
          /* Check default before setting it */
@@ -273,8 +271,6 @@ char *parse_envp_name(char *str)
    int i;
    char name[MAX_EVP_NAME_LEN + 1];
    char *rv;
-
-   /* STUB: fprintf(stderr, "parse_envp_name(%s);\n", str); */
       
    if ( NULL == str )
       return(NULL);
@@ -315,13 +311,6 @@ char *parse_envp_name(char *str)
 
       rv = nc_mkstring(name);
 
-      /* STUB: The old
-      if ( NULL == ( rv = malloc(i + 1) ) )
-         return(NULL);
-
-      strcpy(rv, name);
-      */
-
       return(rv);
    }
    else
@@ -329,8 +318,6 @@ char *parse_envp_name(char *str)
       i = 0;
       while ((str[i] != ';') && (str[i] != ' ') && (str[i] != '}') && (str[i] != '\t'))
       {
-         /* STUB: What is the risk we will run off the end of the string? */
-
          if ( i >= MAX_EVP_NAME_LEN )
             return(NULL);
 
@@ -341,13 +328,6 @@ char *parse_envp_name(char *str)
       name[i] = 0;
 
       rv = nc_mkstring(name);
-
-      /* STUB: The old
-      if ( NULL == ( rv = malloc(i + 1) ) )
-         return(NULL);
-
-      strcpy(rv, name);
-      */
 
       return(rv);
    }
@@ -362,7 +342,7 @@ ENVP *parse_enum_pair(int *moved, char *estr)
 {
    ENVP *ep = NULL;
    /*char value[MAX_TAG_LEN]; / * This value is not entirely appropriate, but safe */
-   EVType value;
+   BPInt value;
    char *start = estr;
 
    if ( estr == NULL )
@@ -405,8 +385,6 @@ ENVP *parse_enum_pair(int *moved, char *estr)
       
       ep->name = parse_envp_name(estr);
       
-      /* STUB: printf("DEBUG: default --> %s\n", ep->name); */
-      
       while ( ( *estr != ';' ) && ( *estr != '}' ) && ( *estr != 0 ) )
          estr++;
       
@@ -445,8 +423,6 @@ ENVP *parse_enum_pair(int *moved, char *estr)
 
       ep->name = parse_envp_name(estr);
       ep->value = value;
-
-      /* STUB: printf("DEBUG: %d --> %s\n", ep->value, ep->name); */
 
       while ( ( *estr != ';' ) && ( *estr != '}' ) && ( *estr != 0 ) )
          estr++;

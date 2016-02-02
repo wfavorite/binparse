@@ -370,8 +370,12 @@ RuleSet *ParseBPFFile(Options *o)
    if ( NULL == ( rs = new_ruleset() ) )
       return(NULL);
 
-   /* STUB: Wow! You don't check status when opening a file!?!?!? */
-   f = NewFile(filename);
+   /* Open the file */
+   if ( NULL == (f = NewFile(filename)) )
+   {
+      /* Message at point of error. */
+      return(NULL);
+   }
 
    /* Now start pulling lines */
    while(NextLine(f))
@@ -493,42 +497,6 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
       }
    }
 
-
-
-#ifdef STUB_OLD_METHOD
-   if ( pp->otag )
-   {
-      /* Offset is a tag (that needs to be resolved) */
-      thispp = rs->pplist;
-      while ( thispp )
-      {
-         if ( 0 == strcmp(pp->otag, thispp->tag) )
-         {
-            if ( pp == thispp )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", pp->otag, pp->lineno);
-               fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
-               return(1);
-            }
-	
-            /* Fall through to success */
-            pp->opp = thispp;
-         }
-         thispp = thispp->next;
-      }
-
-      if ( NULL == pp->opp )
-      {
-         fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
-         fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", pp->otag);
-         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-         return(1);
-      }
-   }
-#endif
-
-
    /*** Resolve the size tag next ***/
    if ( pp->Size->type == ETYPE_TAGCP )
    {
@@ -562,43 +530,6 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
          return(1);
       }
    }
-
-
-
-
-
-#ifdef STUB_OLD_METHOD
-  if ( pp->stag )
-  {
-    /* Size is a tag (that needs to be resolved) */
-    thispp = rs->pplist;
-    while ( thispp )
-    {
-      if ( 0 == strcmp(pp->stag, thispp->tag) )
-      {
-	if ( pp == thispp )
-	{
-	  fprintf(stderr, "-------------------------------------------------------------------------------\n");
-	  fprintf(stderr, "Tag resolution failure. Size tag \"%s\" on line %d\n", pp->stag, pp->lineno);
-	  fprintf(stderr, "   is self referential. A tagged size can not reference the same line.\n");
-	  return(1);
-	}
-	
-	/* Fall through to success */
-	pp->spp = thispp;
-      }
-      thispp = thispp->next;
-    }
-
-    if ( NULL == pp->spp )
-    {
-      fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
-      fprintf(stderr, "Tag resolution failure. Unable to resolve the size tag \"%s\"\n", pp->otag);
-      fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-      return(1);
-    }
-  }
-#endif
 
   /* If we got here, then all tags for this item are resolved. */
   pp->tags_resolved = 1;

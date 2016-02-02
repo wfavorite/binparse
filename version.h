@@ -52,6 +52,7 @@
                      - Added line numbers to parsing errors.
                      - Added verbose pass result status (items parsed count).
                      - Fixed nth token retrieval.
+                     - grep $TUB * | wc -l ----> 78 (from a prev high of 90)
 */
 #define VERSION_STRING "0.8.0"
 /*
@@ -64,6 +65,11 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Insert function toumbstones in slfile.h.
+   [ ] penum.c::parse_enum_pair() does not have lineno.
+   [ ] All error messages in penum.c are inconsistent with general app look
+       and feel.
+   [ ] Finish ParseOptions().
    [ ] The tag member of the union in Entity can be a string and a pointer
        to a parse point. What if it points to an explicit tag? The resolution
        will be different - meaning you need a new type to cover this type of
