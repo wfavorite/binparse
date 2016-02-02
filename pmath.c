@@ -19,9 +19,9 @@
 Expression *new_expression(Entity *l_ent, int operation, Entity *r_ent);
 Entity *new_entity(char *raw);
 /* ---- Parse functions ---- */
-Expression *parse_expr(int *moverv, char *str);
-Entity *parse_token(int *move, char *str);
-int parse_numeric(long *val, char *str);
+Expression *parse_expr(int *moverv, char *str, int lineno);
+Entity *parse_token(int *move, char *str, int lineno);
+int parse_numeric(long *val, char *str, int lineno);
 int parse_tag(char *tag, char *str);
 /* ---- Validate functions (subject to removal */
 int validate_token(char *str);
@@ -103,7 +103,7 @@ int validate_expr(char *str)
 }
 
 /* ========================================================================= */
-Expression *parse_expr(int *moverv, char *str)
+Expression *parse_expr(int *moverv, char *str, int lineno)
 {
    Expression *exp;
 
@@ -111,11 +111,8 @@ Expression *parse_expr(int *moverv, char *str)
    Entity *l_ent;
    Entity *r_ent;
    int operation = EXPOP_NOP;
-   int lineno;
    char *start = str;
    int move;
-
-   lineno = 7; /* STUB: Hard-coded */
 
    DEBUG("Parsing expression: \"%s\".\n", str);
 
@@ -134,7 +131,7 @@ Expression *parse_expr(int *moverv, char *str)
    eat_ws(&str);
 
    /* Parse the first token */
-   if ( NULL == ( l_ent = parse_token(&move, str) ) )
+   if ( NULL == ( l_ent = parse_token(&move, str, lineno) ) )
    {
       /* parse_token() never leaves without an error */
       /* STUB: printf("ERROR: Parsing failed at token \"%s\" line STUB.\n", str); */
@@ -176,7 +173,7 @@ Expression *parse_expr(int *moverv, char *str)
    /* Walk off leading white space */
    eat_ws(&str);
 
-   if ( 0 == ( r_ent = parse_token(&move, str) ) )
+   if ( 0 == ( r_ent = parse_token(&move, str, lineno) ) )
    {
       /* parse_token() never leaves without an error */
       /* printf("Parsing failed at token \"%s\".\n", str); */
@@ -377,16 +374,13 @@ int validate_numeric(char *str)
 }
 
 /* ========================================================================= */
-Entity *parse_token(int *move, char *str)
+Entity *parse_token(int *move, char *str, int lineno)
 {
    Entity *newe = NULL;
    Expression *nexp = NULL;
    long num; /* Used in parse numeric */
    char *start = str;
    char tag[MAX_TAG_LEN];
-   int lineno;
-
-   lineno = 7; /* STUB: Hard-coded */
 
    DEBUG("Parsing token: \"%s\".\n", str);
 
@@ -403,7 +397,7 @@ Entity *parse_token(int *move, char *str)
    }
    else if ( *str == '(' )
    {
-      if ( NULL == (nexp = parse_expr(move, str)) )
+      if ( NULL == (nexp = parse_expr(move, str, lineno)) )
       {
          /* STUB: This likely does not need to exist */
          printf("ERROR: Problems parsing mathematical expression \"%s\" line %d.\n", str, lineno);
@@ -428,7 +422,7 @@ Entity *parse_token(int *move, char *str)
    {
       *move = 0;
 
-      if ( 0 != (*move = parse_numeric(&num, str)) )
+      if ( 0 != (*move = parse_numeric(&num, str, lineno)) )
       {
          DEBUG("DEBUG --- parse_numeric(%ld, %s) ---> %d\n", num, str, *move);
 
@@ -583,14 +577,11 @@ Entity *new_entity(char *raw)
 }
 
 /* ========================================================================= */
-int parse_numeric(long *val, char *str)
+int parse_numeric(long *val, char *str, int lineno)
 {
    char *start = str;
    int isdec = 0;
    int isneg = 0;
-   int lineno;
-
-   lineno = 7; /* STUB: Hard-coded */
 
    /* Walk off leading white space */
    eat_ws(&str);
@@ -632,7 +623,8 @@ int parse_numeric(long *val, char *str)
          return((int)(str - start));
          break;
       default:
-         fprintf(stderr, "ERROR: Problems parsing negative decimal \"%s\" at line %d.\n", start, lineno);
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Problems parsing negative decimal \"%s\" at line %d.\n", start, lineno);
          return(0);
          break;
       }
@@ -841,10 +833,10 @@ void DBG_dump_entity(int r, Entity *e)
 }
 
 /* ========================================================================= */
-Entity *ParseEntity(char *str)
+Entity *ParseEntity(int lineno, char *str)
 {
    Entity *e;
-#ifdef STUB_REMOVE
+#ifdef VALIDATE_TOKEN_FIRST
    int rv;
 #endif
    int move = 0;
@@ -856,20 +848,23 @@ Entity *ParseEntity(char *str)
    if ( *str == 0 )
       return(NULL);
 
-#ifdef STUB_REMOVE
-   /* STUB: Validate it first? */
+#ifdef VALIDATE_TOKEN_FIRST
+   /* Note: The validate code was written first to "work the problem".
+            It was determined that validation can happen during parsing.
+            This means that there is no need to maintain two code trees full
+            of basically the same algo. */
    if ( 0 == ( rv = validate_token(str) ) )
    {
-      printf("Failed to parse entity at \"%s\".\n", str);
+      printf("Failed to parse entity at \"%s\" line number %d.\n", str, lineno);
       return(NULL);
    }
 
    DEBUG("Validated good. >> Moved %d chars.\n", rv);
 #endif
 
-   if ( NULL == ( e = parse_token(&move, str) ) )
+   if ( NULL == ( e = parse_token(&move, str, lineno) ) )
    {
-      printf("ERROR: Unable to parse the token \"%s\".\n", str);
+      printf("ERROR: Unable to parse the token \"%s\" line number %d.\n", str, lineno);
       return(NULL);
    }
 

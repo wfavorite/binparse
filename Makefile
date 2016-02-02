@@ -8,9 +8,9 @@ LDOPTS=
 
 
 # This is the stuff merged in (not yet tested)
-bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o
+bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o
 	@printf "Done.\nLinking..."
-	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o
+	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o
 	@printf "Done.\n"
 
 # About the test target
@@ -60,6 +60,12 @@ penum.o: penum.c penum.h bpdata.h strlib.h
 slfile.o: slfile.c slfile.h strlib.h
 	@$(CC) $(CCOPTS) -c $<
 	@printf "."
+
+bpdata.o: bpdata.c bpdata.h
+	@$(CC) $(CCOPTS) -c $<
+	@printf "."
+
+
 
 # STUB: Pull this from all code
 #support.o: support.c support.h

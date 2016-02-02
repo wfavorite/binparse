@@ -5,8 +5,12 @@ setopt v true
 setopt + off
 
 # <offset> <size> <tag> <label> <type> <directive>
-0 2 strsz "String Size" uint16 hidden
-2 strsz strdat "The String" ztstr
+
+0 ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden
+# This line breaks, but not in a good way
+#0 ( 0 + (somesc + 2)  strsz "String Size" uint16 hidden
+
+2 strsz strdat "The String" ztstr 
 16 4 someval 'Some Value' int32
 someval 1 somesc "single char" char
 

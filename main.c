@@ -62,6 +62,7 @@ int main ( int argc, char *argv[] )
   if ( o->bVerbose )
   {
     fprintf(stderr, "Pre-compile pass complete.\n");
+    fprintf(stderr, "  File-set options parsed : STUB\n");
     fprintf(stderr, "First pass compile starting.\n");
   }
 
@@ -73,6 +74,10 @@ int main ( int argc, char *argv[] )
   if ( o->bVerbose )
   {
     fprintf(stderr, "First pass compile complete.\n");
+    fprintf(stderr, "  Decoded parse points    : %d\n", CountParsePoints(r));
+    fprintf(stderr, "  Decoded enums           : STUB\n");
+    fprintf(stderr, "  Builtin enums           : STUB\n");
+    fprintf(stderr, "  Explicit tags           : STUB\n");
     fprintf(stderr, "Second pass compile starting.\n");
   }
 

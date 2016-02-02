@@ -11,7 +11,7 @@
  * Side Effects: 
  * Notes: 
  */
-Entity *ParseEntity(char *str);
+Entity *ParseEntity(int lineno, char *str);
 
 /* =========================================================================
  * Name: 

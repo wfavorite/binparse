@@ -68,12 +68,17 @@ int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
 }
 
 /* ========================================================================= */
-ParsePoint *new_parsepoint(void)
+ParsePoint *new_parsepoint(int lineno)
 {
   ParsePoint *pp;
 
   if (NULL == (pp = (ParsePoint *)malloc(sizeof(ParsePoint))))
-    return(NULL);
+  {
+     fprintf(stderr, "ERROR: Failed to allocate memory for a parse point.\n");
+     /* We exit because the only way to pass back failure is to pass back a
+        pp with fail_bail set. When failing on a malloc() here, just exit. */
+     exit(1);
+  }
 
   /* Offset value */
   pp->Offset = NULL;
@@ -87,22 +92,79 @@ ParsePoint *new_parsepoint(void)
   pp->data = NULL;
   pp->dt = DT_NULL;
   /* Line number related to this rule */
-  pp->lineno = 0;
+  /* Set lineno because functions that get passed a fresh ParsePoint
+     will rely upon this if they encounter an error. Generally you will be
+     dumping data into this struct (in the early setup), but this one piece
+     of data is always guarenteed to be good. This is "private". */
+  pp->lineno = lineno;
   /* Boolean flags for status */
-  pp->tags_resolved = 0;
-  pp->data_resolved = 0;
+  pp->tags_resolved = 0;   /* Pass 2 not complete */
+  pp->data_resolved = 0;   /* Pass 3 not complete */
   /* Linked list pointer */
   pp->next = NULL;
+  /* Set all the "6th options" to defaults */
+  pp->print_result = 1; /* Always print by default */
+  pp->use_enum = NULL;  /* No enum by default */
+  pp->muste = 0;        /* muste is the flag to read muste_val */
+  pp->fail_bail = 0;
+
   
   return(pp);
 }
 
 /* ========================================================================= */
+int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
+{
+   /* Asserts are more appropriate */
+   assert(NULL != pp);
+   assert(NULL != raw_ppopt);
+
+   /* Walk off any leading ws - this *should* have no effect */
+   eat_ws(&raw_ppopt);
+
+   /* STUB: Check for an empty string */
+
+   /* Ok... this is not a perfect pattern match, but it works with some
+      edge case issues that are likely not an issue.
+   */
+   if ( ( raw_ppopt[0] == 'h' ) &&
+        ( raw_ppopt[1] == 'i' ) &&
+        ( raw_ppopt[2] == 'd' ) &&
+        ( raw_ppopt[3] == 'd' ) &&
+        ( raw_ppopt[4] == 'e' ) &&
+        ( raw_ppopt[5] == 'n' ) )
+   {
+      pp->print_result = 0;
+      return(0);
+   }
+
+   if ( ( raw_ppopt[0] == 'h' ) &&
+        ( raw_ppopt[1] == 'i' ) &&
+        ( raw_ppopt[2] == 'd' ) &&
+        ( raw_ppopt[3] == 'e' ) )
+   {
+      pp->print_result = 0;
+      return(0);
+   }
+
+   /* STUB: Handle must= */
+
+   /* STUB: Handle enum tag */
+
+   fprintf(stderr, "-------------------------------------------------------------------------------\n");
+   fprintf(stderr, "Tag comprehension failure. Directive tag \"%s\" on line %d is not understood.\n", raw_ppopt, pp->lineno);
+   fprintf(stderr, "   Insure that this is a supported tag or is proper case.\n");
+   pp->fail_bail = 1;
+   return(1);
+}
+
+/* ========================================================================= */
 /* STUB: You gotta pass the lineno! It is used to fill the pp, but also to
    STUB:    indicate where the error was found in the file. */
-ParsePoint *get_parse_point(int lineno, char *line)
+ParsePoint *get_parse_point(File *f)
 {
   ParsePoint *pp;
+  Entity *e;
   char raw_offset[MAX_TOKEN_LEN];
   char raw_size[MAX_TOKEN_LEN];
   char raw_tag[MAX_TOKEN_LEN];
@@ -111,18 +173,33 @@ ParsePoint *get_parse_point(int lineno, char *line)
   char raw_ppopt[MAX_TOKEN_LEN];
   uint32_t nval;
   int i;
+  int lineno;
+  char *line;
 
-  Entity *e;
-  
+  assert(NULL != f);
+
+  /* Local use convenience */
+  lineno = f->lineno;
+  line = f->line;
+
+  /* STUB: These return(NULL)s are not very informative! */
+
   if ( strlen(line) <= 10 )
     return(NULL);
   
-
   if ( copy_out_nth_token(raw_offset, MAX_TOKEN_LEN, line, 1) )
     return(NULL);
 
+
   if ( copy_out_nth_token(raw_size, MAX_TOKEN_LEN, line, 2) )
-    return(NULL);
+  {
+     /* fprintf(stderr, "STUB DEBUG: copy_out_nth_token(NONE)\n"); */
+     return(NULL);
+  }
+
+  /*
+  fprintf(stderr, "STUB DEBUG: copy_out_nth_token(%s)\n", raw_size);
+  */
 
   if ( copy_out_nth_token(raw_tag, MAX_TOKEN_LEN, line, 3) )
     return(NULL);
@@ -134,7 +211,7 @@ ParsePoint *get_parse_point(int lineno, char *line)
     return(NULL);
   
   /* If we got here, then we have sufficient data */
-  if ( NULL == (pp = new_parsepoint()) )
+  if ( NULL == (pp = new_parsepoint(lineno)) )
   {
     /* We MUST exit on error here. The only means of failure is a bad
        malloc(). We cannot simply return NULL on a bad malloc(). We must
@@ -161,10 +238,13 @@ ParsePoint *get_parse_point(int lineno, char *line)
   i = 6;
   while ( 0 == copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, i) )
   {
-     /* STUB: Yank the printf, and replace it with some sort of
-        STUB:   insert_pp_option() function that applies the option to
-        STUB:   the parse point. */
-     fprintf(stderr, "DEBUG PPOPT = \"%s\"\n", raw_ppopt);
+     if( handle_ppopt(pp, raw_ppopt) )
+     {
+        /* Doh! something happened. Error at point of failure. Bail. */
+        /* This should be set elsewhere. I set again to be sure. */
+        pp->fail_bail = 1;
+        return(pp);
+     }
 
      i++;
   }
@@ -173,99 +253,35 @@ ParsePoint *get_parse_point(int lineno, char *line)
   i = copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, 6);
 #endif
 
-
-
-  /* Assume that the tags are resolved (because you may not even have tags.
-     Set the tags_resolved flag to not-resolved (0) when a tag is inserted. */
-  pp->tags_resolved = 1;
-  
-  /* STUB: Nope, with the new code, let's assume they are unresolved. */
-  pp->tags_resolved = 0;
-
   /*** Copy everything into the ParsePoint ***/
-
-  /* The lineno */
-  pp->lineno = lineno;
   
   /* The offset */
-  if ( NULL != ( e = ParseEntity(raw_offset) ) )
+  if ( NULL != ( e = ParseEntity(f->lineno, raw_offset) ) )
   {
      DBG_dump_entity(0, e);
      pp->Offset = e;
   }
-
-
-  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-#ifdef STUB_REMOVE_THIS
-
-  if ( isanynum(raw_offset) )
+  else
   {
-    if ( str_to_uint32t(&nval, raw_offset) )
-    {
-      /* STUB: Some sort of error - was a num, but unparsable */
-      fprintf(stderr, "Parse file error: Problems parsing a token.\n  Line: %d\n  Token: %s\n",
-	      lineno, "Offset (1)");
-      
-      return(NULL);
-    }
-    
-    pp->offset = nval;
+     pp->fail_bail = 1;
+     return(pp);
   }
-  else /* offset must be a tag */
-  {
-    if(NULL == (pp->otag = mkstring(raw_offset)))
-    {
-      fprintf(stderr, "ERROR: Failed to allocate memory for a string.");
-      return(NULL);
-    }
-    /* We have an unresolved tag. Mark our tags as unresolved */
-    pp->tags_resolved = 0;
-  }
-#endif
-  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
-
-  /* The offset */
-  if ( NULL != ( e = ParseEntity(raw_size) ) )
+  /* The size */
+  if ( NULL != ( e = ParseEntity(f->lineno, raw_size) ) )
   {
      DBG_dump_entity(0, e);
      pp->Size = e;
   }
-
-
-  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-#ifdef STUB_REMOVE_THIS
-
-  if ( isanynum(raw_size) )
+  else
   {
-    if ( str_to_uint32t(&nval, raw_size) )
-    {
-      /* STUB: Some sort of error - was a num, but unparsable */
-      fprintf(stderr, "Parse file error: Problems parsing a token.\n  Line: %d\n  Token: %s\n",
-	      lineno, "Size (1)");
-      
-      return(NULL);
-    }
-    
-    pp->size = nval;
+     pp->fail_bail = 1;
+     return(pp);
   }
-  else /* size must be a tag */
-  {
-    if(NULL == (pp->stag = mkstring(raw_size)))
-    {
-      fprintf(stderr, "ERROR: Failed to allocate memory for a string.");
-      return(NULL);
-    }
-    /* We have an unresolved tag. Mark our tags as unresolved */
-    pp->tags_resolved = 0;
-  }
-#endif
-  /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
-
-
-  pp->tag = mkstring(raw_tag);
-  pp->label = mkstring(raw_label);
+  /* The two strings (tag and label) */
+  pp->tag = nc_mkstring(raw_tag);
+  pp->label = nc_mkstring(raw_label);
 
   /* Parse the data type (from a string to #define/enum */
   if ( 0 == strcmp(raw_dt, "uint8") )
@@ -308,15 +324,20 @@ ParsePoint *get_parse_point(int lineno, char *line)
     /* What we can do here...
        1. Press on, and try to parse the rest of the items in the file with
           the risk that this line is NOT a dependent line. Throw away the pp
-	  allocation (don't free it - too much trouble not a big deal(?))
+	       allocation (don't free it - too much trouble not a big deal(?))
        2. Return NULL, toss the pp memory reservation - we will be exiting soon.
        3. Adhere to some command line driven option to determine behaviour of
           the application in regards to #1 or #2.
        4. Do one of the three previous items, but free the memory for the pp.
+       5. Return the pp with fail_bail set. This will cause us to error and exit.
     */
-    return(NULL);
+    pp->fail_bail = 1; /* Now you did it. We are exiting on option 5. */
+    return(pp);
   }
 
+  pp->fail_bail = 0; /* Clear any assumed error. (Currently errors are not
+                        assumed - then cleared. It is the opposite. This is
+                        just a bit of safety. */
   return(pp);
 }
 
@@ -387,9 +408,16 @@ RuleSet *ParseBPFFile(Options *o)
 
 
 
-      if ( NULL != (pp = get_parse_point(f->lineno, line)) )
+      if ( NULL != (pp = get_parse_point(f)) )
       {
+         if ( pp->fail_bail )
+         {
+            /* Error message at point of failure */
+            return(NULL);
+         }
+
          add_pp_to_rs(rs, pp); /* This is just not going to fail */
+
          if ( o->bVerbose )
          {
             printf("  Added parse point rule named \"%s\".\n", pp->tag);
@@ -405,6 +433,7 @@ RuleSet *ParseBPFFile(Options *o)
             printf(" pp->label  = %s\n", pp->label);
          }
       }
+      /* EREIAM - Do we want to exit here!?  STUB */
    }
   
    /* Close the file */

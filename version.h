@@ -42,8 +42,18 @@
                      - Started on file-based options parsing.
                      - Wrote a BNF-ish ruleset for the BPF file format.
                      - Started work on cleanup of get_parse_point().
+    0.8.0     2/2/16 - Cleanup and strengthening of code used to parse
+                       lines out of the BPF file.
+                     - Additional documentation of BPF file format.
+                     - Minor dead code removal.
+                     - $tub killing.
+                     - Created bpdata.c to collect stats.
+                     - Started initial foray into parsing the "6th item".
+                     - Added line numbers to parsing errors.
+                     - Added verbose pass result status (items parsed count).
+                     - Fixed nth token retrieval.
 */
-#define VERSION_STRING "0.7.0"
+#define VERSION_STRING "0.8.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
@@ -54,18 +64,25 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] The tag member of the union in Entity can be a string and a pointer
+       to a parse point. What if it points to an explicit tag? The resolution
+       will be different - meaning you need a new type to cover this type of
+       tag to be resolved (and how to resolve it).
+   [_] Verbose mode should show stats at the end of the first (and other)
+       pass(es).
+   [_] handle_ppopt() does not properly get the line number. Nor does it deal
+       with empty strings.
+   [_] The calls to ParseEntity() inside get_parse_point() do not have the
+       line numbers passed, nor do they have proper exception handling.
+   [ ] When ParsePoints are added, the tag identifiers must be compared to
+       insure that they are unique. Tag name collisions are not allowed.
+   [ ] Re-write the enum definition to have an operator word (setenum).
    [ ] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
-   [ ] The calls to ParseEntity() inside get_parse_point() do not have the
-       line numbers passed, nor do they have proper exception handling.
-   [ ] The copy_out_nth_token() code (most likely) does not properly parse
-       (mete out) the tokens. Add the proposed algo to fix this.
    [ ] Offset can be 0, but size cannot. This should be validated during one
        of the passes. Probably during the final pass.
-   [ ] When ParsePoints are added, the tag identifiers must be compared to
-       insure that they are unique. Tag name collisions are not allowed.
    [ ] Will you support "defined"/set values. For example:
        settag hdroffset 16
        This would create a tag called hdroffset that is a hard-set value of
@@ -77,7 +94,7 @@
           same tag (in the offset field).
        3. "settag" and "setenum" operators seem to make the most sense, and
           are consistent (with each other).
-   [ ] Write the must= clause support.
+   [ ] Write the must= clause support. This is in bpfparse.c::handle_ppopt().
    [Q] pmath "5 6" passes, it should not. Perhaps it should. It sees 5<space>
        and considers 5 a valid number. The 6 would be parsed as a different
        entity / token on the line and fail there. I will keep this here
@@ -145,6 +162,8 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [ ] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] The copy_out_nth_token() code (most likely) does not properly parse
+       (mete out) the tokens. Add the proposed algo to fix this.
    [X] Document the BPF file format somewhere - at least in text. Perhaps
        write a mBNF ruleset for the file.
    [X] Decide if enum tags can have collisions (with builtins). Decide if

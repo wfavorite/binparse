@@ -320,109 +320,164 @@ int ispnumeric(char *istr)
 /* ========================================================================= */
 char *nth_token_location(char *istr, int n)
 {
-  int i;
-  int t;
-  char qterm;
+   int i;
+   int t;
+   char qterm;
+   int bcount; /* Boundary/Bracket count */
 
-  /* If 0th token, then return the string itself */
-  if ( n <= 0 )
-    return(istr);
+   /* If 0th token, then return the string itself */
+   if ( n <= 0 )
+      return(istr);
 
-  i = 0;
-  t = 0;
-  while(istr[i] != 0 )
-  {
-    /* Skip leading white space */
-    while((istr[i] == ' ') || (istr[i] == '\t'))
-      i++;
+   i = 0;
+   t = 0;
+   while(istr[i] != 0 )
+   {
+      /* Skip leading white space */
+      while((istr[i] == ' ') || (istr[i] == '\t'))
+         i++;
 
-    if ((istr[i] != 0)||(istr[i] != '\n')||(istr[i] != '\r'))
-    {
-      t++; /* We are on a new token */
+      /* fprintf(stderr, "STUB DEBUG: TopOfLoop(%s, %d);\n", &istr[i], n); */
 
-      if ( n == t )
-	return(&istr[i]);
-
-      if (( istr[i] == '\"' ) || ( istr[i] == '\'' ))
+      if ((istr[i] != 0)&&(istr[i] != '\n')&&(istr[i] != '\r')) 
       {
-	qterm = istr[i];
+         t++; /* We are on a new token */
+
+         if ( n == t )
+         {
+            /* fprintf(stderr, "STUB DEBUG: Nth_token_location(%s, %d);\n", &istr[i], n); */
+            return(&istr[i]);
+         }
+
+         if ( istr[i] == '(' )
+         {
+            i++; /* Step off the opening bracket */
+            bcount = 1;
+
+            while (( 0 != bcount ) && ( istr[i] != 0 ))
+            {
+               switch(istr[i])
+               {
+               case ')':
+                  bcount--;
+                  break;
+               case '(':
+                  bcount++;
+                  break;
+               }
+
+               i++;
+            }
+         }
+         else if (( istr[i] == '\"' ) || ( istr[i] == '\'' ))
+         {
+            qterm = istr[i];
 	
-	i++; /* Step over the starting quote */
+            i++; /* Step over the starting quote */
 
-	/* Step through the quoted token */
-	while((istr[i] != qterm) && (istr[i] != 0))
-	  i++;
-
-	/* Step off the end quote */
-	if ( istr[i] == qterm )
-	  i++;
+            /* Step through the quoted token */
+            while((istr[i] != qterm) && (istr[i] != 0))
+               i++;
+            
+            /* Step off the end quote */
+            if ( istr[i] == qterm )
+               i++;
+         }
+         else
+         {
+            /* Step through the non-quoted token */
+            while((istr[i] != ' ') && (istr[i] != '\t') && (istr[i] != 0 ))
+               i++;
+         }
       }
-      else
-      {
-	/* Step through the non-quoted token */
-	while((istr[i] != ' ') && (istr[i] != '\t') && (istr[i] != 0 ))
-	  i++;
-      }
-    }
-    
-  }
-    return(NULL);
+      
+   }
+   return(NULL);
 }
 
 /* ========================================================================= */
 int copy_out_nth_token(char *tostr, unsigned long len, char *istr, int n)
 {
-  int i;
-  char *token;
-  char qterm;
+   int i;
+   int bcount;
+   char *token;
+   char qterm;
 
-  if ( n <= 0 )
-    return(1);
+   if ( n <= 0 )
+      return(1);
   
-  if (NULL == (token = nth_token_location(istr, n)))
-    return(1);
+   if (NULL == (token = nth_token_location(istr, n)))
+      return(1);
 
-  /* STUB: Here you need to handle: (), {} (not really), "", and ''.
-     STUB:    And what about escaped quotes? */
-  if (( token[0] == '\"' ) || ( token[0] == '\'' ))
-  {
-    qterm = token[0];
-    
-    i = 0;    
-    while((token[i + 1] != qterm) && (token[i + 1] != 0))
-    {
-      tostr[i] = token[i + 1];
-
-      i++;
-
-      if ( i >= len )
+   /* fprintf(stderr, "STUB DEBUG: nth_token_location(%s, %d);\n", token, n); */
+   
+   if (( token[0] == '\"' ) || ( token[0] == '\'' ))
+   {
+      qterm = token[0];
+      
+      i = 0;    
+      while((token[i + 1] != qterm) && (token[i + 1] != 0))
       {
-	tostr[i] = 0;
-	return(1);
+         tostr[i] = token[i + 1];
+         
+         i++;
+         
+         if ( i >= len )
+         {
+            tostr[i] = 0;
+            return(1);
+         }
       }
-    }
+      
+      tostr[i] = 0;
+   }
+   else if ( token[0] == '(' )
+   {
+      i = 0;
 
-    tostr[i] = 0;
-  }
-  else
-  {
-    i = 0;
-    while((token[i] != ' ') && (token[i] != 0) && (token[i] != '\t'))
-    {
+      /* Copy out the leading bracket, and account for it. */
+      bcount = 1;
       tostr[i] = token[i];
-
       i++;
-
-      if ( i >= len )
+      
+      while (( 0 != bcount ) && ( token[i] != 0 ))
       {
-	tostr[i] = 0;
-	return(1);
+         switch(token[i])
+         {
+         case ')':
+            bcount--;
+            break;
+         case '(':
+            bcount++;
+            break;
+         }
+         
+         /* fprintf(stderr, " STUB DEBUG (%d)[%c][%s]\n", bcount, token[i], &token[i]); */
+         
+         tostr[i] = token[i];
+         i++;
       }
-    }
-
-    tostr[i] = 0;
-  }
-  return(0);
+      tostr[i] = 0;
+   }
+   else
+   {
+      i = 0;
+      while((token[i] != ' ') && (token[i] != 0) && (token[i] != '\t'))
+      {
+         tostr[i] = token[i];
+         
+         i++;
+         
+         if ( i >= len )
+         {
+            tostr[i] = 0;
+            return(1);
+         }
+      }
+      
+      tostr[i] = 0;
+   }
+   return(0);
 }
 
 /* =========================================================================
