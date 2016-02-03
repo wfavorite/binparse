@@ -56,16 +56,23 @@
     0.9.0     2/3/16 - Chugging through enum parsing code fixing new syntax
                        requirements and fixing error messages (making them
                        more consistent with app look and feel).
+                     - Some dead code persists in pmath.c. This code was
+                       written in two stages, then collapsed into one.
+                       The initial (naive) approach was to validate, then
+                       to parse. This meant two sets of virtually the same
+                       code. Validate as you parse. I am keeping this noise
+                       a bit longer, but it will have to go. It is already
+                       isolated and not used within that file.
 */
 #define VERSION_STRING "0.9.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
       use it from now on out. It is:
-      When completing a simple STUB comment, the STUB text should be removed
+      When completing a simple $TUB comment, the $TUB text should be removed
       and the comment should remain as a clear denotation of where we are
       doing. When completing a design choice with a block of commentary, then
-      the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
+      the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
    [ ] You should move app-specific string checking and manipulation to
@@ -73,9 +80,6 @@
    [X] You shoulda wrote a isvalidtagchar() function to test each character
        in a tag string. This means that the application rule set can be
        established in a single place. Ideally it would be inline.
-   [ ] Work on consistent error messaging. (This is knowingly not a
-       definitive todo, but the start of unifying all sources in this
-       context. (now that all data structures have merged.))
    [ ] Insert function toumbstones in slfile.h.
    [ ] penum.c::parse_enum_pair() does not have lineno.
    [ ] All error messages in penum.c are inconsistent with general app look
@@ -154,8 +158,6 @@
    [ ] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
-   [ ] Remove the remaining support_c/h.txt files from the project.
-   [ ] Remove all unnessary (redundant) error message handling.
    [ ] Hide all the debug messages behind pre-processor directives.
    [ ] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [ ] Make the location of the function description comment consistent.
@@ -163,22 +165,27 @@
    [ ] You should establish size and allocate memory for the data items.
        This should probably be done during the third pass (DT_ZTSTR will
        not be known until it is read).
-   [ ] The current RuleSet return by ParseBPFFile() is empty. The PPs are
-       not inserted into the list.
    [ ] Create a separate todo list for strlib. This will be portable to
        other projects - an "inline object".
    [ ] Fill out all the empty function paramater comment blocks.
    [ ] Write the struct mini-comment blocks.
    [_] Create file parser for .bpf (bin parse format) files.
    [ ] Put names in about().
-   [ ] Remove version string from help().
    [ ] Write man pages for bp(1) and bpf(5).
    [ ] Need to properly differentiate between ' and " in the strlib.
    [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
-   [ ] Move strlib code headers to .h file (not in .c file!).
    [ ] Write actual options parsing code (instead of stubing defaults).
    [ ] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [W] Remove version string from help().
+   [X] Move strlib code headers to .h file (not in .c file!).
+   [X] The current RuleSet return by ParseBPFFile() is empty. The PPs are
+       not inserted into the list. (Way old... long since resolved.)
+   [X] Remove all unnessary (redundant) error message handling.
+   [X] Work on consistent error messaging. (This is knowingly not a
+       definitive todo, but the start of unifying all sources in this
+       context. (now that all data structures have merged.))
+   [X] Remove the remaining support_c/h.txt files from the project.
    [X] The copy_out_nth_token() code (most likely) does not properly parse
        (mete out) the tokens. Add the proposed algo to fix this.
    [X] Document the BPF file format somewhere - at least in text. Perhaps

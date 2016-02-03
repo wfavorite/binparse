@@ -52,8 +52,8 @@ int IsEnumLine(char *estr);
 int InsertEnum(RuleSet *rs, Enum *e);
 
 /* =========================================================================
- * Name: 
- * Description: 
+ * Name: ApplyBuiltins
+ * Description: Add in a number of builtin enums into the RuleSet
  * Paramaters: 
  * Returns: 
  * Side Effects: 

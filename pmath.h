@@ -4,7 +4,7 @@
 #include "bpdata.h"
  
 /* =========================================================================
- * Name: 
+ * Name: ParseEntity
  * Description: 
  * Paramaters: 
  * Returns: 
@@ -14,7 +14,7 @@
 Entity *ParseEntity(char *str, int lineno);
 
 /* =========================================================================
- * Name: 
+ * Name: DBG_dump_entity
  * Description: 
  * Paramaters: 
  * Returns: 
