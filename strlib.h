@@ -45,10 +45,19 @@ char *mkstring(const char *input);
 char *nc_mkstring(const char *input);
 
 
-
-
-
-
+/* =========================================================================
+ * Name: is_valid_tag_char
+ * Desc: Is the char input a valid char in a tag name?
+ * Params:
+ * Returns: 1 if valid, 0 if not
+ * Side Effects: None
+ * Notes: This is about establishing an application consistent standard
+ *        of how a particular string type should adhere to.
+ *
+ *        It may be more appropriate to put this in some sort of "language
+ *        helper" section of the code.
+ */
+int is_valid_tag_char(char x);
 
 
 /* STUB: Where is my header? */

@@ -23,13 +23,36 @@ int IsEnumLine(char *estr)
    eat_ws(&estr);
 
    /* The tag string must begin with an expected pattern */
-   if (( estr[0] != 'e' ) ||
-       ( estr[1] != 'n' ) ||
-       ( estr[2] != 'u' ) ||
-       ( estr[3] != 'm' ))
+
+   /* The enum line must begin with an expected pattern */
+   if ( estr != strstr(estr, "setenum") )
+      return(0);
+
+   /* Move off the directive */
+   estr += 7;
+
+   /* We gotta be on whitespace */
+   if (( *estr != ' ' ) && ( *estr != '\t' ))
    {
       return(0);
    }
+
+   /* STOP HERE!
+      Why? Because extensive sniffing will just validate the entire line,
+      see the syntax error, and report it as a skipped line. We want loose
+      checking here so we drop into the heavier / well (error) messaged
+      section of the parsing. This gives the user better messaging on a
+      parsing failure. */
+   return(1);
+
+#ifdef STUB_REMOVE
+   /* ################################################################# */
+   /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+   /* Now move off of it */
+   eat_ws(&estr);
+
+
+
 
    /* Move ourselves off the tag */
    while ( (( *estr >= 'a' ) && ( *estr <= 'z' )) || 
@@ -65,11 +88,14 @@ int IsEnumLine(char *estr)
       to know that it likely is (or was *intended* to be). So let's
       consider this an enum line. */
    return(1);
+   /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+   /* ################################################################# */
+#endif
 }
 
 
 /* ========================================================================= */
-Enum *ParseEnum(char *estr)
+Enum *ParseEnum(char *estr, int lineno)
 {
    char enumtag[MAX_TAG_LEN + 1];
    int i;
@@ -87,32 +113,55 @@ Enum *ParseEnum(char *estr)
    /* Walk off leading white space */
    eat_ws(&estr);
 
-   /* Just because I got tired of the test framework throwing errors on empty strings */
+   /* Just because I got tired of the test framework throwing errors on
+      empty strings. Calling functions insure this is never an empty string. */
    if ( *estr == 0 )
-      return(NULL); /* Fail silently - This should be unreachable in normal ops! */
+      return(NULL); /* Fail silently - This should be unreachable in 
+                       normal operations! */
 
-   /* The tag string must begin with an expected pattern */
-   if (( estr[0] != 'e' ) ||
-       ( estr[1] != 'n' ) ||
-       ( estr[2] != 'u' ) ||
-       ( estr[3] != 'm' ))
+   /* The enum line must begin with an expected pattern */
+   if ( estr != strstr(estr, "setenum") )
    {
-      fprintf(stderr, "ERROR: Enum line begins with improper tag name.\n");
+      /* The rule: All user-space errors get the "---" line treatment. They
+         are syntax errors. Memory failures and what not get the more typical
+         error message syntax. This particular item is both because it was
+         sniffed for this string before it was sent here. Even the message is
+         nonsense. This is really about establishing the error message type
+         to be emulated - even though it is impossible to reach. */
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "setenum line begins with wrong setenum directive on line %d.\n", lineno);
       return(NULL);
    }
 
+   /* Move off the directive */
+   estr += 7;
+
+      /* We gotta be on whitespace */
+   if (( *estr != ' ' ) && ( *estr != '\t' ))
+   {
+      /* Technically... this is where the naive approach to line parsing falls apart.
+         Here you cannot tell a reserved word from a reserved word fragment in a word.
+         Had you pulled the line apart into individual tokens to be parsed, then you
+         could do more *sane* pattern matching. */
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Syntax error on setenum parsing line %d.\n", lineno);
+      return(NULL);
+
+   }
+
+   /* Now move off that whitespace */
+   eat_ws(&estr);
+
    /* Copy off the tag */
    i = 0;
-   while ( (( estr[i] >= 'a' ) && ( estr[i] <= 'z' )) || 
-           (( estr[i] >= 'A' ) && ( estr[i] <= 'Z' )) || 
-           (( estr[i] >= '0' ) && ( estr[i] <= '9' )) ||
-           (estr[i] == '-' ) || (estr[i] == '_' ) || (estr[i] == '.' ) )
+   while ( is_valid_tag_char(estr[i]) )
    {
       if ( i < MAX_TAG_LEN )
          enumtag[i] = estr[i];
       else
       {
-         fprintf(stderr, "ERROR: Enum tag length on line STUB exceeded maximum length of %d.\n", MAX_TAG_LEN);
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum tag length on line %d exceeded maximum length of %d.\n", lineno, MAX_TAG_LEN);
          return(NULL);
       }
 
@@ -120,10 +169,10 @@ Enum *ParseEnum(char *estr)
    }
 
    /* Make sure that the length of the tag is sufficient */
-   if ( i < 5 )
+   if ( i < 1 )
    {
-      /* The enum tag is too short */
-      fprintf(stderr, "ERROR: The tag used for the enum on line STUB is too short.\n");
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Unable to parse enum tag on line %d.\n", lineno);
       return(NULL);
    }
 
@@ -135,7 +184,8 @@ Enum *ParseEnum(char *estr)
    }
    else
    {
-      fprintf(stderr, "ERROR: Unexpected characters in enum tag on line number STUB.\n");
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Unexpected characters in enum tag on line number %d.\n", lineno);
       return(NULL);
    }
 
@@ -174,7 +224,8 @@ Enum *ParseEnum(char *estr)
 
    if ( ( lb != 1 ) || ( rb != 1 ) || ( eq != 1 ) || ( dq % 2 != 0 ) || ( sq % 2 != 0 ) )
    {
-      fprintf(stderr, "ERROR: Basic syntatical problem parsing line STUB.\n");
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Basic syntatical problem parsing line %d. Missing expected symbol elements.\n", lineno);
       return(NULL);
    }
 
@@ -186,7 +237,8 @@ Enum *ParseEnum(char *estr)
       estr++;
    else
    {
-      fprintf(stderr, "ERROR: Missing equality for enum on line STUB.\n");
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Missing equality \"=\" for enum on line %d.\n", lineno);
       return(NULL);
    }
 
@@ -198,12 +250,14 @@ Enum *ParseEnum(char *estr)
       estr++;
    else
    {
-      fprintf(stderr, "ERROR: Missing left bracket for enum on line STUB.\n");
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Missing left bracket for enum on line %d.\n", lineno);
       return(NULL);
    }
    
    if (NULL == (eb = (Enum *)malloc(sizeof(Enum))))
    {
+      fprintf(stderr, "ERROR: Unable to allocate memory for Enum structure.\n");
       return(NULL);
    }
 
@@ -220,7 +274,8 @@ Enum *ParseEnum(char *estr)
          /* Check default before setting it */
          if ( eb->defval )
          {
-            fprintf(stderr, "ERROR: Two default values were parsed from enum on line STUB.\n");
+            fprintf(stderr, "-------------------------------------------------------------------------------\n");
+            fprintf(stderr, "ERROR: Two default values were parsed from enum on line %d.\n", lineno);
             return(NULL);
          }
 
@@ -237,6 +292,38 @@ Enum *ParseEnum(char *estr)
 
    return(eb);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ========================================================================= */
 #define ENVP_NORMAL  0  /* This is a normal name/value pair                  */

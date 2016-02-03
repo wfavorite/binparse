@@ -2,6 +2,7 @@
 #define PENUM_H
 
 #include "bpdata.h"
+#include "slfile.h"
 
 /* =========================================================================
  * Name: ParseEnum
@@ -11,7 +12,7 @@
  * Side Effects: 
  * Notes: 
  */
-Enum *ParseEnum(char *estr);
+Enum *ParseEnum(char *estr, int lineno);
 
 
 /* =========================================================================

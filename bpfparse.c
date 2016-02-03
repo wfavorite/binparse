@@ -115,6 +115,9 @@ ParsePoint *new_parsepoint(int lineno)
 /* ========================================================================= */
 int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 {
+   char HIDDEN[] = "hidden";
+   char HIDE[] = "hide";
+
    /* Asserts are more appropriate */
    assert(NULL != pp);
    assert(NULL != raw_ppopt);
@@ -122,26 +125,25 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
    /* Walk off any leading ws - this *should* have no effect */
    eat_ws(&raw_ppopt);
 
-   /* STUB: Check for an empty string */
+   /* Check for an empty string */
+   if ( raw_ppopt[0] == 0 )
+      return(1);  /* STUB: Test this case. It *should* be passed over here
+                     STUB:    but it should be handled before it gets here.
+                     STUB:    So I will error for now, until the calling
+                     STUB:    function checks this beforehand. */
+
+
 
    /* Ok... this is not a perfect pattern match, but it works with some
       edge case issues that are likely not an issue.
    */
-   if ( ( raw_ppopt[0] == 'h' ) &&
-        ( raw_ppopt[1] == 'i' ) &&
-        ( raw_ppopt[2] == 'd' ) &&
-        ( raw_ppopt[3] == 'd' ) &&
-        ( raw_ppopt[4] == 'e' ) &&
-        ( raw_ppopt[5] == 'n' ) )
+   if ( raw_ppopt == strstr(raw_ppopt, HIDDEN) )
    {
       pp->print_result = 0;
       return(0);
    }
 
-   if ( ( raw_ppopt[0] == 'h' ) &&
-        ( raw_ppopt[1] == 'i' ) &&
-        ( raw_ppopt[2] == 'd' ) &&
-        ( raw_ppopt[3] == 'e' ) )
+   if ( raw_ppopt == strstr(raw_ppopt, HIDE) )
    {
       pp->print_result = 0;
       return(0);
@@ -390,7 +392,7 @@ RuleSet *ParseBPFFile(Options *o)
       /* Line sniff for enum */
       if ( IsEnumLine(line) )
       {
-         if ( NULL != ( e = ParseEnum(line) ) )
+         if ( NULL != ( e = ParseEnum(line, f->lineno) ) )
          {
             /* This needs to be 'uniquely sorted' into the list (to avoid
                collisions). See commentary on the InsertEnum() declaration.  */

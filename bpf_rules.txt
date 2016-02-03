@@ -14,7 +14,7 @@ BPF - Binary Parse Format (The language used by bp)
 
 <setopt> := "setopt" <ws> <cmd-line option> <ws> <bool> <eol>
 
-<enum> := <enumtag> <ws> "=" <ws> <enum clause>
+<enum> := "setenum" <enumtag> <ws> "=" <ws> <enum clause>
 
 <parse point> := <offset> <size> <tag> <label> <dt> [{<ppopt>}]
 
@@ -26,9 +26,13 @@ BPF - Binary Parse Format (The language used by bp)
 
 <dt> := See data types in stdint.h (uint32, int8, string, char, etc...)
 
-<enumtag> := "enum"<ident>
+<enumtag> := <tag>
 
-<ident> := 4-6 alpha-numeric chars
+# Of course this is not really commented out... but this was the old
+# naming convention, I am now converting to a new, and am somewhat afraid
+# that this convention might have been coded more than once.
+#<enumtag> := "enum"<ident>
+#<ident> := 4-6 alpha-numeric chars
 
 <enum clause> := "{" [<ws>] <namevalue> {<namevalue>} [<enum default>] "}"
 
@@ -50,7 +54,9 @@ BPF - Binary Parse Format (The language used by bp)
 
 <value> := <numeric> | <tag> | <equation>
 
-<tag> := Char string, no spaces (refers to / identifies a parse point)
+<tag> := Between one and MAX_TAG_LEN <valid_tag_char>
+
+<valid_tag_char> := 0-9 | a-z | A-Z | '.' | '-' | '_'
 
 <equation> := "(" <value> <operator> <value> ")"
 

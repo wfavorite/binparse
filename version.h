@@ -53,8 +53,9 @@
                      - Added verbose pass result status (items parsed count).
                      - Fixed nth token retrieval.
                      - grep $TUB * | wc -l ----> 78 (from a prev high of 90)
+    0.9.0     2/3/16 - 
 */
-#define VERSION_STRING "0.8.0"
+#define VERSION_STRING "0.9.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
@@ -65,6 +66,12 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] You shoulda wrote a isvalidtagchar() function to test each character
+       in a tag string. This means that the application rule set can be
+       established in a single place. Ideally it would be inline.
+   [ ] Work on consistent error messaging. (This is knowingly not a
+       definitive todo, but the start of unifying all sources in this
+       context. (now that all data structures have merged.))
    [ ] Insert function toumbstones in slfile.h.
    [ ] penum.c::parse_enum_pair() does not have lineno.
    [ ] All error messages in penum.c are inconsistent with general app look
