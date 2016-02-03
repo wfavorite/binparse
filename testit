@@ -1,85 +1,121 @@
 #!/bin/sh
 
-echo "========================================================================="
-#  More complex set of values
-./penum "setenum ostype = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
-
-echo "========================================================================="
-#  Short enum name
-./penum "setenum T = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
-
-echo "========================================================================="
-# No ws between directive and tag name
-./penum "setenumT = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
-echo "SHOULD FAIL"
-
-echo "========================================================================="
-# Good
-./penum 'setenum enum = { 0:"off"; default:"on"}'
-
-echo "========================================================================="
-# Good - Same as previous, leveraging differences in format parsing rules
-./penum 'setenum enum = { 0:off; default:on; }'
-
-echo "========================================================================="
-# Missing the equal sign
-./penum 'setenum enum2  { 0:"off"; default:"on"}'
-echo "SHOULD FAIL"
+if [[ -z $1 ]]
+then
+    echo "ERROR: I can test math or enum. Pick one." >&2
+    exit 1
+fi
 
 
-exit
+if [[ $1 == "enum" ]]
+then
+    echo "========================================================================="
+    #  More complex set of values
+    ./penum "setenum ostype = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
+    
+    echo "========================================================================="
+    #  Short enum name
+    ./penum "setenum T = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
 
-echo "========================================================================="
-# This fails by thinking the 5 is a tag. The second enum line is good */
-./pmath "( 5+ (3 - goat))"
+    echo "========================================================================="
+    # No ws between directive and tag name
+    ./penum "setenumT = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
+    echo "SHOULD FAIL"
 
-echo "========================================================================="
-# 
-./pmath "( -667 + 12 )"
+    echo "========================================================================="
+    # Good
+    ./penum 'setenum enum = { 0:"off"; default:"on"}'
 
-echo "========================================================================="
-# 
-./pmath "( 0x12 + ( 12 - 21 ))"
+    echo "========================================================================="
+    # Good - Same as previous, leveraging differences in format parsing rules
+    ./penum 'setenum enum = { 0:off; default:on; }'
 
-echo "========================================================================="
-# It thinks goat is a numeric and is 12. (fixed - cleaned up parse_token)
-./pmath "( 0x12 + ( 12 - goat ))"
+    echo "========================================================================="
+    # Missing the equal sign
+    ./penum 'setenum enum2  { 0:"off"; default:"on"}'
+    echo "SHOULD FAIL"
 
-echo "========================================================================="
-# Should parse correctly (Used to fix the issue in *_expr() of not walking off of ')'
-./pmath "( ( 12 - goat ) + 0x12 )"
+    echo "========================================================================="
+    # String is missing a quote
+    ./penum 'setenum enum2 = { 0:"off; default:"on"}'
+    echo "SHOULD FAIL"
 
-echo "========================================================================="
-# Should parse correctly (Used to fix the issue in *_expr() of not walking off of ')'
-./pmath "( ( 12 - goat  + 0x12 )"
+fi
 
-echo "========================================================================="
-# Inline enum should not parse - even if it is correct
-./pmath "{ 0:off; default:on; }"
+if [[ $1 == "math" ]]
+then
+    echo "========================================================================="
+    # This fails by thinking the 5 is a tag. The second enum line is good */
+    echo "TEST: \"( 5+ (3 - goat))\""
+    ./pmath "( 5+ (3 - goat))"
+
+    echo "========================================================================="
+    #   
+    echo "TEST: \"( -667 + 12 )\""
+    ./pmath "( -667 + 12 )"
+
+    echo "========================================================================="
+    # 
+    echo "TEST: \"( 0x12 + ( 12 - 21 ))\""
+    ./pmath "( 0x12 + ( 12 - 21 ))"
+
+    echo "========================================================================="
+    # It thinks goat is a numeric and is 12. (fixed - cleaned up parse_token)
+    echo "TEST: \"( 0x12 + ( 12 - goat ))\""
+    ./pmath "( 0x12 + ( 12 - goat ))"
+
+    echo "========================================================================="
+    # Should parse correctly (Used to fix the issue in *_expr() of not walking off of ')'
+    echo "TEST: \"( ( 12 - goat ) + 0x12 )\""
+    ./pmath "( ( 12 - goat ) + 0x12 )"
+
+    echo "========================================================================="
+    # Mis-matched brackets
+    echo "TEST: \"( ( 12 - goat  + 0x12 )\""
+    ./pmath "( ( 12 - goat  + 0x12 )"
+    echo "SHOULD FAIL"
+
+    echo "========================================================================="
+    # Inline enum should not parse - even if it is correct
+    echo "TEST: \"{ 0:off; default:on; }\""
+    ./pmath "{ 0:off; default:on; }"
+    echo "SHOULD FAIL"
+
+    echo "========================================================================="
+    # This should not fail. It should resolve to 5.
+    echo "TEST: \"5 6\""
+    ./pmath "5 6"
+
+    echo "========================================================================="
+    # Should fail on invalid operator (but it would look like the next if it were
+    #   passed through the app)
+    echo "TEST: \"(3 # 4)\""
+    ./pmath "(3 # 4)"
+    echo "SHOULD FAIL"
+
+    echo "========================================================================="
+    # How the previous item would look if it were passed through the app and the
+    #   comment was "applied".
+    echo "TEST: \"(3 \""
+    ./pmath "(3 "
+    echo "SHOULD FAIL"
+
+    echo "========================================================================="
+    # Invalid decimal number
+    echo "TEST: \"45t2\""
+    ./pmath "45t2"
+    echo "SHOULD FAIL"
+
+    echo "========================================================================="
+    # Invalid hex number
+    echo "TEST: \"0x34fg\""
+    ./pmath "0x34fg"
+    echo "SHOULD FAIL"
+
+fi
 
 
 
-exit
-# Not yet integrated, but things that need to be resolved
-# Validates as a proper number
-./pmath "5 6"
-
-# Prints too many error messages
-./pmath "(3 # 4)"
 
 
 
-
-
-
-
-
-
-
-echo "========================================================================="
-# First string empty. Second is missing a quote
-./pmath "" 'enum2 = { 0:"off; default:"on"}'
-
-echo "========================================================================="
-# First string empty. Second is missing an '=' sign
-./pmath "" 

@@ -44,53 +44,6 @@ int IsEnumLine(char *estr)
       section of the parsing. This gives the user better messaging on a
       parsing failure. */
    return(1);
-
-#ifdef STUB_REMOVE
-   /* ################################################################# */
-   /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
-   /* Now move off of it */
-   eat_ws(&estr);
-
-
-
-
-   /* Move ourselves off the tag */
-   while ( (( *estr >= 'a' ) && ( *estr <= 'z' )) || 
-           (( *estr >= 'A' ) && ( *estr <= 'Z' )) || 
-           (( *estr >= '0' ) && ( *estr <= '9' )) ||
-           (*estr == '-' ) || (*estr == '_' ) || (*estr == '.' ) )
-   {
-      estr++;
-   }
-
-   /* There may be white space */
-   eat_ws(&estr);
-
-   /* The next MUST be an '=' */
-   if ( *estr != '=' )
-   {
-      return(0);
-   }
-
-   /* We are on an "=". Move off. */
-   estr++;
-
-   /* There may be white space */
-   eat_ws(&estr);
-
-   /* The next MUST be an '{' */
-   if ( *estr != '{' )
-   {
-      return(0);
-   }
-
-   /* This line may not be valid... but we have tested (sniffed) enough
-      to know that it likely is (or was *intended* to be). So let's
-      consider this an enum line. */
-   return(1);
-   /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
-   /* ################################################################# */
-#endif
 }
 
 

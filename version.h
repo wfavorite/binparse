@@ -69,7 +69,7 @@
 
   ToDo:                                                                      !
    [ ] You should move app-specific string checking and manipulation to
-       an app 
+       an app specific source file.
    [X] You shoulda wrote a isvalidtagchar() function to test each character
        in a tag string. This means that the application rule set can be
        established in a single place. Ideally it would be inline.
