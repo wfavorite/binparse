@@ -3,7 +3,7 @@
 #include "pmath.h"
 #include "penum.h"
 
-#include "Version.h"
+#include "version.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
    fflush(stdout);
 
 
-   if ( NULL == (e = ParseEntity(argv[1])) )
+   if ( NULL == (e = ParseEntity(argv[1], 1)) )
       return(1);
    else
    {

@@ -10,7 +10,9 @@
 /* STUB: This is not a valid define name. Use what is set elsewhere. */
 #define MAX_TAG_LEN 20
 
-/* STUB: This is proposed. Needs to be properly evaluated */
+/* ========================================================================= */
+/* This is the maximum length of the string in a enum *name*-value pair.     */
+/* Used in penum.c::parse_envp_name()                                        */
 #define MAX_EVP_NAME_LEN 16
 
 

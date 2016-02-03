@@ -7,7 +7,7 @@
 #include "strlib.h"
 
 
-ENVP *parse_enum_pair(int *moved, char *estr);
+ENVP *parse_enum_pair(int *moved, char *estr, int lineno);
 
 /* ========================================================================= */
 int IsEnumLine(char *estr)
@@ -109,6 +109,7 @@ Enum *ParseEnum(char *estr, int lineno)
    ENVP *nvp;
    int move;
    char *start = estr;
+   char errmsg[12];
 
    /* Walk off leading white space */
    eat_ws(&estr);
@@ -144,7 +145,7 @@ Enum *ParseEnum(char *estr, int lineno)
          Had you pulled the line apart into individual tokens to be parsed, then you
          could do more *sane* pattern matching. */
       fprintf(stderr, "-------------------------------------------------------------------------------\n");
-      fprintf(stderr, "Syntax error on setenum parsing line %d.\n", lineno);
+      fprintf(stderr, "Syntax error on setenum directive parsing at \"%s\". Line %d.\n", three_dot_trunc(errmsg, 12, estr), lineno);
       return(NULL);
 
    }
@@ -267,7 +268,7 @@ Enum *ParseEnum(char *estr, int lineno)
    eb->elist = NULL;
 
    move = 0;
-   while ( NULL != ( nvp = parse_enum_pair(&move, estr) ) )
+   while ( NULL != ( nvp = parse_enum_pair(&move, estr, lineno) ) )
    {
       if ( nvp->next )
       {
@@ -275,7 +276,7 @@ Enum *ParseEnum(char *estr, int lineno)
          if ( eb->defval )
          {
             fprintf(stderr, "-------------------------------------------------------------------------------\n");
-            fprintf(stderr, "ERROR: Two default values were parsed from enum on line %d.\n", lineno);
+            fprintf(stderr, "Two default values were parsed from enum on line %d.\n", lineno);
             return(NULL);
          }
 
@@ -292,38 +293,6 @@ Enum *ParseEnum(char *estr, int lineno)
 
    return(eb);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ========================================================================= */
 #define ENVP_NORMAL  0  /* This is a normal name/value pair                  */
@@ -365,6 +334,7 @@ char *parse_envp_name(char *str)
    if ( 0 == str[0] )
       return(NULL);
 
+   /* STUB: Resolve this. Can I safely leave it? *Should* it be removed? */
    /* ---- Yank start ---- */
    /* Chomp off leading WS if it exists */
    eat_ws(&str);
@@ -422,16 +392,18 @@ char *parse_envp_name(char *str)
    return(NULL);
 }
 
+/* STUB: WTF is this? */
+   /*char value[MAX_TAG_LEN]; / * This value is not entirely appropriate, but safe */
+
+
 /* ========================================================================= */
-/* STUB: This should have more meaningful messages. The message should contain
-   either the enum number, or the string itself. Potentially both. */
-ENVP *parse_enum_pair(int *moved, char *estr)
+ENVP *parse_enum_pair(int *moved, char *estr, int lineno)
 {
    ENVP *ep = NULL;
-   /*char value[MAX_TAG_LEN]; / * This value is not entirely appropriate, but safe */
    BPInt value;
    char *start = estr;
-
+   char errstr[16];
+   
    if ( estr == NULL )
       return(ep);
 
@@ -439,32 +411,24 @@ ENVP *parse_enum_pair(int *moved, char *estr)
       return(ep);
 
    /* Walk off leading white space */
-   while ((*estr == ' ')||(*estr == '\t'))
-      estr++;
+   eat_ws(&estr);
 
-   /*
-   if ( *estr == 'd' )
-   {
-   */
-   if (( estr[0] == 'd' ) &&
-       ( estr[1] == 'e' ) &&
-       ( estr[2] == 'f' ) &&
-       ( estr[3] == 'a' ) &&
-       ( estr[4] == 'u' ) &&
-       ( estr[5] == 'l' ) &&
-       ( estr[6] == 't' ))
+   if ( estr == strstr(estr, "default") )
    {
       /* I don't particularly like the above test, but it is valid. The
          word is case sensitive, and I did not intend to support WS here
          but I do. */
          
       estr += 7; /* Move off of default. Now on char after 'default' */
+
       eat_ws(&estr); /* Should not exist, but might */
+
       if ( *estr == ':' )
          estr++;
       else
       {
-         fprintf(stderr, "ERROR: Problems parsing enum pair at \"%s\". Line STUB.\n", start);
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Problems parsing enum pair at \"%s\". Line %d.\n", three_dot_trunc(errstr, 16, start), lineno);
          return(NULL);
       }
       
@@ -502,7 +466,8 @@ ENVP *parse_enum_pair(int *moved, char *estr)
          estr++;
       else
       {
-         fprintf(stderr, "ERROR: Problems parsing \"%s\" at line STUB.\n", start);
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Problems parsing \"%s\". Line %d.\n", three_dot_trunc(errstr, 16, start), lineno);
          return(NULL);
       }
 

@@ -3,6 +3,18 @@
 
 #include <stdint.h>
 
+/* =========================================================================
+ * Name: three_dot_trunc
+ * Desc: Truncate a string with three dots.
+ * Params: char *   String to fill
+ *         int      Length (including term char) of fill string
+ *         char *   Source string that is likely longer than dest string
+ * Returns: Pointer to fill string (so it can be used inline)
+ * Side Effects: Modifies fill string
+ * Notes: fill_len must be >= 3! It will error silently.
+ */
+char *three_dot_trunc(char *fill, int fill_len, char *source);
+
 
 /* =========================================================================
  * Name: mkstring

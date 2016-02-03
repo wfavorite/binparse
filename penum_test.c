@@ -3,7 +3,7 @@
 #include "pmath.h"
 #include "penum.h"
 
-#include "Version.h"
+#include "version.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
    printf("penum test framework version %s starting.\n", VERSION_STRING);
    fflush(stdout);
 
-   if ( NULL == (en = ParseEnum(argv[1])) )
+   if ( NULL == (en = ParseEnum(argv[1], 1)) )
       return(1);
    else
    {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
       nvp = en->elist;
       while ( nvp )
       {
-         printf("  NVPair: %d ---> \"%s\"\n", nvp->value, nvp->name);
+         printf("  NVPair: %ld ---> \"%s\"\n", nvp->value, nvp->name);
          nvp = nvp->next;
       }
 

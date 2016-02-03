@@ -756,3 +756,60 @@ int is_valid_tag_char(char x)
 
    return(0);
 }
+
+/* ========================================================================= */
+char *three_dot_trunc(char *fill, int fill_len, char *source)
+{
+   int i;
+   int stop_at;
+
+   /* Fail silently when used inappropriately. */
+   if ( NULL == fill )
+      return(fill);
+
+   /* Handle empty input strings */
+   if ( NULL == source )
+   {
+      fill[0] = 0;
+      return(fill);
+   }
+
+   if ( 0 == source[0] )
+   {
+      fill[0] = 0;
+      return(fill);
+   }
+
+   /* Just make this an error - really an assert. The question is how
+      to handle it. Here we terminate the string and return it. It introduces
+      a potential visual error, but not a crash (by returning NULL). */
+   if (fill_len < 3)
+   {
+      fill[0] = 0; /* Gotta have a length of one */
+      return(NULL);
+   }
+
+   i = 0;
+   while ( ( source[i] != 0 ) && ( i < fill_len ) )
+   {
+      fill[i] = source[i];
+      i++;
+   }
+
+   /* Terminate */
+   fill[i] = 0;
+
+   if ( i < fill_len )
+      return(fill);
+
+   fill[fill_len - 0] = 0;
+   fill[fill_len - 1] = '.'; 
+   fill[fill_len - 2] = '.'; 
+   fill[fill_len - 3] = '.'; 
+
+   return(fill);
+}
+
+
+
+

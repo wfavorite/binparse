@@ -53,7 +53,9 @@
                      - Added verbose pass result status (items parsed count).
                      - Fixed nth token retrieval.
                      - grep $TUB * | wc -l ----> 78 (from a prev high of 90)
-    0.9.0     2/3/16 - 
+    0.9.0     2/3/16 - Chugging through enum parsing code fixing new syntax
+                       requirements and fixing error messages (making them
+                       more consistent with app look and feel).
 */
 #define VERSION_STRING "0.9.0"
 /*
@@ -66,7 +68,9 @@
       the STUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [ ] You shoulda wrote a isvalidtagchar() function to test each character
+   [ ] You should move app-specific string checking and manipulation to
+       an app 
+   [X] You shoulda wrote a isvalidtagchar() function to test each character
        in a tag string. This means that the application rule set can be
        established in a single place. Ideally it would be inline.
    [ ] Work on consistent error messaging. (This is knowingly not a

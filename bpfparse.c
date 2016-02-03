@@ -258,7 +258,7 @@ ParsePoint *get_parse_point(File *f)
   /*** Copy everything into the ParsePoint ***/
   
   /* The offset */
-  if ( NULL != ( e = ParseEntity(f->lineno, raw_offset) ) )
+  if ( NULL != ( e = ParseEntity(raw_offset, f->lineno) ) )
   {
      DBG_dump_entity(0, e);
      pp->Offset = e;
@@ -270,7 +270,7 @@ ParsePoint *get_parse_point(File *f)
   }
 
   /* The size */
-  if ( NULL != ( e = ParseEntity(f->lineno, raw_size) ) )
+  if ( NULL != ( e = ParseEntity(raw_size, f->lineno) ) )
   {
      DBG_dump_entity(0, e);
      pp->Size = e;

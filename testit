@@ -1,12 +1,33 @@
+#!/bin/sh
 
 echo "========================================================================="
 #  More complex set of values
-./penum "enumHello = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
+./penum "setenum ostype = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
 
 echo "========================================================================="
-#  Bad enum tag name
-./penum "Hello = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
+#  Short enum name
+./penum "setenum T = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
+
+echo "========================================================================="
+# No ws between directive and tag name
+./penum "setenumT = {1:\"FreeBSD\"; 2:\"Linux\"; 3:Solaris; 4: AIX; default :\"Unknown\";}" 
 echo "SHOULD FAIL"
+
+echo "========================================================================="
+# Good
+./penum 'setenum enum = { 0:"off"; default:"on"}'
+
+echo "========================================================================="
+# Good - Same as previous, leveraging differences in format parsing rules
+./penum 'setenum enum = { 0:off; default:on; }'
+
+echo "========================================================================="
+# Missing the equal sign
+./penum 'setenum enum2  { 0:"off"; default:"on"}'
+echo "SHOULD FAIL"
+
+
+exit
 
 echo "========================================================================="
 # This fails by thinking the 5 is a tag. The second enum line is good */
@@ -52,9 +73,8 @@ exit
 
 
 
-echo "========================================================================="
-# First string empty, enum name is too short
-./pmath "" 'enum = { 0:"off"; default:"on"}'
+
+
 
 echo "========================================================================="
 # First string empty. Second is missing a quote
@@ -62,4 +82,4 @@ echo "========================================================================="
 
 echo "========================================================================="
 # First string empty. Second is missing an '=' sign
-./pmath "" 'enum2  { 0:"off"; default:"on"}'
+./pmath "" 

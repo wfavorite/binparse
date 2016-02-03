@@ -833,7 +833,7 @@ void DBG_dump_entity(int r, Entity *e)
 }
 
 /* ========================================================================= */
-Entity *ParseEntity(int lineno, char *str)
+Entity *ParseEntity(char *str, int lineno)
 {
    Entity *e;
 #ifdef VALIDATE_TOKEN_FIRST
