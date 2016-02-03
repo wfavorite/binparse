@@ -63,6 +63,8 @@
                        code. Validate as you parse. I am keeping this noise
                        a bit longer, but it will have to go. It is already
                        isolated and not used within that file.
+                     - grep $TUB * | wc -l ----> 38
+
 */
 #define VERSION_STRING "0.9.0"
 /*
@@ -77,10 +79,6 @@
   ToDo:                                                                      !
    [ ] You should move app-specific string checking and manipulation to
        an app specific source file.
-   [X] You shoulda wrote a isvalidtagchar() function to test each character
-       in a tag string. This means that the application rule set can be
-       established in a single place. Ideally it would be inline.
-   [ ] Insert function toumbstones in slfile.h.
    [ ] penum.c::parse_enum_pair() does not have lineno.
    [ ] All error messages in penum.c are inconsistent with general app look
        and feel.
@@ -104,6 +102,8 @@
        BPF file executable and using file magic to get your bp interperter.)
    [ ] Offset can be 0, but size cannot. This should be validated during one
        of the passes. Probably during the final pass.
+   [ ] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
+       to be utilized in parsing a ParsePoint. 
    [ ] Will you support "defined"/set values. For example:
        settag hdroffset 16
        This would create a tag called hdroffset that is a hard-set value of
@@ -127,14 +127,10 @@
        setopt x myarg   <---- Same as -x myarg
    [ ] Create more sample.bpf files - perhaps they should be part of the test
        suite.
-   [ ] Setup 3-dot truncation for strings used in error messages. DO NOT
-       OVERFLOW THE LINE!
    [ ] No documentation of struct members or ParseOptions() in options.h.
    [ ] Some functions in strlib.h are not documented.
    [ ] The datapoint.* code probably needs to go. It was part of the original
        C++ design.
-   [ ] Start working the $stubs throught the code. Currently at 80 across the
-       entire project. Clear this todo when it is <= 40.
    [ ] Enum parsing in bpfparse.c::ParseBPFFile() needs to handle the $tubs
        dealing with return values from ParseEnum() as well as changes to 
        ParseEnum() itself in terms of input.
@@ -148,14 +144,12 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [_] Pull out all references to support.c. This was always a temp file that
-       would be covered by the proper functions in strlib.h/c.
    [ ] options.c::ParseOptions() should validate the options before returning.
    [ ] The help output has a few different output methods. These are not
        covered in the options struct (with appropriate flags), nor is the
        help output clear on what the options mean. (Specifically: The output
        needs to relate that this option modifies the output format.)
-   [ ] Consider removing all the validate_* code in pmath.c. This should all
+   [D] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
    [ ] Hide all the debug messages behind pre-processor directives.
@@ -169,14 +163,23 @@
        other projects - an "inline object".
    [ ] Fill out all the empty function paramater comment blocks.
    [ ] Write the struct mini-comment blocks.
-   [_] Create file parser for .bpf (bin parse format) files.
-   [ ] Put names in about().
    [ ] Write man pages for bp(1) and bpf(5).
    [ ] Need to properly differentiate between ' and " in the strlib.
    [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
    [ ] Write actual options parsing code (instead of stubing defaults).
-   [ ] How do you handle exceptions in strlib.c::mid_trunc()?
+   [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Start working the $stubs throught the code. Currently at 80 across the
+       entire project. Clear this todo when it is <= 40.
+   [X] Create file parser for .bpf (bin parse format) files.
+   [X] Pull out all references to support.c. This was always a temp file that
+       would be covered by the proper functions in strlib.h/c.
+   [X] You shoulda wrote a isvalidtagchar() function to test each character
+       in a tag string. This means that the application rule set can be
+       established in a single place. Ideally it would be inline.
+   [X] Insert function toumbstones in slfile.h.
+   [X] Setup 3-dot truncation for strings used in error messages. DO NOT
+       OVERFLOW THE LINE!
    [W] Remove version string from help().
    [X] Move strlib code headers to .h file (not in .c file!).
    [X] The current RuleSet return by ParseBPFFile() is empty. The PPs are
@@ -188,6 +191,7 @@
    [X] Remove the remaining support_c/h.txt files from the project.
    [X] The copy_out_nth_token() code (most likely) does not properly parse
        (mete out) the tokens. Add the proposed algo to fix this.
+   [X] Put names in about().
    [X] Document the BPF file format somewhere - at least in text. Perhaps
        write a mBNF ruleset for the file.
    [X] Decide if enum tags can have collisions (with builtins). Decide if

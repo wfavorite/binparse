@@ -21,7 +21,7 @@
      to collide somewhere. The Silly Little pre-pendage fixes that.
 */
 
-
+/* The maximum length of a line in the file. */
 #define MAX_LINE_LEN 1024
 
 typedef struct File
@@ -33,15 +33,34 @@ typedef struct File
   char line[MAX_LINE_LEN + 4]; /* 4 keeps me aligned */
 } File;
 
-
-
+/* =========================================================================
+ * Name: NewFile
+ * Description: Open file, allocate & initialize File object
+ * Paramaters: The file name
+ * Returns: A non-NULL File object on success, NULL on failure
+ * Side Effects: Opens file, allocates memory
+ * Notes: This is a simple obfsucation on opening a file
+ */
 File *NewFile(char *filename);
 
+/* =========================================================================
+ * Name: NextLine
+ * Description: Get the next line from the file
+ * Paramaters: 
+ * Returns: 
+ * Side Effects: 
+ * Notes: 
+ */
 int NextLine(File *f);
 
+/* =========================================================================
+ * Name: EndFile
+ * Description: Close the file, release the File object
+ * Paramaters: 
+ * Returns: 
+ * Side Effects: 
+ * Notes: 
+ */
 int EndFile(File *f);
-
-
-
 
 #endif

@@ -7,7 +7,9 @@
 #define MAX_TOKEN_LEN 64
 
 
-/* STUB: This is not a valid define name. Use what is set elsewhere. */
+/* This is the length of a tag. It is used explicity in Enum parsing.
+   It is NOT used in ParsePoint parsing. ParsePoint tags default to
+   MAX_TOKEN_LEN size. */
 #define MAX_TAG_LEN 20
 
 /* ========================================================================= */

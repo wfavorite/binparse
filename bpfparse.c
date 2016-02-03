@@ -161,8 +161,6 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 }
 
 /* ========================================================================= */
-/* STUB: You gotta pass the lineno! It is used to fill the pp, but also to
-   STUB:    indicate where the error was found in the file. */
 ParsePoint *get_parse_point(File *f)
 {
   ParsePoint *pp;
@@ -227,16 +225,12 @@ ParsePoint *get_parse_point(File *f)
      So lets parse them right into the parse point struct. For this
      reason, we create the parse point struct before this last set of
      item(s). */
-#define STUB_ME_OPTIONS
+#define ALLOW_MULTIPLE_OPTIONS
 
-#ifdef STUB_ME_OPTIONS
-  /* Mutually exclusive options - as it stands, you can only use ONE option in
-     a parse point! This is because they are ALL mutually exclusive. This may
-     not always be the case. */
-
-  /* STUB: Now try 6, 7, 8, until it fails. Take each read
-     STUB:   item and try to match it to an expected pattern such
-     STUB:   as print, noprint, hex, decimal, etc... */
+#ifdef ALLOW_MULTIPLE_OPTIONS
+  /* This code path allows multiple options. The options are not
+     mutually exclusive, so (in some cases), more than one might
+     exist together. */
   i = 6;
   while ( 0 == copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, i) )
   {
@@ -251,6 +245,10 @@ ParsePoint *get_parse_point(File *f)
      i++;
   }
 #else
+  /* Mutually exclusive options - as it stands, you can only use ONE option in
+     a parse point! This is because they are ALL mutually exclusive. This may
+     not always be the case. */
+
   /* I "re-use" i here. Rename it this code path is chosen */
   i = copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, 6);
 #endif
@@ -439,17 +437,19 @@ RuleSet *ParseBPFFile(Options *o)
             printf(" pp->label  = %s\n", pp->label);
          }
       }
-      /* EREIAM - Do we want to exit here!?  STUB */
    }
   
    /* Close the file */
    EndFile(f);
 
-   /* STUB: This would be the location to test for an empty pplist item
-      STUB:   in the RuleList struct. There is reference to this as an
-      STUB:   assert() in the ResolveTags() function. Either check there,
-      STUB:   check here, or write and call a specific check API. Hint:
-      STUB:   you should check here. */
+   /* Check for empty parse point list */
+   if ( NULL == rs->pplist )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Unable to parse any parse-point rules from BPF file.\n");
+      return(NULL);
+   }
+
    return(rs);
 }
 
@@ -492,7 +492,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
       
       if ( pp->Offset->type == ETYPE_TAGCP )
       {
-         fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", pp->Offset->u.tag);
          fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
          return(1);
@@ -526,7 +526,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
       
       if ( pp->Size->type == ETYPE_TAGCP )
       {
-         fprintf(stderr, "STUB: This line is used to determine the default width of the terminal screen..\n");
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Tag resolution failure. Unable to resolve the size tag \"%s\"\n", pp->Size->u.tag);
          fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
          return(1);
@@ -551,10 +551,11 @@ int ResolveTags(RuleSet *rs)
    ParsePoint *thispp;
   
    assert( NULL != rs );
-   /* STUB: This second assert should not be:
-      STUB:  1. required. It should be checked elsewhere.
-      STUB:  2. an assert(). It should be handled as a message to
-      STUB:     the user that the list is empty. */
+   /* RESOLVED: This second assert should not be:
+      RESOLVED:  1. required. It should be checked elsewhere. <-------- It is
+      RESOLVED:  2. an assert(). It should be handled as a message to
+      RESOLVED:     the user that the list is empty. <--------- It is, elsewhere
+   */
    assert( NULL != rs->pplist );
    
    thispp = rs->pplist;

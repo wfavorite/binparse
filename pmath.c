@@ -23,11 +23,20 @@ Expression *parse_expr(int *moverv, char *str, int lineno);
 Entity *parse_token(int *move, char *str, int lineno);
 int parse_numeric(long *val, char *str, int lineno);
 int parse_tag(char *tag, char *str);
-/* ---- Validate functions (subject to removal */
+
+
+#ifdef STUB_REMOVE
+/* ---- Validate functions (subject to removal) */
 int validate_token(char *str);
 int validate_numeric(char *str);
 int validate_expr(char *str);
 int validate_tag(char *str);
+#endif
+
+
+
+
+
 
 /* ========================================================================= */
 Expression *parse_expr(int *moverv, char *str, int lineno)
@@ -672,7 +681,7 @@ Entity *ParseEntity(char *str, int lineno)
 
 
 
-
+#ifdef STUB_REMOVE
 /* ========================================================================= */
 int validate_expr(char *str)
 {
@@ -966,3 +975,4 @@ int validate_token(char *str)
    return((int)(str - start));
 }
 
+#endif
