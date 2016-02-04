@@ -477,7 +477,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
             if ( pp == thispp )
             {
                fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", pp->Offset->u.tag, pp->lineno);
+               fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", (char *)pp->Offset->u.tag, pp->lineno);
                fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
                return(1);
             }
@@ -493,7 +493,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
       if ( pp->Offset->type == ETYPE_TAGCP )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", pp->Offset->u.tag);
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", (char *)pp->Offset->u.tag);
          fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
          return(1);
       }
@@ -511,7 +511,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
             if ( pp == thispp )
             {
                fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "Tag resolution failure. Size tag \"%s\" on line %d\n", pp->Size->u.tag, pp->lineno);
+               fprintf(stderr, "Tag resolution failure. Size tag \"%s\" on line %d\n", (char *)pp->Size->u.tag, pp->lineno);
                fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
                return(1);
             }
@@ -527,7 +527,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
       if ( pp->Size->type == ETYPE_TAGCP )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Tag resolution failure. Unable to resolve the size tag \"%s\"\n", pp->Size->u.tag);
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the size tag \"%s\"\n", (char *)pp->Size->u.tag);
          fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
          return(1);
       }

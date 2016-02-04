@@ -306,7 +306,6 @@ Expression *new_expression(Entity *l_ent, int operation, Entity *r_ent)
 int parse_numeric(long *val, char *str, int lineno)
 {
    char *start = str;
-   int isdec = 0;
    int isneg = 0;
 
    /* Walk off leading white space */
@@ -314,7 +313,6 @@ int parse_numeric(long *val, char *str, int lineno)
 
    if ( *str == '-' )
    {
-      isdec = 1;
       isneg = 1;
       str++; /* Move off the '-' char */
 

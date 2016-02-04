@@ -77,6 +77,11 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] When printing the error messages in bpfparse.c::resolve_tag(), the
+       void pointer in the union is used. How do you know this is good (that
+       it points to a string and not another struct)? It may be appropriate
+       to write a gettor function, check this before writing, or have a
+       solid look at the code and comment the shit out of it.
    [ ] You should move app-specific string checking and manipulation to
        an app specific source file.
    [ ] penum.c::parse_enum_pair() does not have lineno.
