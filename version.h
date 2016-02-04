@@ -64,9 +64,11 @@
                        a bit longer, but it will have to go. It is already
                        isolated and not used within that file.
                      - grep $TUB * | wc -l ----> 38
+    0.10.0    2/4/16 - Cleaned up options parsing.
+
 
 */
-#define VERSION_STRING "0.9.0"
+#define VERSION_STRING "0.10.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should

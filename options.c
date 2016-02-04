@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <assert.h>
+#include <string.h>
 
 #include "options.h"
 #include "strlib.h"
@@ -60,7 +61,7 @@ Options *ParseOptions(int argc, char *argv[])
          break;  
       case ':':
          fprintf (stderr, "ERROR: Missing the argument to the \"-%c\" option.\n", optopt);
-         return(NULL); /* STUB: Just bail */
+         return(NULL); /* Just bail */
          break;
 
       case '?': /* User entered some unknown/unsupported argument */
@@ -102,46 +103,40 @@ Options *ParseOptions(int argc, char *argv[])
       index++;
    }
 
+   /* Validate the options */
+   
    /* No additional processing required if any of these are set */
    if (( o->bAbout ) || ( o->bHelp ))
+   {
+      if (( o->bAbout ) && ( o->bHelp ))
+      {
+         /* Just quietly give them help */
+         o->bAbout = 0;
+      }
+
+      /* The next two if statements have exactly the same results. I just thought
+         that two if statements (one for filenames, one for options) was a bit more
+         readable. */
+      if ((o->bpffile) || (o->binfile))
+      {
+         fprintf(stderr, "ERROR: The -a and -h options are mutually exclusive.\n");
+         return(NULL);
+      }
+
+      if ((o->bVerbose) || (o->bDebug))
+      {
+         fprintf(stderr, "ERROR: The -a and -h options are mutually exclusive.\n");
+         return(NULL);
+      }
+
       return(o);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-   /* STUB: Used to hard-code debug. 
-  o->bpffile = nc_mkstring("sample.bpf");
-   */
-
-
-
-  /* STUB: Validate the options */
-  
-
-
+   }
 
   return(o);
 }
 
 /* ========================================================================= */
+/* This is a rare case of not messaging at the point of error.               */
 int parse_opt_tail(char *line)
 {
    char LINE[16];
@@ -151,19 +146,15 @@ int parse_opt_tail(char *line)
    eat_ws(&line);
 
    i = 0;
-   while ( line[i] != 0 )
+   /* Coulda shoulda done isalpha() on this */
+   while ( (( line[i] >= 'a' ) && ( line[i] <= 'z' )) ||
+           (( line[i] >= 'A' ) && ( line[i] <= 'Z' )) ||
+           (( line[i] >= '0' ) && ( line[i] <= '9' )) )
    {
       if ( ( line[i] >= 'a' ) && ( line[i] <= 'z' ) )
          LINE[i] = line[i] - 32;
       else
          LINE[i] = line[i];
-
-      /* White space is termination */
-      /* This means that we might have trailing shit after the space that
-         should invalidate the line. I am going to tolerate this now, but
-         throw in a STUB to take a look at it. */
-      if ( ( line[i] == ' ' ) || ( line[i] == '\t' ) ) 
-         LINE[i] = 0;
 
       i++;
 
@@ -172,6 +163,16 @@ int parse_opt_tail(char *line)
    }
 
    LINE[i] = 0; /* Terminate */
+
+   while (( line[i] == ' ' ) || ( line[i] == '\t' ))
+      i++;
+   
+   /* The next char should be termination or the # starting a comment. And
+      the comment was filtered in the calling function. */
+   if (( line[i] != '#' ) && ( line[i] != 0 ))
+   {
+      return(-1);
+   }
 
    if ( 0 == strcmp(LINE, "TRUE") )
       return(1);
@@ -219,12 +220,7 @@ int ParseBPFOptions(Options *o)
       hash_trunc(line);         /* Truncate Hash based comments */
 
       /* Line sniff for setting options */
-      if (( line[0] == 's' ) &&
-          ( line[1] == 'e' ) &&
-          ( line[2] == 't' ) &&
-          ( line[3] == 'o' ) &&
-          ( line[4] == 'p' ) &&
-          ( line[5] == 't' ))
+      if ( line == strstr(line, "setopt"))
       {
          line += 6;
 
