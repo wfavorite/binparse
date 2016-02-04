@@ -1,0 +1,6 @@
+#!./bp
+
+setopt v true
+
+0 1 achar "A character" char   
+1 achar aval "A value" ztstr

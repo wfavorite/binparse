@@ -1,0 +1,8 @@
+#!./bp
+
+# This line is fine
+#0 ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden
+
+# This line breaks... silently
+0 ( 0 + (somesc + 2)  broken "String Size" uint16 hidden
+
