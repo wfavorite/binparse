@@ -6,8 +6,6 @@ CCOPTS=-Wall -Werror
 LDOPTS=
 
 
-
-# This is the stuff merged in (not yet tested)
 bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o
 	@printf "Done.\nLinking..."
 	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o
@@ -65,48 +63,23 @@ bpdata.o: bpdata.c bpdata.h
 	@$(CC) $(CCOPTS) -c $<
 	@printf "."
 
-
-
-# STUB: Pull this from all code
-#support.o: support.c support.h
-#	@printf "  $< to $@\n"
-#	@$(CC) $(CCOPTS) -c $<
-
-
-
-
-
-
 main.o: main.c options.h bpfparse.h version.h strlib.h
-	@$(CC) $(CC_OPTS) -c main.c
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 bpfparse.o: bpfparse.c bpfparse.h strlib.h slfile.h pmath.h penum.h bpdata.h
-	@$(CC) $(CC_OPTS) -c bpfparse.c
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 options.o: options.c options.h
-	@$(CC) $(CC_OPTS) -c options.c
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 strlib.o: strlib.c strlib.h
-	@$(CC) $(CC_OPTS) -c strlib.c
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
-
-
-
-# Trial code
-datapoint.o: datapoint.c
-	$(CC) $(CC_OPTS) -c datapoint.c
-
-
-
-
-
-
-
-
+# PHONY targets
 ccstart:
 	@printf "Compiling source files."
 
@@ -114,8 +87,11 @@ ldstart:
 	@printf "Done.\n"
 	@printf "Linking object files."
 
+Gmake:
+	@printf "ERROR: This is a gmake makefile. Use gmake, not make." >&2
+	@false
 
-
+# Cleanup related PHONYs
 clean: lean
 	@printf "Cleaning build directory."
 	@rm -f pmath
