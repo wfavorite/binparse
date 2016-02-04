@@ -424,6 +424,13 @@ RuleSet *ParseBPFFile(Options *o)
       return(NULL);
    }
 
+   /* Here we go.... The plan:
+      1. Grab a line ----> NextLine()
+      2. Strip off comments, leading, & trailing ws
+      3. Sniff it for a line type
+      4. Try to parse it as that type
+   */
+
    /* Now start pulling lines */
    while(NextLine(f))
    {
@@ -433,6 +440,7 @@ RuleSet *ParseBPFFile(Options *o)
       chomp(line);              /* Kill EOL chars */
       line = leadingwst(line);  /* Kill leading WS */
       hash_trunc(line);         /* Truncate Hash based comments */
+      /* STUB: Why not clear off trailing ws? */
 
       /* Eliminate empty lines (early) */
       if ( *line == 0 )

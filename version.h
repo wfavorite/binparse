@@ -65,7 +65,10 @@
                        isolated and not used within that file.
                      - grep $TUB * | wc -l ----> 38
     0.10.0    2/4/16 - Cleaned up options parsing.
-
+                     - More cleanup of pp parsing.
+                     - grep $TUB * | wc -l ----> 26
+                     - Removed dead code in pmath.c
+                     - grep $TUB * | wc -l ----> 17
 
 */
 #define VERSION_STRING "0.10.0"
@@ -79,26 +82,23 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [_] Write the must= clause support. This is in bpfparse.c::handle_ppopt().
+   [ ] Time to focus on resolving tags (2nd pass operations).
+   [ ] There is still no support for the "settag" operator.
    [ ] Cleanup comments and structure in bpdata.h.
    [ ] When printing the error messages in bpfparse.c::resolve_tag(), the
        void pointer in the union is used. How do you know this is good (that
        it points to a string and not another struct)? It may be appropriate
        to write a gettor function, check this before writing, or have a
        solid look at the code and comment the shit out of it.
-   [ ] You should move app-specific string checking and manipulation to
+   [Q] You should move app-specific string checking and manipulation to
        an app specific source file.
-   [ ] penum.c::parse_enum_pair() does not have lineno.
    [ ] The tag member of the union in Entity can be a string and a pointer
        to a parse point. What if it points to an explicit tag? The resolution
        will be different - meaning you need a new type to cover this type of
        tag to be resolved (and how to resolve it).
-   [_] Verbose mode should show stats at the end of the first (and other)
-       pass(es).
-   [_] handle_ppopt() does not properly get the line number. Nor does it deal
-       with empty strings.
    [ ] When ParsePoints are added, the tag identifiers must be compared to
        insure that they are unique. Tag name collisions are not allowed.
-   [ ] Re-write the enum definition to have an operator word (setenum).
    [ ] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
@@ -118,22 +118,7 @@
           same tag (in the offset field).
        3. "settag" and "setenum" operators seem to make the most sense, and
           are consistent (with each other).
-   [ ] Write the must= clause support. This is in bpfparse.c::handle_ppopt().
-   [Q] pmath "5 6" passes, it should not. Perhaps it should. It sees 5<space>
-       and considers 5 a valid number. The 6 would be parsed as a different
-       entity / token on the line and fail there. I will keep this here
-       until that is tested. But parsing $(pmath "5 6") into 5 is appropriate. 
-   [ ] Eliminate redundant error messages. Make parsing errors consistent
-       across all fail points.
-   [ ] Create more sample.bpf files - perhaps they should be part of the test
-       suite.
    [ ] No documentation of struct members or ParseOptions() in options.h.
-   [ ] Some functions in strlib.h are not documented.
-   [ ] The datapoint.* code probably needs to go. It was part of the original
-       C++ design.
-   [_] Enum parsing in bpfparse.c::ParseBPFFile() needs to handle the $tubs
-       dealing with return values from ParseEnum() as well as changes to 
-       ParseEnum() itself in terms of input.
    [ ] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
@@ -144,7 +129,6 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [ ] options.c::ParseOptions() should validate the options before returning.
    [ ] The help output has a few different output methods. These are not
        covered in the options struct (with appropriate flags), nor is the
        help output clear on what the options mean. (Specifically: The output
@@ -152,15 +136,12 @@
    [D] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
-   [ ] Hide all the debug messages behind pre-processor directives.
    [ ] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
    [ ] You should establish size and allocate memory for the data items.
        This should probably be done during the third pass (DT_ZTSTR will
        not be known until it is read).
-   [ ] Create a separate todo list for strlib. This will be portable to
-       other projects - an "inline object".
    [ ] Fill out all the empty function paramater comment blocks.
    [ ] Write man pages for bp(1) and bpf(5).
    [ ] Need to properly differentiate between ' and " in the strlib.
@@ -168,6 +149,30 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Re-write the enum definition to have an operator word (setenum).
+   [X] Create more sample.bpf files - perhaps they should be part of the test
+       suite.
+   [X] Eliminate redundant error messages. Make parsing errors consistent
+       across all fail points.
+   [W] Create a separate todo list for strlib. This will be portable to
+       other projects - an "inline object".
+   [X] Hide all the debug messages behind pre-processor directives.
+   [X] options.c::ParseOptions() should validate the options before returning.
+   [W] pmath "5 6" passes, it should not. Perhaps it should. It sees 5<space>
+       and considers 5 a valid number. The 6 would be parsed as a different
+       entity / token on the line and fail there. I will keep this here
+       until that is tested. But parsing $(pmath "5 6") into 5 is appropriate. 
+   [X] Verbose mode should show stats at the end of the first (and other)
+       pass(es).
+   [X] handle_ppopt() does not properly get the line number. Nor does it deal
+       with empty strings.
+   [X] Some functions in strlib.h are not documented.
+   [X] The datapoint.* code probably needs to go. It was part of the original
+       C++ design.
+   [X] Enum parsing in bpfparse.c::ParseBPFFile() needs to handle the $tubs
+       dealing with return values from ParseEnum() as well as changes to 
+       ParseEnum() itself in terms of input.
+   [X] penum.c::parse_enum_pair() does not have lineno.
    [X] All error messages in penum.c are inconsistent with general app look
        and feel.
    [X] Write parser for (in-bpf-file) command line options. Such as:
