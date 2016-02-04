@@ -200,6 +200,7 @@ int ParseBPFOptions(Options *o)
    char opt[16];  /* The length here is an arbitrarly long length. */
    char tail[64]; /* Same here. */
    char thisopt;
+   int parsed = 0;
 
    /* These items are checked elsewhere. This is just a final firewall,
       and assert()-like errors would be appropriate for an unset filename
@@ -242,13 +243,13 @@ int ParseBPFOptions(Options *o)
             fprintf(stderr, "BPF file setopt failure. Option \"%c\" on line %d is not supported as a \n", *line, f->lineno);
             fprintf(stderr, "   file-based option. (It can only be set from command line.)\n");
             /* Let's exit. This could be ignored, but best to error because results will not match intent. */
-            return(1);
+            return(-1);
             break; /* A compiler thing */
          default:
             fprintf(stderr, "-------------------------------------------------------------------------------\n");
             fprintf(stderr, "The BPF file setopt option on line %d is not understood. \n", f->lineno);
             /* Exit - don't ignore. */
-            return(1);
+            return(-1);
             break; /* A compiler thing */
          }
 
@@ -260,7 +261,7 @@ int ParseBPFOptions(Options *o)
             fprintf(stderr, "BPF file setopt failure. Problems parsing the argument on line %d. Only one\n", f->lineno);
             fprintf(stderr, "   option is allowed per \"setopt\" directive.\n");
             /* Only allow a single option per line */
-            return(1);
+            return(-1);
          }
             
          switch( thisopt )
@@ -270,16 +271,18 @@ int ParseBPFOptions(Options *o)
             {
                fprintf(stderr, "-------------------------------------------------------------------------------\n");
                fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
-               return(1);
+               return(-1);
             }
+            parsed++;
             break;
          case 'v':
             if ( -1 == (o->bVerbose = parse_opt_tail(line)) )
             {
                fprintf(stderr, "-------------------------------------------------------------------------------\n");
                fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
-               return(1);
+               return(-1);
             }
+            parsed++;
             break;
             /* You can't have a "default" option here. Other paths have been eliminated. */
          }
@@ -288,6 +291,22 @@ int ParseBPFOptions(Options *o)
   
    /* Close the file */
    EndFile(f);
+
+   return(parsed);
+}
+
+/* ========================================================================= */
+int IsSetOpt(char *line)
+{
+   eat_ws(&line);
+
+   if ( line == strstr(line, "setopt") )
+      line += 6;
+   else
+      return(0);
+
+   if (( *line == ' ' ) || ( *line == '\t' ))
+      return(1);
 
    return(0);
 }

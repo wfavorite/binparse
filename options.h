@@ -87,4 +87,7 @@ Options *ParseOptions(int argc, char *argv[]);
  */
 int ParseBPFOptions(Options *o);
 
+/* Basic sniffing for setopt line */
+int IsSetOpt(char *line);
+
 #endif

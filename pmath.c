@@ -475,7 +475,7 @@ int parse_tag(char *tag, char *str)
       str++;
    }
 
-   if (( *str != ' ' ) && ( *str != '\t' ) && ( *str != ')' ))
+   if (( *str != ' ' ) && ( *str != '\t' ) && ( *str != ')' ) && ( *str != 0 ))
       return(0);
 
    *tag = 0;

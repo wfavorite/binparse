@@ -13,6 +13,7 @@ int main ( int argc, char *argv[] )
 {
   Options *o;
   RuleSet *r;
+  int bpfopt;
 
   /* Read in command line options */
   if ( NULL == (o = ParseOptions(argc, argv)) )
@@ -55,14 +56,14 @@ int main ( int argc, char *argv[] )
      fprintf(stderr, "Pre-compile pass starting.\n");
   }
   
-  if ( ParseBPFOptions(o) )
+  if ( -1 == ( bpfopt = ParseBPFOptions(o) ) )
      return(1);
 
   /*** First pass: Read in parsed items, without tag resolution ***/
   if ( o->bVerbose )
   {
     fprintf(stderr, "Pre-compile pass complete.\n");
-    fprintf(stderr, "  File-set options parsed : STUB\n");
+    fprintf(stderr, "  File-set options parsed : %d\n", bpfopt);
     fprintf(stderr, "First pass compile starting.\n");
   }
 
@@ -75,9 +76,9 @@ int main ( int argc, char *argv[] )
   {
     fprintf(stderr, "First pass compile complete.\n");
     fprintf(stderr, "  Decoded parse points    : %d\n", CountParsePoints(r));
-    fprintf(stderr, "  Decoded enums           : STUB\n");
-    fprintf(stderr, "  Builtin enums           : STUB\n");
-    fprintf(stderr, "  Explicit tags           : STUB\n");
+    fprintf(stderr, "  Decoded enums           : %d\n", CountParsedEnums(r));
+    fprintf(stderr, "  Builtin enums           : %d\n", CountBuiltinEnums(r));
+    fprintf(stderr, "  Explicit tags           : %d\n", CountExplicitTags(r));
     fprintf(stderr, "Second pass compile starting.\n");
   }
 

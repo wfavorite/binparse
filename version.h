@@ -79,6 +79,7 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Cleanup comments and structure in bpdata.h.
    [ ] When printing the error messages in bpfparse.c::resolve_tag(), the
        void pointer in the union is used. How do you know this is good (that
        it points to a string and not another struct)? It may be appropriate
@@ -87,9 +88,6 @@
    [ ] You should move app-specific string checking and manipulation to
        an app specific source file.
    [ ] penum.c::parse_enum_pair() does not have lineno.
-   [ ] All error messages in penum.c are inconsistent with general app look
-       and feel.
-   [ ] Finish ParseOptions().
    [ ] The tag member of the union in Entity can be a string and a pointer
        to a parse point. What if it points to an explicit tag? The resolution
        will be different - meaning you need a new type to cover this type of
@@ -98,8 +96,6 @@
        pass(es).
    [_] handle_ppopt() does not properly get the line number. Nor does it deal
        with empty strings.
-   [_] The calls to ParseEntity() inside get_parse_point() do not have the
-       line numbers passed, nor do they have proper exception handling.
    [ ] When ParsePoints are added, the tag identifiers must be compared to
        insure that they are unique. Tag name collisions are not allowed.
    [ ] Re-write the enum definition to have an operator word (setenum).
@@ -129,16 +125,13 @@
        until that is tested. But parsing $(pmath "5 6") into 5 is appropriate. 
    [ ] Eliminate redundant error messages. Make parsing errors consistent
        across all fail points.
-   [_] Write parser for (in-bpf-file) command line options. Such as:
-       setopt c         <---- Same as -c
-       setopt x myarg   <---- Same as -x myarg
    [ ] Create more sample.bpf files - perhaps they should be part of the test
        suite.
    [ ] No documentation of struct members or ParseOptions() in options.h.
    [ ] Some functions in strlib.h are not documented.
    [ ] The datapoint.* code probably needs to go. It was part of the original
        C++ design.
-   [ ] Enum parsing in bpfparse.c::ParseBPFFile() needs to handle the $tubs
+   [_] Enum parsing in bpfparse.c::ParseBPFFile() needs to handle the $tubs
        dealing with return values from ParseEnum() as well as changes to 
        ParseEnum() itself in terms of input.
    [ ] Technically.... You should be able to call the executable bpf file with
@@ -169,13 +162,21 @@
    [ ] Create a separate todo list for strlib. This will be portable to
        other projects - an "inline object".
    [ ] Fill out all the empty function paramater comment blocks.
-   [ ] Write the struct mini-comment blocks.
    [ ] Write man pages for bp(1) and bpf(5).
    [ ] Need to properly differentiate between ' and " in the strlib.
    [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] All error messages in penum.c are inconsistent with general app look
+       and feel.
+   [X] Write parser for (in-bpf-file) command line options. Such as:
+       setopt c         <---- Same as -c
+       setopt x myarg   <---- Same as -x myarg
+   [X] Write the struct mini-comment blocks.
+   [X] Finish ParseOptions().
+   [X] The calls to ParseEntity() inside get_parse_point() do not have the
+       line numbers passed, nor do they have proper exception handling.
    [X] Start working the $stubs throught the code. Currently at 80 across the
        entire project. Clear this todo when it is <= 40.
    [X] Create file parser for .bpf (bin parse format) files.

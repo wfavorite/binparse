@@ -59,3 +59,10 @@ int CountBuiltinEnums(RuleSet *rs)
 
    return(ctr);
 }
+
+/* ========================================================================= */
+int CountExplicitTags(RuleSet *rs)
+{
+   /* STUB */
+   return(0);
+}

@@ -266,4 +266,14 @@ int CountParsedEnums(RuleSet *rs);
  */
 int CountBuiltinEnums(RuleSet *rs);
 
+/* =========================================================================
+ * Name: 
+ * Desc: 
+ * Params:
+ * Returns: 
+ * Side Effects: 
+ * Notes: 
+ */
+int CountExplicitTags(RuleSet *rs);
+
 #endif

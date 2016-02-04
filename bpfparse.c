@@ -29,6 +29,7 @@ RuleSet *new_ruleset(void)
   rs->pass = 0;         /* No pass has been completed                       */
 
   rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
+  rs->belist = NULL;    /* Empty list for the (builtin) enums               */
   
   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
      return(NULL);
@@ -115,9 +116,6 @@ ParsePoint *new_parsepoint(int lineno)
 /* ========================================================================= */
 int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 {
-   char HIDDEN[] = "hidden";
-   char HIDE[] = "hide";
-
    /* Asserts are more appropriate */
    assert(NULL != pp);
    assert(NULL != raw_ppopt);
@@ -127,31 +125,53 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 
    /* Check for an empty string */
    if ( raw_ppopt[0] == 0 )
-      return(1);  /* STUB: Test this case. It *should* be passed over here
-                     STUB:    but it should be handled before it gets here.
-                     STUB:    So I will error for now, until the calling
-                     STUB:    function checks this beforehand. */
-
-
+      return(0); /* Exit without an error. It has been shown that this
+                    is not a possibility (this bug no longer needs to be
+                    caught). So just go back as though nothing happend. */
 
    /* Ok... this is not a perfect pattern match, but it works with some
       edge case issues that are likely not an issue.
    */
-   if ( raw_ppopt == strstr(raw_ppopt, HIDDEN) )
+   if ( raw_ppopt == strstr(raw_ppopt, "hidden") )
    {
       pp->print_result = 0;
       return(0);
    }
 
-   if ( raw_ppopt == strstr(raw_ppopt, HIDE) )
+   if ( raw_ppopt == strstr(raw_ppopt, "hide") )
    {
       pp->print_result = 0;
       return(0);
    }
 
-   /* STUB: Handle must= */
+   if ( raw_ppopt == strstr(raw_ppopt, "must=") )
+   {
+      fprintf(stderr, "STUB: must= directive parsed on line %d, not supported at this time.\n", pp->lineno);
+      /* parse_muste() */
+      return(0);
+   }
+
+
+
+
+
+
+
+
+
+
+
 
    /* STUB: Handle enum tag */
+
+
+
+
+
+
+
+
+
 
    fprintf(stderr, "-------------------------------------------------------------------------------\n");
    fprintf(stderr, "Tag comprehension failure. Directive tag \"%s\" on line %d is not understood.\n", raw_ppopt, pp->lineno);
@@ -173,50 +193,75 @@ ParsePoint *get_parse_point(File *f)
   char raw_ppopt[MAX_TOKEN_LEN];
   uint32_t nval;
   int i;
-  int lineno;
+  //int lineno;
   char *line;
 
   assert(NULL != f);
 
   /* Local use convenience */
-  lineno = f->lineno;
+  //lineno = f->lineno;
   line = f->line;
 
-  /* STUB: These return(NULL)s are not very informative! */
-
-  if ( strlen(line) <= 10 )
-    return(NULL);
-  
-  if ( copy_out_nth_token(raw_offset, MAX_TOKEN_LEN, line, 1) )
-    return(NULL);
-
-
-  if ( copy_out_nth_token(raw_size, MAX_TOKEN_LEN, line, 2) )
-  {
-     /* fprintf(stderr, "STUB DEBUG: copy_out_nth_token(NONE)\n"); */
-     return(NULL);
-  }
-
-  /*
-  fprintf(stderr, "STUB DEBUG: copy_out_nth_token(%s)\n", raw_size);
-  */
-
-  if ( copy_out_nth_token(raw_tag, MAX_TOKEN_LEN, line, 3) )
-    return(NULL);
-
-  if ( copy_out_nth_token(raw_label, MAX_TOKEN_LEN, line, 4) )
-    return(NULL);
-
-  if ( copy_out_nth_token(raw_dt, MAX_TOKEN_LEN, line, 5) )
-    return(NULL);
-  
   /* If we got here, then we have sufficient data */
-  if ( NULL == (pp = new_parsepoint(lineno)) )
+  if ( NULL == (pp = new_parsepoint(f->lineno)) )
   {
     /* We MUST exit on error here. The only means of failure is a bad
        malloc(). We cannot simply return NULL on a bad malloc(). We must
        throw and exception and exit. */
     exit(1);
+  }
+
+  /* Check first to see if this is an empty line. That is a no-error return */
+  eat_ws(&line);
+  if ( *line == 0 )
+     return(NULL);
+
+  if ( strlen(line) <= 10 )
+  {
+     fprintf(stderr, "-------------------------------------------------------------------------------\n");
+     fprintf(stderr, "Problems parsing line %d due to length issues.\n", pp->lineno);
+     pp->fail_bail = 1;
+     return(pp);
+  }
+  
+  if ( copy_out_nth_token(raw_offset, MAX_TOKEN_LEN, line, 1) )
+  {
+     fprintf(stderr, "-------------------------------------------------------------------------------\n");
+     fprintf(stderr, "Problems parsing the first element in line %d.\n", pp->lineno);
+     pp->fail_bail = 1;
+     return(pp);
+  }
+
+  if ( copy_out_nth_token(raw_size, MAX_TOKEN_LEN, line, 2) )
+  {
+     fprintf(stderr, "-------------------------------------------------------------------------------\n");
+     fprintf(stderr, "Problems parsing the second element in line %d.\n", pp->lineno);
+     pp->fail_bail = 1;
+     return(pp);
+  }
+
+  if ( copy_out_nth_token(raw_tag, MAX_TOKEN_LEN, line, 3) )
+  {
+     fprintf(stderr, "-------------------------------------------------------------------------------\n");
+     fprintf(stderr, "Problems parsing the third element in line %d.\n", pp->lineno);
+     pp->fail_bail = 1;
+     return(pp);
+  }
+
+  if ( copy_out_nth_token(raw_label, MAX_TOKEN_LEN, line, 4) )
+  {
+     fprintf(stderr, "-------------------------------------------------------------------------------\n");
+     fprintf(stderr, "Problems parsing the fourth element in line %d.\n", pp->lineno);
+     pp->fail_bail = 1;
+     return(pp);
+  }
+
+  if ( copy_out_nth_token(raw_dt, MAX_TOKEN_LEN, line, 5) )
+  {
+     fprintf(stderr, "-------------------------------------------------------------------------------\n");
+     fprintf(stderr, "Problems parsing the fifth element in line %d.\n", pp->lineno);
+     pp->fail_bail = 1;
+     return(pp);
   }
 
   /* Parse the options (which are *optional*) after parsing the items
@@ -258,7 +303,8 @@ ParsePoint *get_parse_point(File *f)
   /* The offset */
   if ( NULL != ( e = ParseEntity(raw_offset, f->lineno) ) )
   {
-     DBG_dump_entity(0, e);
+     /* STUB: What to do here? 
+        DBG_dump_entity(0, e); */
      pp->Offset = e;
   }
   else
@@ -270,7 +316,8 @@ ParsePoint *get_parse_point(File *f)
   /* The size */
   if ( NULL != ( e = ParseEntity(raw_size, f->lineno) ) )
   {
-     DBG_dump_entity(0, e);
+     /* STUB: Make this an option of debug?
+        DBG_dump_entity(0, e); */
      pp->Size = e;
   }
   else
@@ -320,7 +367,7 @@ ParsePoint *get_parse_point(File *f)
   if ( DT_NONE == pp->dt )
   {
     fprintf(stderr, "Parse file error: Problems parsing a token.\n  Line: %d\n  Token: %s\n",
-	    lineno, raw_dt);
+	    pp->lineno, raw_dt);
     /* What we can do here...
        1. Press on, and try to parse the rest of the items in the file with
           the risk that this line is NOT a dependent line. Throw away the pp
@@ -387,6 +434,10 @@ RuleSet *ParseBPFFile(Options *o)
       line = leadingwst(line);  /* Kill leading WS */
       hash_trunc(line);         /* Truncate Hash based comments */
 
+      /* Eliminate empty lines (early) */
+      if ( *line == 0 )
+         continue;
+
       /* Line sniff for enum */
       if ( IsEnumLine(line) )
       {
@@ -406,11 +457,14 @@ RuleSet *ParseBPFFile(Options *o)
          continue;
       }
 
+      if ( IsSetOpt(line) )
+      {
+         continue;
+      }
+
       /* STUB: Line sniff for htagXXXX */
 
       /* STUB: Line sniff for option */
-
-
 
       if ( NULL != (pp = get_parse_point(f)) )
       {

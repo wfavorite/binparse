@@ -8,9 +8,9 @@ setopt + off
 
 0 ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden
 # This line breaks, but not in a good way
-#0 ( 0 + (somesc + 2)  strsz "String Size" uint16 hidden
+0 ( 0 + (somesc + 2)  broken "String Size" uint16 hidden
 
-2 strsz strdat "The String" ztstr 
+2 strsz strdat "The String" ztstr
 16 4 someval 'Some Value' int32
 someval 1 somesc "single char" char
 
@@ -18,6 +18,6 @@ someval 1 somesc "single char" char
 #boff 4 boff "Bad ofset" uint32 print
 
 # This is an enum line (Each of these are existing builtins)
-enumbool = { 0:false; default:true; }
-enumBOOL = { 0:FALSE; default:TRUE; }
-enumBool = { 0:False; default:True; }
+setenum enumbool = { 0:false; default:true; }
+setenum enumBOOL = { 0:FALSE; default:TRUE; }
+setenum enumBool = { 0:False; default:True; }

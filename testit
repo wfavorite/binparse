@@ -112,6 +112,15 @@ then
     ./pmath "0x34fg"
     echo "SHOULD FAIL"
 
+    echo "========================================================================="
+    # Invalid hex number
+    echo "TEST: \"( 0 + (somesc + 2)\""
+    ./pmath "( 0 + (somesc + 2)"
+    echo "SHOULD FAIL"
+
+
+
+
 fi
 
 
