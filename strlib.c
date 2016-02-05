@@ -792,5 +792,19 @@ char *three_dot_trunc(char *fill, int fill_len, char *source)
 }
 
 
+/* ========================================================================= */
+int conv_to_uc(char *cpstr)
+{
+   if ( NULL == cpstr )
+      return(1);
 
+   while ( *cpstr != 0 )
+   {
+      if (( *cpstr >= 'a' ) && ( *cpstr <= 'z' ))
+         *cpstr -= 32;
 
+      cpstr++;
+   }
+
+   return(0);
+}

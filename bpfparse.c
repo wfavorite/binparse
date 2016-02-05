@@ -71,54 +71,105 @@ int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
 /* ========================================================================= */
 ParsePoint *new_parsepoint(int lineno)
 {
-  ParsePoint *pp;
+   ParsePoint *pp;
 
-  if (NULL == (pp = (ParsePoint *)malloc(sizeof(ParsePoint))))
-  {
-     fprintf(stderr, "ERROR: Failed to allocate memory for a parse point.\n");
-     /* We exit because the only way to pass back failure is to pass back a
-        pp with fail_bail set. When failing on a malloc() here, just exit. */
-     exit(1);
-  }
+   if (NULL == (pp = (ParsePoint *)malloc(sizeof(ParsePoint))))
+   {
+      fprintf(stderr, "ERROR: Failed to allocate memory for a parse point.\n");
+      /* We exit because the only way to pass back failure is to pass back a
+         pp with fail_bail set. When failing on a malloc() here, just exit. */
+      exit(1);
+   }
 
-  /* Offset value */
-  pp->Offset = NULL;
-  /* Size value */
-  pp->Size = NULL;
-  /* The tag */
-  pp->tag = NULL;
-  /* The label */
-  pp->label = NULL;
-  /* Data & type */
-  pp->data = NULL;
-  pp->dt = DT_NULL;
-  /* Line number related to this rule */
-  /* Set lineno because functions that get passed a fresh ParsePoint
-     will rely upon this if they encounter an error. Generally you will be
-     dumping data into this struct (in the early setup), but this one piece
-     of data is always guarenteed to be good. This is "private". */
-  pp->lineno = lineno;
-  /* Boolean flags for status */
-  pp->tags_resolved = 0;   /* Pass 2 not complete */
-  pp->data_resolved = 0;   /* Pass 3 not complete */
-  /* Linked list pointer */
-  pp->next = NULL;
-  /* Set all the "6th options" to defaults */
-  pp->print_result = 1; /* Always print by default */
-  pp->use_enum = NULL;  /* No enum by default */
-  pp->muste = 0;        /* muste is the flag to read muste_val */
-  pp->fail_bail = 0;
+   /* Offset value */
+   pp->Offset = NULL;
+   /* Size value */
+   pp->Size = NULL;
+   /* The tag */
+   pp->tag = NULL;
+   /* The label */
+   pp->label = NULL;
+   /* Data & type */
+   pp->data = NULL;
+   pp->dt = DT_NULL;
+   /* Line number related to this rule */
+   /* Set lineno because functions that get passed a fresh ParsePoint
+      will rely upon this if they encounter an error. Generally you will be
+      dumping data into this struct (in the early setup), but this one piece
+      of data is always guarenteed to be good. This is "private". */
+   pp->lineno = lineno;
+   /* Metadata -- Boolean flags for status */
+   pp->fail_bail = 0;
+   pp->tags_resolved = 0;   /* Pass 2 not complete */
+   pp->data_resolved = 0;   /* Pass 3 not complete */
+   /* Linked list pointer */
+   pp->next = NULL;
+   /* Set all the "6th options" to defaults */
+   pp->print_result = 1; /* Always print by default */
+   pp->use_enum = NULL;
+   pp->enum_tag = NULL;
+   pp->use_muste = 0;
+   pp->muste_val = 0;
+   pp->use_mask = 0; /* The thinking is that this is unnessary. That the */
+   pp->mask_val = 0; /*   mask_val can default to all-bits-set mask,and  */
+                     /*   everything can default to having a mask.       */
 
-  
   return(pp);
+}
+
+/* ========================================================================= */
+/* This is effectively an inline function just for handle_ppopt(). It really
+   should not be used for anything else. It was designed with that STRICTLY
+   in mind. Definetly do not error here. */
+int copyout_equal(char *fill, char *eqsrc)
+{
+   int c = 0;
+
+   assert( NULL != fill );
+   
+   if ( NULL == eqsrc )
+      return(1);
+
+   /* We know that the input is "<pattern>=". So we can safely walk through
+      the equal sign. */
+   while ( *eqsrc != '=' )
+      eqsrc++;
+
+   eqsrc++; /* Move off the '=' symbol. */
+
+   /* Step through all the possible chars - filling the target location */
+   while ( ( *eqsrc != ' ' ) && ( *eqsrc != '\t' ) && ( *eqsrc != 0 ) )
+   {
+      *fill = *eqsrc;
+      fill++;
+      eqsrc++;
+      c++;
+
+      if ( c == MAX_TOKEN_LEN )
+         return(1);
+   }
+
+   *fill = 0; /* Terminate */
+   
+   /* No data */
+   if ( c == 0 )
+      return(1);
+
+
+   return(0);
 }
 
 /* ========================================================================= */
 int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 {
+   int gotit;
+   BPInt rhsn; /* Right Hand Side Numeric */
+
    /* Asserts are more appropriate */
    assert(NULL != pp);
    assert(NULL != raw_ppopt);
+
+   char eqstr[MAX_TOKEN_LEN];
 
    /* Walk off any leading ws - this *should* have no effect */
    eat_ws(&raw_ppopt);
@@ -131,38 +182,118 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 
    /* Ok... this is not a perfect pattern match, but it works with some
       edge case issues that are likely not an issue.
-   */
-   if ( raw_ppopt == strstr(raw_ppopt, "hidden") )
-   {
-      pp->print_result = 0;
-      return(0);
-   }
 
-   if ( raw_ppopt == strstr(raw_ppopt, "hide") )
+      Also note that I am equating hidden= and hide=, but using hidden= in
+      the error message. This effectively means that hidden= is the
+      desired syntax, but hide= is supported.
+   */
+   if (( raw_ppopt == strstr(raw_ppopt, "hidden=") ) || ( raw_ppopt == strstr(raw_ppopt, "hide=") ))
    {
-      pp->print_result = 0;
+      if(copyout_equal(eqstr, raw_ppopt))
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
+         fprintf(stderr, "\"hidden=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
+
+      conv_to_uc(eqstr); /* Make it upper case */
+
+      gotit = 0;
+
+      if ( eqstr == strstr(eqstr, "TRUE") )
+      {
+         gotit++;
+         pp->print_result = 0;
+      }
+
+      if ( eqstr == strstr(eqstr, "FALSE") )
+      {
+         gotit++;
+         pp->print_result = 1;
+      }
+
+      if ( 0 == gotit )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
+         fprintf(stderr, "\"hidden=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
+
       return(0);
    }
 
    if ( raw_ppopt == strstr(raw_ppopt, "must=") )
    {
-      fprintf(stderr, "STUB: must= directive parsed on line %d, not supported at this time.\n", pp->lineno);
-      /* parse_muste() */
+      if(copyout_equal(eqstr, raw_ppopt))
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
+         fprintf(stderr, "\"must=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
+
+      if ( ParseBPInt(&rhsn, eqstr) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
+         fprintf(stderr, "\"must=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
+
+      pp->use_muste = 1;    /* This means the next value is "set".       */
+      pp->muste_val = rhsn; /* Assign (set) a value                      */
+
+      return(0);
+   }
+
+   if ( raw_ppopt == strstr(raw_ppopt, "mask=") )
+   {
+      if(copyout_equal(eqstr, raw_ppopt))
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
+         fprintf(stderr, "\"mask=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
+
+      if ( ParseBPInt(&rhsn, eqstr) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
+         fprintf(stderr, "\"mask=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
+
+      pp->use_mask = 1;    /* This means the next value is "set".       */
+      pp->mask_val = rhsn; /* Assign (set) a value                      */
+
       return(0);
    }
 
 
+   if ( raw_ppopt == strstr(raw_ppopt, "enum=") )
+   {
+      if(copyout_equal(eqstr, raw_ppopt))
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
+         fprintf(stderr, "\"enum=\" operator on line %d.\n", pp->lineno);
+         pp->fail_bail = 1;
+         return(1);
+      }
 
+      pp->enum_tag = nc_mkstring(eqstr);
 
-
-
-
-
-
-
-
-
-   /* STUB: Handle enum tag */
+      return(0);
+   }
 
 
 

@@ -9,7 +9,7 @@
 
 /* This is the length of a tag. It is used explicity in Enum parsing.
    It is NOT used in ParsePoint parsing. ParsePoint tags default to
-   MAX_TOKEN_LEN size. */
+   MAX_TOKEN_LEN size. It is used in enum= parsing. */
 #define MAX_TAG_LEN 20
 
 /* ========================================================================= */
@@ -199,12 +199,15 @@ typedef struct ParsePoint
    /* Field 5 - data type */
    unsigned long dt;        /* How to interpret the data item (define enum)  */
    /* Flags / options (the optional 6th field) */
-   int print_result;
-   Enum *use_enum;          /* The list of builtin enums                      */
-   int muste;
-   BPInt muste_val;
+   int print_result;        /* To print results or not. 1=print, 0=not.      */
+   Enum *use_enum;          /* Resolved enum to use to decode                */
+   char *enum_tag;          /* Unresolved enum tag to use to decode          */
+   int   use_muste;         /* Boolean --> 1 use must=, 0 do not use must=   */
+   BPInt muste_val;         /* The value to use for must= directives         */
+   int   use_mask;          /* Boolean --> 1 use mask=, 0 do not use mask=   */
+   BPInt mask_val;          /* The value to use for mask= directives         */
 
-
+   /* Data and metadata */
    void *data;              /* A pointer to the data item/type               */
    
    int lineno;              /* The line number of the "rule". Used for error

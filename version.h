@@ -69,9 +69,11 @@
                      - grep $TUB * | wc -l ----> 26
                      - Removed dead code in pmath.c
                      - grep $TUB * | wc -l ----> 17
+    0.11.0    2/5/16 - Added support for <directive>= parsing.
+                     - Added support for 6th token directives.
 
 */
-#define VERSION_STRING "0.10.0"
+#define VERSION_STRING "0.11.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should

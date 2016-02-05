@@ -204,4 +204,18 @@ void eat_ws(char **shand);
  */
 int str_to_uint32t(uint32_t *rval, char *str);
 
+/* =========================================================================
+ * Name: 
+ * Desc: 
+ * Params: The string to be converted
+ * Returns: 0 on success, non-0 on failure
+ * Side Effects: Will (potentially) modify the string
+ * Notes: Like toupper() but for a string
+ */
+int conv_to_uc(char *cpstr);
+
+
+
+
+
 #endif
