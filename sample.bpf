@@ -10,19 +10,23 @@ setopt + off
 # This line breaks, but not in a good way
 #0 ( 0 + (somesc + 2)  broken "String Size" uint16 hidden=true
 
-2 strsz strdat "The String" ztstr
+2 strsz strdat "The String" ztstr enum=myenum
 16 4 someval 'Some Value' int32
 someval 1 somesc "single char" char
 
 0 1 maghash "Magic Hash" char must=0x23
 
-
+setenum myenum = { 1:On; 0:Off; }
 
 
 # This line is designed to be an error line (self referential offset)
 #boff 4 boff "Bad ofset" uint32 print
 
 # This is an enum line (Each of these are existing builtins)
-setenum enumbool = { 0:false; default:true; }
-setenum enumBOOL = { 0:FALSE; default:TRUE; }
-setenum enumBool = { 0:False; default:True; }
+#setenum enumbool = { 0:false; default:true; }
+#setenum enumBOOL = { 0:FALSE; default:TRUE; }
+#setenum enumBool = { 0:False; default:True; }
+
+
+
+0x40 2 someval 'Duplicate tag' uint16

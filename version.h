@@ -71,6 +71,8 @@
                      - grep $TUB * | wc -l ----> 17
     0.11.0    2/5/16 - Added support for <directive>= parsing.
                      - Added support for 6th token directives.
+                     - Tag resolution "works", but does not resolve nested
+                       tags such as "( 2 + mytag )".
 
 */
 #define VERSION_STRING "0.11.0"
@@ -84,10 +86,12 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [_] Write the must= clause support. This is in bpfparse.c::handle_ppopt().
-   [ ] Time to focus on resolving tags (2nd pass operations).
+   [ ] Tag resolution is not recursive. If a tag is buried in a mathematical
+       statement, then the tag resolving algo will miss it. (For right now,
+       no test cases have these "nested" tags.)
    [ ] There is still no support for the "settag" operator.
    [ ] Cleanup comments and structure in bpdata.h.
+   [ ] Some of the print statements (such as bVerbose) are stdin AND stderr.
    [ ] When printing the error messages in bpfparse.c::resolve_tag(), the
        void pointer in the union is used. How do you know this is good (that
        it points to a string and not another struct)? It may be appropriate
@@ -99,8 +103,6 @@
        to a parse point. What if it points to an explicit tag? The resolution
        will be different - meaning you need a new type to cover this type of
        tag to be resolved (and how to resolve it).
-   [ ] When ParsePoints are added, the tag identifiers must be compared to
-       insure that they are unique. Tag name collisions are not allowed.
    [ ] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
@@ -120,7 +122,6 @@
           same tag (in the offset field).
        3. "settag" and "setenum" operators seem to make the most sense, and
           are consistent (with each other).
-   [ ] No documentation of struct members or ParseOptions() in options.h.
    [ ] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
@@ -138,7 +139,7 @@
    [D] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
-   [ ] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
+   [_] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
    [ ] You should establish size and allocate memory for the data items.
@@ -151,6 +152,11 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] When ParsePoints are added, the tag identifiers must be compared to
+       insure that they are unique. Tag name collisions are not allowed.
+   [X] Time to focus on resolving tags (2nd pass operations).
+   [X] No documentation of struct members or ParseOptions() in options.h.
+   [X] Write the must= clause support. This is in bpfparse.c::handle_ppopt().
    [X] Re-write the enum definition to have an operator word (setenum).
    [X] Create more sample.bpf files - perhaps they should be part of the test
        suite.

@@ -22,7 +22,7 @@ RuleSet *ParseBPFFile(Options *o);
  * Side Effects:
  * Notes: Aka: 2nd pass resolution
  */
-int ResolveTags(RuleSet *rs);
+int ResolveTags(RuleSet *rs, Options *o);
 
 /* =========================================================================
  * Name: ParseBPFOptions                                         (cenotaph)

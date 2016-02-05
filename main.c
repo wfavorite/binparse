@@ -82,7 +82,7 @@ int main ( int argc, char *argv[] )
     fprintf(stderr, "Second pass compile starting.\n");
   }
 
-  if ( ResolveTags(r) )
+  if ( ResolveTags(r, o) )
   {
     if ( o->bVerbose )
       fprintf(stderr, "Second pass compile failed.\n");

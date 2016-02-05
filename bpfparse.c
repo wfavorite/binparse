@@ -40,20 +40,27 @@ RuleSet *new_ruleset(void)
 /* ========================================================================= */
 int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
 {
-  ParsePoint *thispp;
+   ParsePoint *thispp;
 
-  /* Is it the first item in the list? */
-  if ( NULL == rs->pplist )
-  {
-    rs->pplist = pp;
-    return(0);
-  }
+   /* Is it the first item in the list? */
+   if ( NULL == rs->pplist )
+   {
+      rs->pplist = pp;
+      return(0);
+   }
 
-  /* Walk the list in an *ordered* manner so we can preserve the order as 
-     specified by the user in the bpf file. */
-  thispp = rs->pplist;
-  while(thispp)
-  {
+   /* Walk the list in an *ordered* manner so we can preserve the order as 
+      specified by the user in the bpf file. */
+   thispp = rs->pplist;
+   while(thispp)
+   {
+      if ( 0 == strcmp(thispp->tag, pp->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Unable to (re)use tag named \"%s\". Check tags on lines %d and %d.\n", pp->tag, thispp->lineno, pp->lineno);
+         return(1);
+      }
+
     if ( NULL == thispp->next )
     {
       /* Add to the list there */
@@ -64,7 +71,7 @@ int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
     thispp = thispp->next;
   }
 
-  /* This is just not going to fail */
+  /* This is just not going to fail (this way) */
   return(1);
 }
 
@@ -113,8 +120,7 @@ ParsePoint *new_parsepoint(int lineno)
    pp->use_mask = 0; /* The thinking is that this is unnessary. That the */
    pp->mask_val = 0; /*   mask_val can default to all-bits-set mask,and  */
                      /*   everything can default to having a mask.       */
-
-  return(pp);
+   return(pp);
 }
 
 /* ========================================================================= */
@@ -294,15 +300,6 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 
       return(0);
    }
-
-
-
-
-
-
-
-
-
 
    fprintf(stderr, "-------------------------------------------------------------------------------\n");
    fprintf(stderr, "Tag comprehension failure. Directive tag \"%s\" on line %d is not understood.\n", raw_ppopt, pp->lineno);
@@ -596,14 +593,15 @@ RuleSet *ParseBPFFile(Options *o)
          continue;
       }
 
+      /* Line sniff for option (setopt) */
       if ( IsSetOpt(line) )
       {
+         /* Not parsed here, so go to next */
          continue;
       }
 
       /* STUB: Line sniff for htagXXXX */
 
-      /* STUB: Line sniff for option */
 
       if ( NULL != (pp = get_parse_point(f)) )
       {
@@ -613,7 +611,12 @@ RuleSet *ParseBPFFile(Options *o)
             return(NULL);
          }
 
-         add_pp_to_rs(rs, pp); /* This is just not going to fail */
+         if (add_pp_to_rs(rs, pp))
+         {
+            /* This fails for one reason only. The tag name was redundant. */
+            /* Error message at point of failure */
+            return(NULL);
+         }
 
          if ( o->bVerbose )
          {
@@ -647,16 +650,18 @@ RuleSet *ParseBPFFile(Options *o)
 }
 
 /* =========================================================================
- * Name: ResolveTags
- * Desc: Walk through the ParsePoint list and resolve all tags.
+ * Name: resolve_tag
+ * Desc: 
  * Params:
  * Returns: 0 on successful tag resolution
  * Side Effects:
  * Notes: Aka: 2nd pass resolution
  */
-int resolve_tag(RuleSet *rs, ParsePoint *pp)
+int resolve_tag(RuleSet *rs, ParsePoint *pp, Options *o)
 {
    ParsePoint *thispp;
+   Enum *thise;
+   int resolved = 0;
 
    /*** Resolve the offset tag first ***/
    if ( pp->Offset->type == ETYPE_TAGCP )
@@ -678,6 +683,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
             /* Fall through to success */
             pp->Offset->u.tag = thispp;
             pp->Offset->type = ETYPE_TAGRS;    /* Mark tag resolved */
+            resolved++;
          }
          thispp = thispp->next;
       }
@@ -712,6 +718,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
             /* Fall through to success */
             pp->Size->u.tag = thispp;
             pp->Size->type = ETYPE_TAGRS;    /* Mark tag resolved */
+            resolved++;
          }
          thispp = thispp->next;
       }
@@ -724,6 +731,60 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
          fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
          return(1);
       }
+   }
+
+   if ( pp->enum_tag ) /* If an enum tag reference is set */
+   {
+      /* Check the user defined list first */
+      thise = rs->elist;
+      while ( thise )
+      {
+         if ( 0 == strcmp(thise->tag, pp->enum_tag) )
+         {
+            pp->use_enum = thise; /* <------ Set the enum (mark it resolved) */
+            resolved++;
+            break;
+         }
+
+         thise = thise->next;
+      }
+
+      /* *Conditionally*, check the builtin enum list */
+      if ( NULL == pp->use_enum )
+      {
+         thise = rs->belist;
+         while ( thise )
+         {
+            if ( 0 == strcmp(thise->tag, pp->enum_tag) )
+            {
+               pp->use_enum = thise;
+               resolved++;
+               break;
+            }
+
+            thise = thise->next;
+         }
+      }         
+      
+      /* No more checking, if it is still NULL, then error */
+      if ( NULL == pp->use_enum )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the enum tag \"%s\"\n", pp->enum_tag);
+         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+         return(1);
+      }
+   }
+
+   /* Verbose reporting (per-line) */
+   if ( o->bVerbose )
+   {
+      /* Only print a line if one, or more items are resolved */
+      if ( resolved )
+         fprintf(stderr, "  Resolved %d tags on line %d (%s).\n",
+                 resolved,
+                 pp->lineno,
+                 pp->tag);
    }
 
   /* If we got here, then all tags for this item are resolved. */
@@ -739,7 +800,7 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp)
  * Side Effects:
  * Notes: Aka: 2nd pass resolution
  */
-int ResolveTags(RuleSet *rs)
+int ResolveTags(RuleSet *rs, Options *o)
 {
    ParsePoint *thispp;
   
@@ -756,7 +817,7 @@ int ResolveTags(RuleSet *rs)
    {
       if ( 0 == thispp->tags_resolved ) 
       {
-         if ( resolve_tag(rs, thispp) )
+         if ( resolve_tag(rs, thispp, o) )
          {
             /* Print the error at point of failure. Standard stuff... */
             return(1);
