@@ -6,7 +6,7 @@ setopt + off
 
 # <offset> <size> <tag> <label> <type> <directive>
 
-0 ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden=true
+( -1 * (12 + 0xc)) ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden=true
 # This line breaks, but not in a good way
 #0 ( 0 + (somesc + 2)  broken "String Size" uint16 hidden=true
 
@@ -29,4 +29,4 @@ setenum myenum = { 1:On; 0:Off; }
 
 
 
-0x40 2 someval 'Duplicate tag' uint16
+#0x40 2 someval 'Duplicate tag' uint16

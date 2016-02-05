@@ -98,6 +98,8 @@ int main ( int argc, char *argv[] )
     fprintf(stderr, "Third pass compile starting.\n");
   }
 
+
+  ResolveData(r, o);
   
   /* How:
        Repeatedly rake the linked list for the data. If it is in order*

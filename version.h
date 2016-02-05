@@ -73,6 +73,10 @@
                      - Added support for 6th token directives.
                      - Tag resolution "works", but does not resolve nested
                        tags such as "( 2 + mytag )".
+                     - Started on "Third Pass" code (in binpass.c). Basic
+                       expressions can be resolved. (If I dumped most of the
+                       cooler capabilites, this project could be done in
+                       hours.)
 
 */
 #define VERSION_STRING "0.11.0"
