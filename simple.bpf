@@ -1,0 +1,15 @@
+#!./bp
+
+( -1 * (12 + 0xc)) ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden=true
+
+2 strsz strdat "The String" ztstr
+
+16 4 someval 'Some Value' int32
+
+someval 1 somesc "single char" int8
+
+0 1 maghash "Magic Hash" char must=0x23
+
+#2 goat goat "self referential" int16
+
+
