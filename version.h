@@ -79,7 +79,8 @@
                        hours.)
     0.12.0   2/10/16 - OSX port / code warning cleanup. llvm 7.0.2.
                        clang 700.1.81
-                     - 
+                     - Fixed (added) recursive resolution of tags in the
+		       second pass.
 
 */
 #define VERSION_STRING "0.12.0"
@@ -93,10 +94,9 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [ ] Tag resolution is not recursive. If a tag is buried in a mathematical
-       statement, then the tag resolving algo will miss it. (For right now,
-       no test cases have these "nested" tags.)
    [ ] There is still no support for the "settag" operator.
+   [ ] The function to count explicit tags should be written. The parsing
+       support is not complete, but the data structures have been defined.
    [ ] Cleanup comments and structure in bpdata.h.
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
    [ ] Some of the print statements (such as bVerbose) are stdin AND stderr.
@@ -160,6 +160,9 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Tag resolution is not recursive. If a tag is buried in a mathematical
+       statement, then the tag resolving algo will miss it. (For right now,
+       no test cases have these "nested" tags.)
    [X] When ParsePoints are added, the tag identifiers must be compared to
        insure that they are unique. Tag name collisions are not allowed.
    [X] Time to focus on resolving tags (2nd pass operations).

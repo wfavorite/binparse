@@ -658,18 +658,6 @@ RuleSet *ParseBPFFile(Options *o)
    return(rs);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* ========================================================================= */
 /* Find and set the entity tag.
    Called only by resolve entity tag. */
@@ -682,12 +670,8 @@ int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
   thispp = rs->pplist;
   while ( thispp )
   {
-    /* STUB: fprintf(stderr, "strcmp(%s, %s)", pp->Offset->u.tag, thispp->tag); */
-	
     if ( 0 == strcmp(e->u.tag, thispp->tag) )
     {
-      /* STUB: fprintf(stderr, "  Match!\n"); */
-	   
       if ( pp == thispp )
       {
 	fprintf(stderr, "-------------------------------------------------------------------------------\n");
@@ -702,10 +686,6 @@ int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
       pp->rtag_count++;
       return(0);
     }
-    /* STUB: This and others in this function 
-    else
-      fprintf(stderr, "  not.\n");
-    */
     
     thispp = thispp->next;
   }
@@ -745,7 +725,7 @@ int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
   case ETYPE_MEXPR:
     return(resolve_expression_tags(rs, pp, e->u.math, o));
   case ETYPE_TAGCP:
-    /* This is where tags actually get resolved */
+    /* This is (the only place) where tags actually get resolved */
     return(findnset_entity_tag(rs, pp, e, o));
   case ETYPE_TAGPP:
   case ETYPE_TAGET:
@@ -756,23 +736,24 @@ int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
     return(1);
   }
 
-  /* This code is unreachable. 
-     return(0); */
+  /* Smarter compilers do not require a return here. This is unreachable. */
 }
 
 /* ========================================================================= */
 int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options *o)
 {
+  /* Expressions are simply two entities. Resolve them both. */
+
+  /* Left (Hand Side) */
   if ( resolve_entity_tag(rs, pp, m->left, o) )
     return(1);
 
+  /* Right (Hand Side) */
   if ( resolve_entity_tag(rs, pp, m->right, o) )
     return(1);
   
   return(0);
 }
-
-
 
 /* =========================================================================
  * Name: resolve_pp_tags
@@ -786,9 +767,6 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
 {
   ParsePoint *thispp;
   Enum *thise;
-  int resolved = 0;
-  
-  /* STUB: fprintf(stderr, "resolve_tag(rs, %s, o);\n", pp->tag); / * STUB: Debuggery */
 
   /*** Resolve the offset tag first ***/
   if(resolve_entity_tag(rs, pp, pp->Offset, o))
@@ -797,7 +775,104 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
   /*** Resolve the size tag next ***/
   if(resolve_entity_tag(rs, pp, pp->Size, o))
     return(1);
+   
+   if ( pp->enum_tag ) /* If an enum tag reference is set */
+   {
+      /* Check the user defined list first */
+      thise = rs->elist;
+      while ( thise )
+      {
+         if ( 0 == strcmp(thise->tag, pp->enum_tag) )
+         {
+            pp->use_enum = thise; /* <------ Set the enum (mark it resolved) */
+            pp->rtag_count++;
+            break;
+         }
+
+         thise = thise->next;
+      }
+
+      /* *Conditionally*, check the builtin enum list */
+      if ( NULL == pp->use_enum )
+      {
+         thise = rs->belist;
+         while ( thise )
+         {
+            if ( 0 == strcmp(thise->tag, pp->enum_tag) )
+            {
+               pp->use_enum = thise;
+               pp->rtag_count++;
+               break;
+            }
+
+            thise = thise->next;
+         }
+      }         
+      
+      /* No more checking, if it is still NULL, then error */
+      if ( NULL == pp->use_enum )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Tag resolution failure. Unable to resolve the enum tag \"%s\"\n", pp->enum_tag);
+         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+         return(1);
+      }
+   }
+
+   /* Verbose reporting (per-line) */
+   if ( o->bVerbose )
+   {
+      /* Only print a line if one, or more items are resolved */
+      if ( pp->rtag_count )
+         fprintf(stderr, "  Resolved %d %s on line %d (%s).\n",
+                 pp->rtag_count,
+		 pp->rtag_count == 1 ? "tag" : "tags",
+                 pp->lineno,
+                 pp->tag);
+   }
+
+  /* If we got here, then all tags for this item are resolved. */
+  pp->tags_resolved = 1;
+  return(0);
+} 
+
+/* =========================================================================
+ * Name: ResolveTags
+ * Desc: Walk through the ParsePoint list and resolve all tags.
+ * Params:
+ * Returns: 0 on successful tag resolution
+ * Side Effects:
+ * Notes: Aka: 2nd pass resolution
+ */
+int ResolveTags(RuleSet *rs, Options *o)
+{
+   ParsePoint *thispp;
   
+   assert( NULL != rs );
+   /* RESOLVED: This second assert should not be:
+      RESOLVED:  1. required. It should be checked elsewhere. <-------- It is
+      RESOLVED:  2. an assert(). It should be handled as a message to
+      RESOLVED:     the user that the list is empty. <--------- It is, elsewhere
+   */
+   assert( NULL != rs->pplist );
+
+   thispp = rs->pplist;
+   while ( thispp )
+   {
+      if ( 0 == thispp->tags_resolved ) 
+      {
+         if ( resolve_pp_tags(rs, thispp, o) )
+         {
+            /* Print the error at point of failure. Standard stuff... */
+            return(1);
+         }
+      }
+      
+      thispp = thispp->next;
+   }
+   
+   return(0);
+}
 
 
 
@@ -806,6 +881,18 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+/* STUB: Junk locker */
 #ifdef STUB_REMOVE
    
    /*** Resolve the offset tag first ***/
@@ -886,108 +973,3 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
       }
    }
 #endif
-
-
-   /* STUB - fix everything below this */
-
-
-
-   
-   if ( pp->enum_tag ) /* If an enum tag reference is set */
-   {
-      /* Check the user defined list first */
-      thise = rs->elist;
-      while ( thise )
-      {
-         if ( 0 == strcmp(thise->tag, pp->enum_tag) )
-         {
-            pp->use_enum = thise; /* <------ Set the enum (mark it resolved) */
-            resolved++;
-            break;
-         }
-
-         thise = thise->next;
-      }
-
-      /* *Conditionally*, check the builtin enum list */
-      if ( NULL == pp->use_enum )
-      {
-         thise = rs->belist;
-         while ( thise )
-         {
-            if ( 0 == strcmp(thise->tag, pp->enum_tag) )
-            {
-               pp->use_enum = thise;
-               resolved++;
-               break;
-            }
-
-            thise = thise->next;
-         }
-      }         
-      
-      /* No more checking, if it is still NULL, then error */
-      if ( NULL == pp->use_enum )
-      {
-         fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Tag resolution failure. Unable to resolve the enum tag \"%s\"\n", pp->enum_tag);
-         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-         return(1);
-      }
-   }
-
-   /* Verbose reporting (per-line) */
-   if ( o->bVerbose )
-   {
-      /* Only print a line if one, or more items are resolved */
-      if ( resolved )
-         fprintf(stderr, "  Resolved %d tags on line %d (%s).\n",
-                 resolved,
-                 pp->lineno,
-                 pp->tag);
-   }
-
-  /* If we got here, then all tags for this item are resolved. */
-  pp->tags_resolved = 1;
-  return(0);
-} 
-
-/* =========================================================================
- * Name: ResolveTags
- * Desc: Walk through the ParsePoint list and resolve all tags.
- * Params:
- * Returns: 0 on successful tag resolution
- * Side Effects:
- * Notes: Aka: 2nd pass resolution
- */
-int ResolveTags(RuleSet *rs, Options *o)
-{
-   ParsePoint *thispp;
-  
-   assert( NULL != rs );
-   /* RESOLVED: This second assert should not be:
-      RESOLVED:  1. required. It should be checked elsewhere. <-------- It is
-      RESOLVED:  2. an assert(). It should be handled as a message to
-      RESOLVED:     the user that the list is empty. <--------- It is, elsewhere
-   */
-   assert( NULL != rs->pplist );
-
-   
-   thispp = rs->pplist;
-   while ( thispp )
-   {
-      if ( 0 == thispp->tags_resolved ) 
-      {
-         if ( resolve_pp_tags(rs, thispp, o) )
-         {
-            /* Print the error at point of failure. Standard stuff... */
-            return(1);
-         }
-      }
-      
-      thispp = thispp->next;
-   }
-   
-   return(0);
-}
-

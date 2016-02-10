@@ -93,6 +93,11 @@ int get_entity_value(BPInt *out, Entity *ent)
    case ETYPE_TAGCP:
      fprintf(stderr, "ERROR: Encountered unresolved tag \"%s\".\n", (char *)ent->u.tag);
      return(1);
+
+
+
+
+
      
    default:
       *out = -7; /* Completely STUBbed */
