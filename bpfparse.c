@@ -829,3 +829,4 @@ int ResolveTags(RuleSet *rs, Options *o)
    
    return(0);
 }
+

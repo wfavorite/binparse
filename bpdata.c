@@ -85,13 +85,6 @@ int CountExplicitTags(RuleSet *rs)
 
 
 
-
-
-
-
-
-
-
 /* ========================================================================= */
 int ParseBPInt(BPInt *val, char *str)
 {

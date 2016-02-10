@@ -4,6 +4,11 @@
 #include "binpass.h"
 
 /* ========================================================================= */
+int get_entity_value(BPInt *out, Entity *ent);
+
+
+
+/* ========================================================================= */
 int ResolveData(RuleSet *rs, Options *o)
 {
    ParsePoint *thispp;
@@ -25,10 +30,6 @@ int ResolveData(RuleSet *rs, Options *o)
 
       thispp = thispp->next;
    }
-
-
-
-
 
 
    return(0);

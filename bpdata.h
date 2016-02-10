@@ -279,4 +279,10 @@ int CountBuiltinEnums(RuleSet *rs);
  */
 int CountExplicitTags(RuleSet *rs);
 
+/* STUB: Header for this */
+int ParseBPInt(BPInt *val, char *str);
+
+
+
+
 #endif

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "options.h"
 #include "strlib.h"

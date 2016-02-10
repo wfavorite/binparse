@@ -5,7 +5,6 @@ LD=gcc
 CCOPTS=-Wall -Werror
 LDOPTS=
 
-
 bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o
 	@printf "Done.\nLinking..."
 	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o
@@ -63,7 +62,7 @@ bpdata.o: bpdata.c bpdata.h
 	@$(CC) $(CCOPTS) -c $<
 	@printf "."
 
-main.o: main.c options.h bpfparse.h version.h strlib.h
+main.o: main.c options.h bpfparse.h version.h strlib.h binpass.h
 	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 

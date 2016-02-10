@@ -77,9 +77,12 @@
                        expressions can be resolved. (If I dumped most of the
                        cooler capabilites, this project could be done in
                        hours.)
+    0.12.0   2/10/16 - OSX port / code warning cleanup. llvm 7.0.2.
+                       clang 700.1.81
+                     - 
 
 */
-#define VERSION_STRING "0.11.0"
+#define VERSION_STRING "0.12.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should

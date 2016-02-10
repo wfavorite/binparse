@@ -1,4 +1,4 @@
-#ifndef PDNUM_H
+#ifndef PENUM_H
 #define PENUM_H
 
 #include "bpdata.h"

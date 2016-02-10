@@ -3,6 +3,7 @@
 #include "options.h"
 #include "bpfparse.h"
 #include "version.h"
+#include "binpass.h"
 
 /* Prototypes (for functions in this file) */
 int show_about(void);
@@ -99,6 +100,7 @@ int main ( int argc, char *argv[] )
   }
 
 
+  /* STUB: Start working here */
   ResolveData(r, o);
   
   /* How:
