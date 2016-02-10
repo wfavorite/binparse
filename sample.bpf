@@ -1,12 +1,13 @@
 #!./bp
 
 # Turn on verbosity
-setopt v true
-setopt + off
+#setopt v true
+#setopt + off
 
 # <offset> <size> <tag> <label> <type> <directive>
 
 ( -1 * (12 + 0xc)) ( 0 + (somesc + 2))  strsz "String Size" uint16 hidden=true
+
 # This line breaks, but not in a good way
 #0 ( 0 + (somesc + 2)  broken "String Size" uint16 hidden=true
 

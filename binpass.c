@@ -22,8 +22,11 @@ int ResolveData(RuleSet *rs, Options *o)
 
 
 
-      GetEntityValue(&Offset, thispp->Offset);
-      GetEntityValue(&Size, thispp->Size);
+      if ( GetEntityValue(&Offset, thispp->Offset) )
+	return(1);
+      
+      if ( GetEntityValue(&Size, thispp->Size) )
+	return(1);
 
       fprintf(stderr, "            Offset = %ld\n", Offset);
       fprintf(stderr, "            Size   = %ld\n", Size);
@@ -41,11 +44,13 @@ int get_expression_value(BPInt *out, Expression *expr)
    BPInt lhs;
    BPInt rhs;
 
-   /* STUB:  Check return values! */
-   get_entity_value(&lhs, expr->left);
+   /* Get the left value */
+   if (get_entity_value(&lhs, expr->left))
+     return(1);
 
-   /* STUB:  Check return values! */
-   get_entity_value(&rhs, expr->right);
+   /* Get the right value */
+   if (get_entity_value(&rhs, expr->right))
+     return(1);
 
    switch (expr->operation)
    {
@@ -85,14 +90,14 @@ int get_entity_value(BPInt *out, Entity *ent)
       return(get_expression_value(out, ent->u.math));
       break;
 
+   case ETYPE_TAGCP:
+     fprintf(stderr, "ERROR: Encountered unresolved tag \"%s\".\n", (char *)ent->u.tag);
+     return(1);
+     
    default:
       *out = -7; /* Completely STUBbed */
       return(0);
       break;
-
-
-
-
 
    }
 

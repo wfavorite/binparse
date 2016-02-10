@@ -553,8 +553,14 @@ void DBG_dump_entity(int r, Entity *e)
       while ( i++ < r + 2 ) { printf(" "); }
       printf("Tag = %s\n", (char *)e->u.tag);
       break;
-   case ETYPE_TAGRS:
-      printf("tag (resolved).\n");
+   case ETYPE_TAGPP:
+      printf("tag (resolved to parse point).\n");
+      i = 0;
+      while ( i++ < r + 2 ) { printf(" "); }
+      printf("Tag = ???\n");
+      break;
+   case ETYPE_TAGET:
+      printf("tag (resolved to explicit tag).\n");
       i = 0;
       while ( i++ < r + 2 ) { printf(" "); }
       printf("Tag = ???\n");

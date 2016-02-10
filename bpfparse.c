@@ -12,6 +12,13 @@
 #include "pmath.h"
 #include "slfile.h"
 
+/* ========================================================================= */
+/* These tend to be recursive in nature. They need to be prototyped. */
+int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options *o);
+int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o);
+
+
+
 
 /* ========================================================================= */
 RuleSet *new_ruleset(void)
@@ -30,6 +37,7 @@ RuleSet *new_ruleset(void)
 
   rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
   rs->belist = NULL;    /* Empty list for the (builtin) enums               */
+  rs->etlist = NULL;    /* Empty list of explicit tags                      */
   
   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
      return(NULL);
@@ -109,6 +117,7 @@ ParsePoint *new_parsepoint(int lineno)
    pp->fail_bail = 0;
    pp->tags_resolved = 0;   /* Pass 2 not complete */
    pp->data_resolved = 0;   /* Pass 3 not complete */
+   pp->rtag_count = 0; /* Stats for how many tags were resolved (in this pp) */
    /* Linked list pointer */
    pp->next = NULL;
    /* Set all the "6th options" to defaults */
@@ -649,20 +658,156 @@ RuleSet *ParseBPFFile(Options *o)
    return(rs);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========================================================================= */
+/* Find and set the entity tag.
+   Called only by resolve entity tag. */
+int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
+{
+  ParsePoint *thispp;
+  ExplicitTag *thiset;
+  
+  /* Walk the list of PPs for a matching tag */
+  thispp = rs->pplist;
+  while ( thispp )
+  {
+    /* STUB: fprintf(stderr, "strcmp(%s, %s)", pp->Offset->u.tag, thispp->tag); */
+	
+    if ( 0 == strcmp(e->u.tag, thispp->tag) )
+    {
+      /* STUB: fprintf(stderr, "  Match!\n"); */
+	   
+      if ( pp == thispp )
+      {
+	fprintf(stderr, "-------------------------------------------------------------------------------\n");
+	fprintf(stderr, "Tag resolution failure. Tag \"%s\" on line %d\n", (char *)e->u.tag, pp->lineno);
+	fprintf(stderr, "   is self referential. A tagged offset/size can not reference the same line.\n");
+	return(1);
+      }
+	
+      /* Fall through to success */
+      e->u.tag = thispp;
+      e->type = ETYPE_TAGPP;    /* Mark tag resolved (to a ParsePoint) */
+      pp->rtag_count++;
+      return(0);
+    }
+    /* STUB: This and others in this function 
+    else
+      fprintf(stderr, "  not.\n");
+    */
+    
+    thispp = thispp->next;
+  }
+
+  /* If not resolved to a PP, then look at explicit tags */
+  thiset = rs->etlist;
+  while ( thiset )
+  {
+    if ( 0 == strcmp(e->u.tag, thiset->tag) )
+    {
+      e->u.tag = thiset;
+      e->type = ETYPE_TAGET;    /* Mark tag resolved (to an ExplicitTag) */
+      pp->rtag_count++;
+      return(0);
+    }
+
+    thiset = thiset->next;
+  }
+  
+  /* If we got here, then tag was not resolved */
+  fprintf(stderr, "-------------------------------------------------------------------------------\n");
+  fprintf(stderr, "Tag resolution failure. Unable to resolve the tag \"%s\"\n", (char *)e->u.tag);
+  fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+  return(1);
+}
+
+/* ========================================================================= */
+int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
+{
+  switch(e->type)
+  {
+  case ETYPE_NOTYP:
+    fprintf(stderr, "ERROR: Uninitialized entity found while resolving tags.\n");
+    return(1);
+  case ETYPE_VALUE:
+    return(0);
+  case ETYPE_MEXPR:
+    return(resolve_expression_tags(rs, pp, e->u.math, o));
+  case ETYPE_TAGCP:
+    /* This is where tags actually get resolved */
+    return(findnset_entity_tag(rs, pp, e, o));
+  case ETYPE_TAGPP:
+  case ETYPE_TAGET:
+    fprintf(stderr, "ERROR: Unresolved entity tag claims to be resolved.\n");
+    return(1);
+  default:
+    fprintf(stderr, "ERROR: Unexpected value found while resolving an entity tag.\n");
+    return(1);
+  }
+
+  /* This code is unreachable. 
+     return(0); */
+}
+
+/* ========================================================================= */
+int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options *o)
+{
+  if ( resolve_entity_tag(rs, pp, m->left, o) )
+    return(1);
+
+  if ( resolve_entity_tag(rs, pp, m->right, o) )
+    return(1);
+  
+  return(0);
+}
+
+
+
 /* =========================================================================
- * Name: resolve_tag
+ * Name: resolve_pp_tags
  * Desc: 
  * Params:
  * Returns: 0 on successful tag resolution
  * Side Effects:
  * Notes: Aka: 2nd pass resolution
  */
-int resolve_tag(RuleSet *rs, ParsePoint *pp, Options *o)
+int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
 {
-   ParsePoint *thispp;
-   Enum *thise;
-   int resolved = 0;
+  ParsePoint *thispp;
+  Enum *thise;
+  int resolved = 0;
+  
+  /* STUB: fprintf(stderr, "resolve_tag(rs, %s, o);\n", pp->tag); / * STUB: Debuggery */
 
+  /*** Resolve the offset tag first ***/
+  if(resolve_entity_tag(rs, pp, pp->Offset, o))
+    return(1);
+  
+  /*** Resolve the size tag next ***/
+  if(resolve_entity_tag(rs, pp, pp->Size, o))
+    return(1);
+  
+
+
+
+
+
+
+
+
+#ifdef STUB_REMOVE
+   
    /*** Resolve the offset tag first ***/
    if ( pp->Offset->type == ETYPE_TAGCP )
    {
@@ -670,8 +815,12 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp, Options *o)
       thispp = rs->pplist;
       while ( thispp )
       {
+	fprintf(stderr, "strcmp(%s, %s)", pp->Offset->u.tag, thispp->tag);
+	
          if ( 0 == strcmp(pp->Offset->u.tag, thispp->tag) )
          {
+	   fprintf(stderr, "  Match!\n");
+	   
             if ( pp == thispp )
             {
                fprintf(stderr, "-------------------------------------------------------------------------------\n");
@@ -682,9 +831,13 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp, Options *o)
 	
             /* Fall through to success */
             pp->Offset->u.tag = thispp;
-            pp->Offset->type = ETYPE_TAGRS;    /* Mark tag resolved */
+            pp->Offset->type = ETYPE_TAGPP;    /* Mark tag resolved */
             resolved++;
+	    break;
          }
+	 else
+	   fprintf(stderr, "  not.\n");
+	 
          thispp = thispp->next;
       }
 
@@ -732,7 +885,14 @@ int resolve_tag(RuleSet *rs, ParsePoint *pp, Options *o)
          return(1);
       }
    }
+#endif
 
+
+   /* STUB - fix everything below this */
+
+
+
+   
    if ( pp->enum_tag ) /* If an enum tag reference is set */
    {
       /* Check the user defined list first */
@@ -811,13 +971,14 @@ int ResolveTags(RuleSet *rs, Options *o)
       RESOLVED:     the user that the list is empty. <--------- It is, elsewhere
    */
    assert( NULL != rs->pplist );
+
    
    thispp = rs->pplist;
    while ( thispp )
    {
       if ( 0 == thispp->tags_resolved ) 
       {
-         if ( resolve_tag(rs, thispp, o) )
+         if ( resolve_pp_tags(rs, thispp, o) )
          {
             /* Print the error at point of failure. Standard stuff... */
             return(1);

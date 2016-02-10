@@ -98,6 +98,7 @@
        no test cases have these "nested" tags.)
    [ ] There is still no support for the "settag" operator.
    [ ] Cleanup comments and structure in bpdata.h.
+   [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
    [ ] Some of the print statements (such as bVerbose) are stdin AND stderr.
    [ ] When printing the error messages in bpfparse.c::resolve_tag(), the
        void pointer in the union is used. How do you know this is good (that

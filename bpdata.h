@@ -48,7 +48,8 @@ typedef long BPInt;
 #define ETYPE_VALUE 1    /* The type is a value                              */
 #define ETYPE_MEXPR 2    /* The type is an expression                        */
 #define ETYPE_TAGCP 3    /* The type is a tag (char *)                       */
-#define ETYPE_TAGRS 4    /* The type is a tag (resolved)                     */
+#define ETYPE_TAGPP 4    /* The type is a tag (resolved to a parse point)    */
+#define ETYPE_TAGET 5    /* The type is a tag (resolved to an explicit tag)  */
 
 typedef struct entity
 {
@@ -144,7 +145,14 @@ typedef struct enumbase
 
 
 
-
+/* This is a STUBbed version of an explicit tag */
+typedef struct etag
+{
+  char *tag;
+  Entity *e;
+  struct etag *next;
+  
+} ExplicitTag;
 
 
 
@@ -218,6 +226,7 @@ typedef struct ParsePoint
    int tags_resolved;       /* Flag to determine if the tags are resolved    */
                             /* This is a required factor to completing the
 			                      second pass "compile" stage of the process.   */
+  int rtag_count;          /* The number of resolved tags (for stats)       */
    int data_resolved;       /* Flag to determine if the data has resolved    */
                             /* This is a required factor in the completion
 			                      of stage three (third pass compilation) where
@@ -233,7 +242,7 @@ typedef struct RuleSet
    ParsePoint *pplist;     /* The list of parsed rule data points            */
    Enum *elist;            /* The list of parsed enums                       */
    Enum *belist;           /* The list of builtin enums                      */
-   
+   ExplicitTag *etlist;    /* The list of explicit tags                      */
 
    int parserr;
    int pass;               /* The pass that was completed */
