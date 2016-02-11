@@ -96,6 +96,21 @@ int main ( int argc, char *argv[] )
   if ( o->bVerbose )
   {
     fprintf(stderr, "Second pass compile complete.\n");
+  }
+
+  if ( o->bValidate )
+  {
+    if ( o->bVerbose )
+      fprintf(stderr, "BPF file validation complete.\n");
+
+    printf("BPF file passed validation (parsing and tag resolution).\n");
+    fflush(stdout);
+
+    return(0);
+  }
+
+  if ( o->bVerbose )
+  {
     fprintf(stderr, "Third pass compile starting.\n");
   }
 
@@ -166,13 +181,14 @@ int show_help(void)
 
   printf("   Options:\n");
   printf("     -a         Show \"about\" information (and exit).\n");
-  printf("     -c         <label>:<value>\n");
-  printf("     -e         <label>=<value>\n");
+  printf("     -c         Validate the BPF file (stop after 2nd stage compile).\n");
+  printf("*    -C         <label>:<value>\n");
+  printf("*    -e         <label>=<value>\n");
   printf("     -h         Show \"help\" information (and exit).\n");
-  printf("     -s         <value>\n");
-  printf("     -t         <tag>:<value>\n");
-  printf("     -p <file>  Specify the parse file. (Required)\n");
-  printf("                [The bpf file is case sensitive]\n");
+  printf("*    -s         <value>\n");
+  printf("*    -t         <tag>:<value>\n");
+  printf("?    -p <file>  Specify the parse file. (Required)\n");
+  printf("?               [The bpf file is case sensitive]\n");
   printf("     -v         Be verbose\n");
   fflush(stdout);
   return(0);

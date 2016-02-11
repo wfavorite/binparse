@@ -55,7 +55,8 @@ typedef struct Options
    int bHelp;            /* Show help. Exit.                                 */
    int bDebug;           /* Turn on diag messages                            */
    int bVerbose;         /* Show some extra verbosity while working.         */
-   
+   int bValidate;        /* Validate (stop at third stage of compile)        */
+  
    char *bpffile;
    char *binfile;
 } Options;

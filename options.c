@@ -24,6 +24,7 @@ Options *new_options(void)
    o->bDebug = 0;
    o->bVerbose = 0;
    o->bHelp = 0;
+   o->bValidate = 0;
    o->bAbout = 0;
    o->bpffile = NULL;
    o->binfile = NULL;
@@ -44,7 +45,7 @@ Options *ParseOptions(int argc, char *argv[])
       return(NULL);
   
    /* Parse the options */
-   while ( -1 != ( c = getopt(argc, argv, "+ahv" ) ) )
+   while ( -1 != ( c = getopt(argc, argv, "+achv" ) ) )
    {
       switch(c)
       {
@@ -53,6 +54,9 @@ Options *ParseOptions(int argc, char *argv[])
          break;
       case 'a':
          o->bAbout = 1;
+         break;
+      case 'c':
+         o->bValidate = 1;
          break;
       case 'h':
          o->bHelp = 1;
@@ -133,6 +137,21 @@ Options *ParseOptions(int argc, char *argv[])
       return(o);
    }
 
+   if ( NULL == o->bpffile )
+   {
+     fprintf(stderr, "ERROR: A BPF file was not specified on the command line.\n");
+     return(NULL);
+   }
+
+   if ( 0 == o->bValidate )
+   {
+     if ( NULL == o->binfile )
+     {
+       fprintf(stderr, "ERROR: A target (binary) file was not specified on the command line.\n");
+       return(NULL);
+     }
+   }
+       
   return(o);
 }
 
@@ -236,6 +255,7 @@ int ParseBPFOptions(Options *o)
          {
          case '+':
          case 'v':
+	 case 'c':
             thisopt = *line;
             break;
          case 'a':
@@ -245,7 +265,6 @@ int ParseBPFOptions(Options *o)
             fprintf(stderr, "   file-based option. (It can only be set from command line.)\n");
             /* Let's exit. This could be ignored, but best to error because results will not match intent. */
             return(-1);
-            break; /* A compiler thing */
          default:
             fprintf(stderr, "-------------------------------------------------------------------------------\n");
             fprintf(stderr, "The BPF file setopt option on line %d is not understood. \n", f->lineno);
@@ -269,6 +288,15 @@ int ParseBPFOptions(Options *o)
          {
          case '+':
             if ( -1 == (o->bDebug = parse_opt_tail(line)) )
+            {
+               fprintf(stderr, "-------------------------------------------------------------------------------\n");
+               fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
+               return(-1);
+            }
+            parsed++;
+            break;
+         case 'c':
+            if ( -1 == (o->bValidate = parse_opt_tail(line)) )
             {
                fprintf(stderr, "-------------------------------------------------------------------------------\n");
                fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
