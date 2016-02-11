@@ -64,12 +64,36 @@ int CountBuiltinEnums(RuleSet *rs)
 /* ========================================================================= */
 int CountExplicitTags(RuleSet *rs)
 {
-   /* STUB */
-   return(0);
+  ExplicitTag *thiset;
+  int i;
+
+  i = 0;
+  thiset = rs->etlist;
+  while ( thiset )
+  {
+    i++;
+    thiset = thiset->next;
+  }
+
+  return(i);
 }
 
+/* ========================================================================= */
+int SetPPDataResolved(ParsePoint *pp, int flag)
+{
+  pp->data_resolved |= flag;
 
+  return(pp->data_resolved);
+}
 
+/* ========================================================================= */
+int IsPPDataResolved(ParsePoint *pp, int flag)
+{
+  if ( flag == ( pp->data_resolved & flag ) )
+    return(1);
+
+  return(0);
+}
 
 
 

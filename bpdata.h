@@ -198,8 +198,10 @@ typedef struct ParsePoint
 {
    /* Field 1 - Offset */
    Entity *Offset;
+   BPInt rOffset;   /* Resolved (cached) Offset */
    /* Field 2 - Size */
    Entity *Size;
+   BPInt rSize;   /* Resolved (cached) Size */
    /* Field 3 - Tag */
    char *tag;               /* Shorthand name for this data item             */
    /* Field 4 - Label */
@@ -217,7 +219,8 @@ typedef struct ParsePoint
 
    /* Data and metadata */
    void *data;              /* A pointer to the data item/type               */
-   
+   BPInt rdata;
+  
    int lineno;              /* The line number of the "rule". Used for error
                                generation in the 2nd pass tag parsing.       */
    int fail_bail;           /* This is a valid parse point as returned from
@@ -246,6 +249,9 @@ typedef struct RuleSet
 
    int parserr;
    int pass;               /* The pass that was completed */
+
+   int f;
+   char *fname;
 } RuleSet;
 
 /* =========================================================================
@@ -293,5 +299,11 @@ int ParseBPInt(BPInt *val, char *str);
 
 
 
+#define DR_OFFSET 1   /* Offset is known (resolved)   */
+#define DR_SIZE   2   /* Size is known (resolved)     */
+#define DR_DATA   4   /* Data is read (retrieved)     */
+
+int SetPPDataResolved(ParsePoint *pp, int flag);
+int IsPPDataResolved(ParsePoint *pp, int flag);
 
 #endif

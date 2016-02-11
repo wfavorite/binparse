@@ -95,13 +95,22 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Data types need to be 'compatibility checked' before converting them
+       to BPInt data types.
+   [_] Data should be 'cached' in the PP so multiple lookups will be faster.
+       This means that once the data is properly resolved, it is copied into
+       a BPInt for future use.
+   [ ] RuleSet->pass does not appear to have been used anywhere. This was
+       designed to denote that the *entire* pass was completed. I am not sure
+       that this is required any more.
+   [ ] RuleSet needs a file descriptor and related 'flags'.
+   [ ] Need to check that stated data types and size operators match.
+   [ ] Setup a test binary file.
    [ ] There is still no support for the "settag" operator.
-   [ ] The function to count explicit tags should be written. The parsing
-       support is not complete, but the data structures have been defined.
    [ ] Cleanup comments and structure in bpdata.h.
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
    [ ] Some of the print statements (such as bVerbose) are stdin AND stderr.
-   [ ] When printing the error messages in bpfparse.c::resolve_tag(), the
+   [Q] When printing the error messages in bpfparse.c::resolve_tag(), the
        void pointer in the union is used. How do you know this is good (that
        it points to a string and not another struct)? It may be appropriate
        to write a gettor function, check this before writing, or have a
@@ -112,7 +121,7 @@
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
-   [ ] Offset can be 0, but size cannot. This should be validated during one
+   [_] Offset can be 0, but size cannot. This should be validated during one
        of the passes. Probably during the final pass. The offset, nor the
        offset + size cannot extend beyond the end of the file.
    [ ] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
@@ -157,6 +166,8 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] The function to count explicit tags should be written. The parsing
+       support is not complete, but the data structures have been defined.
    [X] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [X] The tag member of the union in Entity can be a string and a pointer
        to a parse point. What if it points to an explicit tag? The resolution

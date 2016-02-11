@@ -19,7 +19,7 @@ int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o);
 
 
 /* ========================================================================= */
-RuleSet *new_ruleset(void)
+RuleSet *new_ruleset(char *filename)
 {
   RuleSet *rs;
 
@@ -36,6 +36,9 @@ RuleSet *new_ruleset(void)
   rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
   rs->belist = NULL;    /* Empty list for the (builtin) enums               */
   rs->etlist = NULL;    /* Empty list of explicit tags                      */
+
+  rs->f = -1;           /* The file has not been opened                     */
+  rs->fname = filename;
   
   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
      return(NULL);
@@ -549,7 +552,7 @@ RuleSet *ParseBPFFile(Options *o)
    }
 
    /* Create a new base ruleset */
-   if ( NULL == ( rs = new_ruleset() ) )
+   if ( NULL == ( rs = new_ruleset(o->binfile) ) )
       return(NULL);
 
    /* Open the file */
@@ -871,9 +874,6 @@ int ResolveTags(RuleSet *rs, Options *o)
    
    return(0);
 }
-
-
-
 
 
 

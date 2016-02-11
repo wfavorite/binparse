@@ -115,38 +115,16 @@ int main ( int argc, char *argv[] )
   }
 
 
-  /* STUB: Start working here */
-  ResolveData(r, o);
+  /* This is the point were data is retrieved / resolved */
+  if ( ResolveData(r, o) )
+    return(1);
   
-  /* How:
-       Repeatedly rake the linked list for the data. If it is in order*
-       then it should only take a single read of the list/file.**
+  if ( o->bVerbose )
+  {
+    fprintf(stderr, "Third pass compile complete.\n");
+  }
 
-       [* It can be ordered in the app as it was read, but the user may
-       have written a crappy file that was not ordered. The alternative
-       would be an ordering of the parse points in the app as a dependency
-       tree. This is harder than required, so opting for the more brute
-       force method as long as it only takes me a few tries - tops.]
 
-       [** Each walk of the list would be accompanied by a reading of the
-       file. We MUST read the file because we need the data to resolve
-       other items (such as a size to read). So a walk of this list would
-       require reading from the data file.]
-
-       It cannot be assumed that a complete read can be accomplished in
-       N walks of the list. The "recursion" could continue with thousands
-       of dependencies. The only way to do this is:
-        - Put all items in a dependency tree and recursively resolve the
-	  tree leaf by leaf.
-	- Continually walk the list until it is resolved. Make sure that
-	  at least one new item is resolved on each list walk.
-	- Continually walk the list until it is resolved. Recurse on every
-	  found item. This should only take a single walk. It would also
-	  require that a link is kept to the dependent pp during the tag
-	  resolution phase. (It would have to be really. This would be the
-	  best time to make the linkage, and the linkage is required to
-	  resolve both data type (for casting) and the data location.)
-  */
 
   /*** Finally ***/
   /* Render the data as per each listed type requires.
