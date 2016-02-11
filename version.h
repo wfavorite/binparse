@@ -81,6 +81,7 @@
                        clang 700.1.81
                      - Fixed (added) recursive resolution of tags in the
 		       second pass.
+    0.13.0   2/11/16 - Added -c (check compile) option / capability.
 
 */
 #define VERSION_STRING "0.12.0"
@@ -107,16 +108,13 @@
        solid look at the code and comment the shit out of it.
    [Q] You should move app-specific string checking and manipulation to
        an app specific source file.
-   [ ] The tag member of the union in Entity can be a string and a pointer
-       to a parse point. What if it points to an explicit tag? The resolution
-       will be different - meaning you need a new type to cover this type of
-       tag to be resolved (and how to resolve it).
    [ ] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
    [ ] Offset can be 0, but size cannot. This should be validated during one
-       of the passes. Probably during the final pass.
+       of the passes. Probably during the final pass. The offset, nor the
+       offset + size cannot extend beyond the end of the file.
    [ ] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint. 
    [ ] Will you support "defined"/set values. For example:
@@ -147,7 +145,6 @@
    [D] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
-   [_] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
    [ ] You should establish size and allocate memory for the data items.
@@ -160,6 +157,11 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Resolve the "assert() $TUB" in bpfparse.c::ResolveTags().
+   [X] The tag member of the union in Entity can be a string and a pointer
+       to a parse point. What if it points to an explicit tag? The resolution
+       will be different - meaning you need a new type to cover this type of
+       tag to be resolved (and how to resolve it).
    [X] Tag resolution is not recursive. If a tag is buried in a mathematical
        statement, then the tag resolving algo will miss it. (For right now,
        no test cases have these "nested" tags.)

@@ -18,8 +18,6 @@ int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options 
 int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o);
 
 
-
-
 /* ========================================================================= */
 RuleSet *new_ruleset(void)
 {

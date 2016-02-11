@@ -178,7 +178,7 @@ int show_help(void)
 {
   printf("bp - A binary parse tool\n");
   printf("   Version: %s\n", VERSION_STRING);
-
+  printf("   Usage: bp -a | -h | <options> <bpf_file> [bin_file]\n");
   printf("   Options:\n");
   printf("     -a         Show \"about\" information (and exit).\n");
   printf("     -c         Validate the BPF file (stop after 2nd stage compile).\n");
@@ -187,8 +187,6 @@ int show_help(void)
   printf("     -h         Show \"help\" information (and exit).\n");
   printf("*    -s         <value>\n");
   printf("*    -t         <tag>:<value>\n");
-  printf("?    -p <file>  Specify the parse file. (Required)\n");
-  printf("?               [The bpf file is case sensitive]\n");
   printf("     -v         Be verbose\n");
   fflush(stdout);
   return(0);
