@@ -1,5 +1,8 @@
 #!./bp
 
+setopt p 2
+setopt v true
+
 # simple.bin is a little-endian file
 
 0 1 magic "Magic string" uint8 must=0x23 hidden=true

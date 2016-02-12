@@ -84,6 +84,7 @@
     0.13.0   2/11/16 - Added -c (check compile) option / capability.
                      - Work on the data retrieval (3rd pass) code.
     0.14.0   2/12/16 - Basic numerical parsing works
+                     - Added support for -p(asses) option for 3rd pass code.
 */
 #define VERSION_STRING "0.14.0"
 /*
@@ -96,18 +97,13 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
+   [ ] Verbose mode should show the reads. It is too easy to mess up the BPF
+       file format. Some help would make this more useful for the user.
    [ ] Re-indent all source files (I don't have my .emacs file on this
        computer and the indentation is all messed up.)
-   [ ] Data types need to be 'compatibility checked' before converting them
-       to BPInt data types.
-   [_] Data should be 'cached' in the PP so multiple lookups will be faster.
-       This means that once the data is properly resolved, it is copied into
-       a BPInt for future use.
    [ ] RuleSet->pass does not appear to have been used anywhere. This was
        designed to denote that the *entire* pass was completed. I am not sure
        that this is required any more.
-   [ ] Need to check that stated data types and size operators match.
-   [ ] Setup a test binary file.
    [ ] There is still no support for the "settag" operator.
    [ ] Cleanup comments and structure in bpdata.h.
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
@@ -123,9 +119,6 @@
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
-   [_] Offset can be 0, but size cannot. This should be validated during one
-       of the passes. Probably during the final pass. The offset, nor the
-       offset + size cannot extend beyond the end of the file.
    [ ] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint. 
    [ ] Will you support "defined"/set values. For example:
@@ -168,6 +161,16 @@
    [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Need to check that stated data types and size operators match.
+   [X] Setup a test binary file.
+   [X] Offset can be 0, but size cannot. This should be validated during one
+       of the passes. Probably during the final pass. The offset, nor the
+       offset + size cannot extend beyond the end of the file.
+   [X] Data types need to be 'compatibility checked' before converting them
+       to BPInt data types.
+   [X] Data should be 'cached' in the PP so multiple lookups will be faster.
+       This means that once the data is properly resolved, it is copied into
+       a BPInt for future use.
    [X] RuleSet needs a file descriptor and related 'flags'.
    [X] The function to count explicit tags should be written. The parsing
        support is not complete, but the data structures have been defined.

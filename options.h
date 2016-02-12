@@ -43,6 +43,8 @@
    impact on the usability of the product.
 */
 
+#define DEFAULT_MAX_PASSES 5
+
 /* ========================================================================= */
 /* The Options struct.
    This holds all command-line and file-supplied options for the app. This
@@ -56,6 +58,7 @@ typedef struct Options
    int bDebug;           /* Turn on diag messages                            */
    int bVerbose;         /* Show some extra verbosity while working.         */
    int bValidate;        /* Validate (stop at third stage of compile)        */
+   int iPasses;          /* The number of passes to attempt on data retrieval*/
   
    char *bpffile;
    char *binfile;

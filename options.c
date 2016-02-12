@@ -28,6 +28,7 @@ Options *new_options(void)
    o->bAbout = 0;
    o->bpffile = NULL;
    o->binfile = NULL;
+   o->iPasses = DEFAULT_MAX_PASSES;
 
    /* Send it off */
    return(o);
@@ -45,7 +46,7 @@ Options *ParseOptions(int argc, char *argv[])
       return(NULL);
   
    /* Parse the options */
-   while ( -1 != ( c = getopt(argc, argv, "+achv" ) ) )
+   while ( -1 != ( c = getopt(argc, argv, "+achp:v" ) ) )
    {
       switch(c)
       {
@@ -60,6 +61,9 @@ Options *ParseOptions(int argc, char *argv[])
          break;
       case 'h':
          o->bHelp = 1;
+         break;
+      case 'p':
+	o->iPasses = atoi(optarg);
          break;
       case 'v':
          o->bVerbose = 1;
@@ -209,8 +213,40 @@ int parse_opt_tail(char *line)
    /* Fall through to error */
    return(-1);
 }
-   
 
+/* ========================================================================= */
+/* This is a rare case of not messaging at the point of error.               */
+int parse_opt_numeric(int *rv, char *line)
+{
+   int i;   /* Index for string */
+
+   /* Move off leading ws */
+   eat_ws(&line);
+
+   *rv = 0;
+   i = 0;
+   while (( line[i] >= '0' ) && ( line[i] <= '9' ))
+   {
+     *rv *= 10;
+     *rv += (line[i] - '0');
+     i++;
+   }
+
+   /* If nothing was parsed */
+   if ( i == 0 )
+     return(1);
+
+   while (( line[i] == ' ' ) || ( line[i] == '\t' ))
+     i++;
+   
+   /* The next char should be termination or the # starting a comment. And
+      the comment was filtered in the calling function. */
+   if (( line[i] != '#' ) && ( line[i] != 0 ))
+      return(1);
+   
+   /* Fall through to success */
+   return(0);
+}
 
 /* ========================================================================= */
 int ParseBPFOptions(Options *o)
@@ -256,6 +292,7 @@ int ParseBPFOptions(Options *o)
          case '+':
          case 'v':
 	 case 'c':
+	 case 'p':
             thisopt = *line;
             break;
          case 'a':
@@ -283,7 +320,8 @@ int ParseBPFOptions(Options *o)
             /* Only allow a single option per line */
             return(-1);
          }
-            
+
+	 /* STUB: These errors could be combined in a func(), a goto, or some combined message */
          switch( thisopt )
          {
          case '+':
@@ -304,6 +342,15 @@ int ParseBPFOptions(Options *o)
             }
             parsed++;
             break;
+         case 'p':
+	   if ( parse_opt_numeric(&o->iPasses, line) )
+            {
+               fprintf(stderr, "-------------------------------------------------------------------------------\n");
+               fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
+               return(-1);
+            }
+            parsed++;
+	    break;
          case 'v':
             if ( -1 == (o->bVerbose = parse_opt_tail(line)) )
             {
