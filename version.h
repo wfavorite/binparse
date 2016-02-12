@@ -85,6 +85,8 @@
                      - Work on the data retrieval (3rd pass) code.
     0.14.0   2/12/16 - Basic numerical parsing works
                      - Added support for -p(asses) option for 3rd pass code.
+                     - Basic support for printing data. Mostly incomplete at
+		       this time.
 */
 #define VERSION_STRING "0.14.0"
 /*
@@ -99,6 +101,11 @@
   ToDo:                                                                      !
    [ ] Verbose mode should show the reads. It is too easy to mess up the BPF
        file format. Some help would make this more useful for the user.
+   [ ] Insure that must= is not used with non-numeric data.
+   [ ] For now... Find the longest label and use this as the length of the
+       default output for all labels. Such as printf("%-Xs : ...) where X
+       is the length of the longest label.
+   [ ] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
    [ ] Re-indent all source files (I don't have my .emacs file on this
        computer and the indentation is all messed up.)
    [ ] RuleSet->pass does not appear to have been used anywhere. This was

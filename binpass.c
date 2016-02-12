@@ -34,6 +34,9 @@
 	  resolution phase. (It would have to be really. This would be the
 	  best time to make the linkage, and the linkage is required to
 	  resolve both data type (for casting) and the data location.)
+
+       The option chose here was to repeatedly walk the list, and make the
+       number of passes a tunable (-p).
   */
 
 /* ========================================================================= */
@@ -129,7 +132,7 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
     { 
       fprintf(stderr, "-------------------------------------------------------------------------------\n");
       fprintf(stderr, "Data size mismatch. Data type (%ld bytes) does not match the read size (%ld", expected_size, pp->rSize);
-      fprintf(stderr, "   bytes) for \"%s\" on line %d\n", pp->tag, pp->lineno);
+      fprintf(stderr, "   bytes) for \"%s\" on line %d.\n", pp->tag, pp->lineno);
       return(1);
     }
   }
@@ -145,14 +148,27 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
   if ( pp->rSize != pread(rs->f, pp->data, pp->rSize, pp->rOffset) )
   {
     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-    fprintf(stderr, "Data retrieval failure. Parse point \"%s\" on line %d\n", pp->tag, pp->lineno);
+    fprintf(stderr, "Data retrieval failure. Parse point \"%s\" on line %d.\n", pp->tag, pp->lineno);
     fprintf(stderr, "   cannot be read.\n");
     return(1);
   }
 
   /* Validate that the data type can be converted to a BPInt (before trying) */
+  /* Note: The mask (mask=) is applied in the following function. */
   if(SetBPIntFromVoid(pp))
     return(1);
+
+  /* Check the muste (must=) value */
+  if ( pp->use_muste )
+  {
+    if ( pp->muste_val != pp->rdata )
+    {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Data test failure. The \"must=\" rule failed for the parse point named\n");
+      fprintf(stderr, "   \"%s\" on line %d. Expected: %ld; Actual: %ld.\n", pp->tag, pp->lineno, pp->muste_val, pp->rdata);
+      return(1);
+    }
+  }
   
   SetPPDataResolved(pp, DR_DATA);
   return(0);

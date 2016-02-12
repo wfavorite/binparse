@@ -101,8 +101,6 @@ int IsPPDataResolved(ParsePoint *pp, int flag)
 /* ========================================================================= */
 int SetBPIntFromVoid(ParsePoint *pp)
 {
-  /* uint8_t goat; */
-  
   switch ( pp->dt )
   {
   case DT_INT8:
@@ -140,6 +138,8 @@ int SetBPIntFromVoid(ParsePoint *pp)
     return(1);
   }
 
+  /* STUB: Apply the mask= here */
+  
   return(0);
 }
 

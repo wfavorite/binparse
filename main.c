@@ -4,6 +4,7 @@
 #include "bpfparse.h"
 #include "version.h"
 #include "binpass.h"
+#include "display.h"
 
 /* Prototypes (for functions in this file) */
 int show_about(void);
@@ -124,14 +125,9 @@ int main ( int argc, char *argv[] )
     fprintf(stderr, "Third pass compile complete.\n");
   }
 
-
-
   /*** Finally ***/
-  /* Render the data as per each listed type requires.
-     
-     This will require that the list be walked in order as it was given
-     by the source file. The assumption must be that the user placed
-     items in the file as expected to be in the output. */
+  /* Render the data as per each listed type requires. */
+  DumpResults(r, o);
   
    return(0);
 }
