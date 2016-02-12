@@ -196,19 +196,19 @@ typedef struct etag
 
 typedef struct ParsePoint
 {
-   /* Field 1 - Offset */
+   /** Field 1 - Offset */
    Entity *Offset;
    BPInt rOffset;   /* Resolved (cached) Offset */
-   /* Field 2 - Size */
+   /** Field 2 - Size */
    Entity *Size;
    BPInt rSize;   /* Resolved (cached) Size */
-   /* Field 3 - Tag */
+   /** Field 3 - Tag */
    char *tag;               /* Shorthand name for this data item             */
-   /* Field 4 - Label */
+   /** Field 4 - Label */
    char *label;             /* Printable name for this data item             */
-   /* Field 5 - data type */
+   /** Field 5 - data type */
    unsigned long dt;        /* How to interpret the data item (define enum)  */
-   /* Flags / options (the optional 6th field) */
+   /** Flags / options (the optional 6th field) */
    int print_result;        /* To print results or not. 1=print, 0=not.      */
    Enum *use_enum;          /* Resolved enum to use to decode                */
    char *enum_tag;          /* Unresolved enum tag to use to decode          */
@@ -217,9 +217,9 @@ typedef struct ParsePoint
    int   use_mask;          /* Boolean --> 1 use mask=, 0 do not use mask=   */
    BPInt mask_val;          /* The value to use for mask= directives         */
 
-   /* Data and metadata */
+   /** Data and metadata */
    void *data;              /* A pointer to the data item/type               */
-   BPInt rdata;
+   BPInt rdata;             /* Cached, standardized, copy of the int data    */ 
   
    int lineno;              /* The line number of the "rule". Used for error
                                generation in the 2nd pass tag parsing.       */
@@ -228,12 +228,12 @@ typedef struct ParsePoint
                                if this is set, then exit with prejudice.     */
    int tags_resolved;       /* Flag to determine if the tags are resolved    */
                             /* This is a required factor to completing the
-			                      second pass "compile" stage of the process.   */
-  int rtag_count;          /* The number of resolved tags (for stats)       */
+       	                       second pass "compile" stage of the process.   */
+   int rtag_count;          /* The number of resolved tags (for stats)       */
    int data_resolved;       /* Flag to determine if the data has resolved    */
                             /* This is a required factor in the completion
-			                      of stage three (third pass compilation) where
-			                      the data dependencies are resolved.           */
+                               of stage three (third pass compilation) where
+                               the data dependencies are resolved.           */
   
    struct ParsePoint *next; /* Used to build the RuleSet->rulelist of pps    */
 } ParsePoint;
@@ -250,8 +250,10 @@ typedef struct RuleSet
    int parserr;
    int pass;               /* The pass that was completed */
 
-   int f;
-   char *fname;
+   /* (Bin) File related data */
+   int f;                  /* File descriptor                                */
+   char *fname;            /* File name (used for open())                    */
+   BPInt fsize;            /* Size of the file                               */
 } RuleSet;
 
 /* =========================================================================
@@ -297,8 +299,14 @@ int CountExplicitTags(RuleSet *rs);
 /* STUB: Header for this */
 int ParseBPInt(BPInt *val, char *str);
 
+/* STUB: Header for this */
+int SetBPIntFromVoid(ParsePoint *pp);
 
 
+
+
+
+/* STUB: Header for this */
 #define DR_OFFSET 1   /* Offset is known (resolved)   */
 #define DR_SIZE   2   /* Size is known (resolved)     */
 #define DR_DATA   4   /* Data is read (retrieved)     */

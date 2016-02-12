@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <sys/stat.h>
 
 #include "binpass.h"
 
@@ -43,6 +43,8 @@ int get_entity_value(RuleSet *rs, BPInt *out, Entity *ent);
 int bin_read_pp(RuleSet *rs, ParsePoint *pp)
 {
   BPInt got;
+  struct stat s;
+  BPInt expected_size = 0;
   
   /* Open the file if it is not already open */
   if ( -1 == rs->f )
@@ -52,8 +54,18 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
       fprintf(stderr, "ERROR: Unable to open binfile \"%s\".\n", rs->fname);
       return(1);
     }
+
+    if(fstat(rs->f, &s))
+    {
+      fprintf(stderr, "ERROR: Unable to stat binfile \"%s\".\n", rs->fname);
+      return(1);
+    }
+
+    /* Save off the size. We will use this for safety checks later. */
+    rs->fsize = s.st_size; 
   }
 
+  /* Offset must be positive */
   if ( pp->rOffset < 0 )
   { 
     fprintf(stderr, "-------------------------------------------------------------------------------\n");
@@ -62,18 +74,74 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
     return(1);
   }
 
-  /* STUB: Validate that the datatype and size match. */
+  /* Size must be > 0 */
+  if ( pp->rSize <= 0 )
+  { 
+    fprintf(stderr, "-------------------------------------------------------------------------------\n");
+    fprintf(stderr, "Data lookup failure. Size for \"%s\" on line %d\n", pp->tag, pp->lineno);
+    fprintf(stderr, "   is a negative or zero value.\n");
+    return(1);
+  }
 
-  /* STUB: Validate that the size is positive */
+  /* Offset + Size must be less than the file size */
+  if ( pp->rSize + pp->rOffset > rs->fsize )
+  { 
+    fprintf(stderr, "-------------------------------------------------------------------------------\n");
+    fprintf(stderr, "Data lookup failure. Data read for \"%s\" on line %d\n", pp->tag, pp->lineno);
+    fprintf(stderr, "   exceeds the length of the binary file.\n");
+    return(1);
+  }
 
-  /* STUB: Validate that the size + offset does not extend beyond the end of the file */
+  /* Find the expected size of the read */
+  switch ( pp->dt )
+  {
+  case DT_UINT8:
+  case DT_INT8:
+  case DT_CHAR:
+    expected_size = 1;
+    break;
+  case DT_UINT16:
+  case DT_INT16:
+    expected_size = 2;
+    break;
+  case DT_UINT32:
+  case DT_INT32:
+    expected_size = 4;
+    break;
+  case DT_UINT64:
+  case DT_INT64:
+    expected_size = 8;
+    break;
+  case DT_ZTSTR:
+  case DT_FLSTR:
+    expected_size = -1;
+    break;
+  case DT_NULL:
+  default:
+    fprintf(stderr, "ERROR: Data type for \"%s\" was not properly set.\n", pp->tag);
+    return(1);
+  }
 
+  /* Compare the expected size against the read size */
+  if ( expected_size > 0 )
+  {
+    if ( expected_size != pp->rSize )
+    { 
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Data size mismatch. Data type (%ld bytes) does not match the read size (%ld", expected_size, pp->rSize);
+      fprintf(stderr, "   bytes) for \"%s\" on line %d\n", pp->tag, pp->lineno);
+      return(1);
+    }
+  }
+
+  /* Allocate the memory for the read-into target */
   if ( NULL == (pp->data = malloc(pp->rSize)) )
   {
     fprintf(stderr, "ERROR: Failed to allocate memory for a data item.\n");
     return(1);
   }
 
+  /* Actually do the read */
   if ( pp->rSize != pread(rs->f, pp->data, pp->rSize, pp->rOffset) )
   {
     fprintf(stderr, "-------------------------------------------------------------------------------\n");
@@ -82,9 +150,17 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
     return(1);
   }
 
-  /* STUB: Validate that the data type can be converted to a BPInt */
-  pp->rdata = (BPInt)pp->data;
+  /* Validate that the data type can be converted to a BPInt (before trying) */
+  if(SetBPIntFromVoid(pp))
+    return(1);
   
+  fprintf(stderr, "STUB DEBUG pread(%d, %ld, %ld, %ld);\n",
+	  rs->f,
+	  pp->rdata,
+	  pp->rSize,
+	  pp->rOffset);
+
+  SetPPDataResolved(pp, DR_DATA);
   return(0);
 }
 
@@ -93,7 +169,7 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
 
 
 /* ========================================================================= */
-#define MAX_PASSES 1
+#define MAX_PASSES 3
 int ResolveData(RuleSet *rs, Options *o)
 {
    ParsePoint *thispp;
@@ -171,7 +247,7 @@ int ResolveData(RuleSet *rs, Options *o)
        /* STUB: Debuggery */
        fprintf(stderr, "            Offset = %ld\n", Offset);
        fprintf(stderr, "            Size   = %ld\n", Size);
-
+       fprintf(stderr, "            Data   = %ld\n", thispp->rdata);
        
        thispp = thispp->next;
      } /* while ( thispp ) <----- Walking through the list */

@@ -1,5 +1,8 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdint.h>
+
+#include <stdio.h> /* STUB: Temp for debuggery */
 
 #include "bpdata.h"
 #include "strlib.h"
@@ -95,8 +98,50 @@ int IsPPDataResolved(ParsePoint *pp, int flag)
   return(0);
 }
 
+/* ========================================================================= */
+int SetBPIntFromVoid(ParsePoint *pp)
+{
+  /* uint8_t goat; */
+  
+  switch ( pp->dt )
+  {
+  case DT_INT8:
+    pp->rdata = (BPInt)(*((int8_t *)pp->data));
+    break;
+  case DT_CHAR:
+  case DT_UINT8:
+    pp->rdata = (BPInt)(*((int8_t *)pp->data));
+    break;
+  case DT_UINT16:
+    pp->rdata = (BPInt)(*((uint16_t *)pp->data));
+    break;
+  case DT_INT16:
+    pp->rdata = (BPInt)(*((int16_t *)pp->data));
+    break;
+  case DT_UINT32:
+    pp->rdata = (BPInt)(*((uint32_t *)pp->data));
+    break;
+  case DT_INT32:
+    pp->rdata = (BPInt)(*((int32_t *)pp->data));
+    break;
+  case DT_UINT64:
+    pp->rdata = (BPInt)(*((uint64_t *)pp->data));
+    break;
+  case DT_INT64:
+    pp->rdata = (BPInt)(*((int64_t *)pp->data));
+    break;
+  case DT_ZTSTR:
+  case DT_FLSTR:
+    break;
+  case DT_NULL:
+  default:
+    /* Likely impossible to reach. (This is really only called
+       in one place, and this is checked beforehand.) */
+    return(1);
+  }
 
-
+  return(0);
+}
 
 
 
