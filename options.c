@@ -249,6 +249,15 @@ int parse_opt_numeric(int *rv, char *line)
 }
 
 /* ========================================================================= */
+/* This is an error function specific to ParseBPFOptions()                   */
+int opt_err_msg(char thisopt, int lineno)
+{
+  fprintf(stderr, "-------------------------------------------------------------------------------\n");
+  fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, lineno);
+  return(-1);
+}
+
+/* ========================================================================= */
 int ParseBPFOptions(Options *o)
 {
    File *f;
@@ -321,43 +330,26 @@ int ParseBPFOptions(Options *o)
             return(-1);
          }
 
-	 /* STUB: These errors could be combined in a func(), a goto, or some combined message */
          switch( thisopt )
          {
          case '+':
             if ( -1 == (o->bDebug = parse_opt_tail(line)) )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
-               return(-1);
-            }
+	      return(opt_err_msg(thisopt, f->lineno));
             parsed++;
             break;
          case 'c':
             if ( -1 == (o->bValidate = parse_opt_tail(line)) )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
-               return(-1);
-            }
-            parsed++;
+	      return(opt_err_msg(thisopt, f->lineno));
+	    parsed++;
             break;
          case 'p':
 	   if ( parse_opt_numeric(&o->iPasses, line) )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
-               return(-1);
-            }
+	      return(opt_err_msg(thisopt, f->lineno));
             parsed++;
 	    break;
          case 'v':
             if ( -1 == (o->bVerbose = parse_opt_tail(line)) )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, f->lineno);
-               return(-1);
-            }
+	      return(opt_err_msg(thisopt, f->lineno));
             parsed++;
             break;
             /* You can't have a "default" option here. Other paths have been eliminated. */

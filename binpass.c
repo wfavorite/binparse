@@ -40,6 +40,9 @@
   */
 
 /* ========================================================================= */
+#define GEV_RESOLVED   0   /* The entity was resolved           */
+#define GEV_DEPENDENT  1   /* Not resolved on dependency issues */
+#define GEV_ERROR     -1   /* Not resolved on error             */
 int get_entity_value(RuleSet *rs, BPInt *out, Entity *ent);
 
 /* ========================================================================= */
@@ -201,8 +204,6 @@ int ResolveData(RuleSet *rs, Options *o)
 
        if ( 0 == IsPPDataResolved(thispp, DR_DATA) )
        {
-	 /* fprintf(stderr, "STUB DEBUG  pp[%s]\n" , thispp->tag); */
-
 	 /* Check Offset before trying again */
 	 if ( 0 == IsPPDataResolved(thispp, DR_OFFSET) )
 	 {
@@ -249,12 +250,6 @@ int ResolveData(RuleSet *rs, Options *o)
 	 
        } /* if ( data not resolved ) */
 
-       /* STUB: Debuggery * /
-       fprintf(stderr, "            Offset = %ld\n", Offset);
-       fprintf(stderr, "            Size   = %ld\n", Size);
-       fprintf(stderr, "            Data   = %ld\n", thispp->rdata);
-       */
-	 
        thispp = thispp->next;
      } /* while ( thispp ) <----- Walking through the list */
 

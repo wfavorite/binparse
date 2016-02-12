@@ -1,8 +1,6 @@
 #ifndef BPDATA_H
 #define BPDATA_H
 
-
-
 /* This is the value used in bpfparse.c for get_parse_point() */
 #define MAX_TOKEN_LEN 64
 
@@ -16,8 +14,6 @@
 /* This is the maximum length of the string in a enum *name*-value pair.     */
 /* Used in penum.c::parse_envp_name()                                        */
 #define MAX_EVP_NAME_LEN 16
-
-
 
 /* ========================================================================= */
 /* This is the native data type for all internal numerics such as stored
@@ -140,12 +136,13 @@ typedef struct enumbase
    struct enumbase *next;
 } Enum;
 
-
-
-
-
-
+/* ========================================================================= */
 /* This is a STUBbed version of an explicit tag */
+/* Explicit tags allow you to define a value in the BPF file and then use
+   it referentially throught the file.
+   
+   The rules for this have not been defined at this time, it is expected 
+   that it will work like any other entity.                                  */
 typedef struct etag
 {
   char *tag;
@@ -154,29 +151,7 @@ typedef struct etag
   
 } ExplicitTag;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* ========================================================================= */
 /*** Defines for the ParsePoint->dt value ***/
 /* First used in get_parse_point() */
 #define DT_NULL     0
@@ -238,8 +213,8 @@ typedef struct ParsePoint
    struct ParsePoint *next; /* Used to build the RuleSet->rulelist of pps    */
 } ParsePoint;
 
-
-
+/* ========================================================================= */
+/* This is the data structure that ties it all together.                     */
 typedef struct RuleSet
 {
    ParsePoint *pplist;     /* The list of parsed rule data points            */
@@ -257,56 +232,50 @@ typedef struct RuleSet
 } RuleSet;
 
 /* =========================================================================
- * Name: 
- * Desc: 
- * Params:
- * Returns: 
- * Side Effects: 
+ * Name: Count*
+ * Desc: Walk the list of * and count the number
+ * Params: RuleSet
+ * Returns: The count of ParsePoints in the RuleSet
+ * Side Effects: None
  * Notes: 
  */
 int CountParsePoints(RuleSet *rs);
-
-/* =========================================================================
- * Name: 
- * Desc: 
- * Params:
- * Returns: 
- * Side Effects: 
- * Notes: 
- */
 int CountParsedEnums(RuleSet *rs);
-
-/* =========================================================================
- * Name: 
- * Desc: 
- * Params:
- * Returns: 
- * Side Effects: 
- * Notes: 
- */
 int CountBuiltinEnums(RuleSet *rs);
-
-/* =========================================================================
- * Name: 
- * Desc: 
- * Params:
- * Returns: 
- * Side Effects: 
- * Notes: 
- */
 int CountExplicitTags(RuleSet *rs);
 
-/* STUB: Header for this */
+/* =========================================================================
+ * Name: ParseBPInt
+ * Desc: Read a numeric in a string (dec or hex) and put it in a BPInt
+ * Params: BPInt to fill
+ *         char * to read from
+ * Returns: 0 on success, non-0 on failure
+ * Side Effects: 
+ * Notes: 
+ */
 int ParseBPInt(BPInt *val, char *str);
 
-/* STUB: Header for this */
+/* =========================================================================
+ * Name: SetBPIntFromVoid
+ * Desc: "Copy" the data value to rdata (a standardized form) & apply mask
+ * Params: The ParsePoint *THAT HAS THE data FIELD FILLED*
+ * Returns: 0 on success, non-0 on failure
+ * Side Effects: Modifies data items in the ParsePoint
+ * Notes: 
+ */
 int SetBPIntFromVoid(ParsePoint *pp);
 
-
-
-
-
-/* STUB: Header for this */
+/* =========================================================================
+ * Name: *PPDataResolved
+ * Desc: Settor and tester of flags for data resolved in Parse Point
+ * Params: ParsePoint - The pp to set or check
+ * Returns: Current value on set, boolean on test
+ * Side Effects: Settor will modify the data resolved value of the pp
+ * Notes: These are simple settor and gettor functions for the data
+ *        resolved flags. This is used in the third pass (reading data from
+ *        the file). It keeps track of what is done, and what is yet to be
+ *        done.
+ */
 #define DR_OFFSET 1   /* Offset is known (resolved)   */
 #define DR_SIZE   2   /* Size is known (resolved)     */
 #define DR_DATA   4   /* Data is read (retrieved)     */

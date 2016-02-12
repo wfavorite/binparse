@@ -87,6 +87,8 @@
                      - Added support for -p(asses) option for 3rd pass code.
                      - Basic support for printing data. Mostly incomplete at
 		       this time.
+                     - Code cleanup, comments, documentation, etc...
+                     - grep $TUB * | wc -l ----> 25
 */
 #define VERSION_STRING "0.14.0"
 /*
@@ -99,8 +101,10 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [ ] Verbose mode should show the reads. It is too easy to mess up the BPF
-       file format. Some help would make this more useful for the user.
+   [_] The help output has a few different output methods. These are not
+       covered in the options struct (with appropriate flags), nor is the
+       help output clear on what the options mean. (Specifically: The output
+       needs to relate that this option modifies the output format.)
    [ ] Insure that must= is not used with non-numeric data.
    [ ] For now... Find the longest label and use this as the length of the
        default output for all labels. Such as printf("%-Xs : ...) where X
@@ -111,8 +115,6 @@
    [ ] RuleSet->pass does not appear to have been used anywhere. This was
        designed to denote that the *entire* pass was completed. I am not sure
        that this is required any more.
-   [ ] There is still no support for the "settag" operator.
-   [ ] Cleanup comments and structure in bpdata.h.
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
    [ ] Some of the print statements (such as bVerbose) are stdin AND stderr.
    [Q] When printing the error messages in bpfparse.c::resolve_tag(), the
@@ -120,25 +122,13 @@
        it points to a string and not another struct)? It may be appropriate
        to write a gettor function, check this before writing, or have a
        solid look at the code and comment the shit out of it.
-   [Q] You should move app-specific string checking and manipulation to
-       an app specific source file.
    [ ] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
    [ ] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint. 
-   [ ] Will you support "defined"/set values. For example:
-       settag hdroffset 16
-       This would create a tag called hdroffset that is a hard-set value of
-       16 (decimal).
-       Notes on this issue:
-       1. The "settag" operator is inconsistent with how enums are set.
-       2. A line beginning with a tagXXX (the enumXXX = method) will be
-          indiscernable from parse point lines that can begin with that
-          same tag (in the offset field).
-       3. "settag" and "setenum" operators seem to make the most sense, and
-          are consistent (with each other).
+   [ ] There is still no support for the "settag" operator.
    [ ] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
@@ -149,25 +139,40 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [ ] The help output has a few different output methods. These are not
-       covered in the options struct (with appropriate flags), nor is the
-       help output clear on what the options mean. (Specifically: The output
-       needs to relate that this option modifies the output format.)
    [D] Consider removing all the validate_* code in pmath.c. This should all
        be doable in a single pass. Drop the naieve approach and move on. It is
        incorrect to have parsing rules in two different places.
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
-   [ ] You should establish size and allocate memory for the data items.
-       This should probably be done during the third pass (DT_ZTSTR will
-       not be known until it is read).
    [ ] Fill out all the empty function paramater comment blocks.
    [ ] Write man pages for bp(1) and bpf(5).
    [ ] Need to properly differentiate between ' and " in the strlib.
    [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
-   [ ] Write actual options parsing code (instead of stubing defaults).
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
   Done:
+   [X] Verbose mode should show the reads. It is too easy to mess up the BPF
+       file format. Some help would make this more useful for the user.
+   [X] You should move app-specific string checking and manipulation to
+       an app specific source file. (This is done mostly in bpdata.c.)
+   [X] Will you support "defined"/set values. For example:
+       settag hdroffset 16
+       This would create a tag called hdroffset that is a hard-set value of
+       16 (decimal).
+       Notes on this issue:
+       1. The "settag" operator is inconsistent with how enums are set.
+       2. A line beginning with a tagXXX (the enumXXX = method) will be
+          indiscernable from parse point lines that can begin with that
+          same tag (in the offset field).
+       3. "settag" and "setenum" operators seem to make the most sense, and
+          are consistent (with each other).
+       (This has been "standardized". setenum now works this way. I am removing
+       this item because behaviour has been defined and this (todo) is now
+       redundant.)
+   [X] You should establish size and allocate memory for the data items.
+       This should probably be done during the third pass (DT_ZTSTR will
+       not be known until it is read).
+   [X] Write actual options parsing code (instead of stubing defaults).
+   [X] Cleanup comments and structure in bpdata.h.
    [X] Need to check that stated data types and size operators match.
    [X] Setup a test binary file.
    [X] Offset can be 0, but size cannot. This should be validated during one
