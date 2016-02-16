@@ -80,17 +80,19 @@
     0.12.0   2/10/16 - OSX port / code warning cleanup. llvm 7.0.2.
                        clang 700.1.81
                      - Fixed (added) recursive resolution of tags in the
-		       second pass.
+		                 second pass.
     0.13.0   2/11/16 - Added -c (check compile) option / capability.
                      - Work on the data retrieval (3rd pass) code.
     0.14.0   2/12/16 - Basic numerical parsing works
                      - Added support for -p(asses) option for 3rd pass code.
                      - Basic support for printing data. Mostly incomplete at
-		       this time.
+                       this time.
                      - Code cleanup, comments, documentation, etc...
                      - grep $TUB * | wc -l ----> 25
+    0.15.0   2/16/16 - AIX port
+                     - Work on endianess swapping. Basic testing complete.
 */
-#define VERSION_STRING "0.14.0"
+#define VERSION_STRING "0.15.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
@@ -149,7 +151,10 @@
    [ ] Need to properly differentiate between ' and " in the strlib.
    [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
+
   Done:
+   [X] A swap endian feature needs to be added to support different endian
+       files.
    [X] Verbose mode should show the reads. It is too easy to mess up the BPF
        file format. Some help would make this more useful for the user.
    [X] You should move app-specific string checking and manipulation to

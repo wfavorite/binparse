@@ -19,7 +19,7 @@ int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o);
 
 
 /* ========================================================================= */
-RuleSet *new_ruleset(char *filename)
+RuleSet *new_ruleset(Options *o)
 {
   RuleSet *rs;
 
@@ -38,7 +38,9 @@ RuleSet *new_ruleset(char *filename)
   rs->etlist = NULL;    /* Empty list of explicit tags                      */
 
   rs->f = -1;           /* The file has not been opened                     */
-  rs->fname = filename;
+  rs->fname = o->binfile; /* The binary file that will be opened later      */
+
+  rs->bESwap = o->bESwap; /* Save off the directive to do byte swapping     */
   
   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
      return(NULL);
@@ -552,7 +554,7 @@ RuleSet *ParseBPFFile(Options *o)
    }
 
    /* Create a new base ruleset */
-   if ( NULL == ( rs = new_ruleset(o->binfile) ) )
+   if ( NULL == ( rs = new_ruleset(o) ) )
       return(NULL);
 
    /* Open the file */

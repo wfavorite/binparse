@@ -59,7 +59,8 @@ typedef struct Options
    int bVerbose;         /* Show some extra verbosity while working.         */
    int bValidate;        /* Validate (stop at third stage of compile)        */
    int iPasses;          /* The number of passes to attempt on data retrieval*/
-  
+   int bESwap;           /* To endian swap or not                            */
+
    char *bpffile;
    char *binfile;
 } Options;

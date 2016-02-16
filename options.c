@@ -29,6 +29,7 @@ Options *new_options(void)
    o->bpffile = NULL;
    o->binfile = NULL;
    o->iPasses = DEFAULT_MAX_PASSES;
+   o->bESwap = 0;
 
    /* Send it off */
    return(o);
@@ -46,7 +47,7 @@ Options *ParseOptions(int argc, char *argv[])
       return(NULL);
   
    /* Parse the options */
-   while ( -1 != ( c = getopt(argc, argv, "+achp:v" ) ) )
+   while ( -1 != ( c = getopt(argc, argv, "+acehp:v" ) ) )
    {
       switch(c)
       {
@@ -58,6 +59,9 @@ Options *ParseOptions(int argc, char *argv[])
          break;
       case 'c':
          o->bValidate = 1;
+         break;
+      case 'e':
+         o->bESwap = 1;
          break;
       case 'h':
          o->bHelp = 1;
@@ -252,9 +256,9 @@ int parse_opt_numeric(int *rv, char *line)
 /* This is an error function specific to ParseBPFOptions()                   */
 int opt_err_msg(char thisopt, int lineno)
 {
-  fprintf(stderr, "-------------------------------------------------------------------------------\n");
-  fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, lineno);
-  return(-1);
+   fprintf(stderr, "-------------------------------------------------------------------------------\n");
+   fprintf(stderr, "BPF file setopt failure. Problems parsing the argument to \"%c\" on line %d.\n", thisopt, lineno);
+   return(-1);
 }
 
 /* ========================================================================= */
@@ -300,8 +304,9 @@ int ParseBPFOptions(Options *o)
          {
          case '+':
          case 'v':
-	 case 'c':
-	 case 'p':
+         case 'c':
+         case 'e':
+         case 'p':
             thisopt = *line;
             break;
          case 'a':
@@ -318,9 +323,9 @@ int ParseBPFOptions(Options *o)
             return(-1);
             break; /* A compiler thing */
          }
-
+         
          line++; /* Move off the option character. */
-
+         
          if ( ( *line != ' ' ) && ( *line != '\t' ) )
          {
             fprintf(stderr, "-------------------------------------------------------------------------------\n");
@@ -334,22 +339,27 @@ int ParseBPFOptions(Options *o)
          {
          case '+':
             if ( -1 == (o->bDebug = parse_opt_tail(line)) )
-	      return(opt_err_msg(thisopt, f->lineno));
+               return(opt_err_msg(thisopt, f->lineno));
             parsed++;
             break;
          case 'c':
             if ( -1 == (o->bValidate = parse_opt_tail(line)) )
-	      return(opt_err_msg(thisopt, f->lineno));
-	    parsed++;
+               return(opt_err_msg(thisopt, f->lineno));
+            parsed++;
+            break;
+         case 'e':
+            if ( -1 == (o->bESwap = parse_opt_tail(line)) )
+               return(opt_err_msg(thisopt, f->lineno));
+            parsed++;
             break;
          case 'p':
-	   if ( parse_opt_numeric(&o->iPasses, line) )
-	      return(opt_err_msg(thisopt, f->lineno));
+            if ( parse_opt_numeric(&o->iPasses, line) )
+               return(opt_err_msg(thisopt, f->lineno));
             parsed++;
-	    break;
+            break;
          case 'v':
             if ( -1 == (o->bVerbose = parse_opt_tail(line)) )
-	      return(opt_err_msg(thisopt, f->lineno));
+               return(opt_err_msg(thisopt, f->lineno));
             parsed++;
             break;
             /* You can't have a "default" option here. Other paths have been eliminated. */

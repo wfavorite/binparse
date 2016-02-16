@@ -229,6 +229,7 @@ typedef struct RuleSet
    int f;                  /* File descriptor                                */
    char *fname;            /* File name (used for open())                    */
    BPInt fsize;            /* Size of the file                               */
+   int bESwap;             /* Swap endian on supported types                 */
 } RuleSet;
 
 /* =========================================================================

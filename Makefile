@@ -5,9 +5,9 @@ LD=gcc
 CCOPTS=-Wall -Werror
 LDOPTS=
 
-bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o display.o
+bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o display.o eswap.o
 	@printf "Done.\nLinking..."
-	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o display.o
+	@$(LD) $(LD_OPTS) -o bp main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o display.o eswap.o
 	@printf "Done.\n"
 
 # About the test target
@@ -75,6 +75,10 @@ options.o: options.c options.h
 	@printf "."
 
 strlib.o: strlib.c strlib.h
+	@$(CC) $(CC_OPTS) -c $<
+	@printf "."
+
+eswap.o: eswap.c eswap.h
 	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
