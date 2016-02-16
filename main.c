@@ -29,9 +29,11 @@ int main ( int argc, char *argv[] )
   if ( o->bDebug )
   {
     fprintf(stderr, "Options parsed:\n");
-    fprintf(stderr, " bDebug = %d\n", o->bDebug);
-    fprintf(stderr, " bAbout = %d\n", o->bAbout);
-    fprintf(stderr, " bHelp = %d\n", o->bHelp);
+    fprintf(stderr, "  bDebug = %d\n", o->bDebug);
+    fprintf(stderr, "  bAbout = %d\n", o->bAbout);
+    fprintf(stderr, "  bHelp = %d\n", o->bHelp);
+    fprintf(stderr, "  cFields = %c\n", o->cFields);
+    fprintf(stderr, "  iPasses = %d\n", o->iPasses);
 
     if ( o->bpffile )
       fprintf(stderr, "  bpffile = \"%s\"\n", o->bpffile);
@@ -156,11 +158,10 @@ int show_help(void)
   printf("   Options:\n");
   printf("     -a         Show \"about\" information (and exit).\n");
   printf("     -c         Validate the BPF file (stop after 2nd stage compile).\n");
-  printf("*    -C         <label>:<value>\n");
-  printf("*    -e         <label>=<value>\n");
+  printf("     -f X       Output separator ---> <label>X<value>\n");
   printf("     -h         Show \"help\" information (and exit).\n");
   printf("*    -s         <value>\n");
-  printf("*    -t         <tag>:<value>\n");
+  printf("     -t         Use tag instead of label in output ---> <tag>:<value>\n");
   printf("     -v         Be verbose\n");
   fflush(stdout);
   return(0);

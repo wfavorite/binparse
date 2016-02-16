@@ -31,6 +31,8 @@ Options *new_options(void)
    o->iPasses = DEFAULT_MAX_PASSES;
    o->bESwap = 0;
 
+   o->cFields = ':';
+
    /* Send it off */
    return(o);
 }
@@ -47,7 +49,7 @@ Options *ParseOptions(int argc, char *argv[])
       return(NULL);
   
    /* Parse the options */
-   while ( -1 != ( c = getopt(argc, argv, "+acehp:v" ) ) )
+   while ( -1 != ( c = getopt(argc, argv, "+acef:hp:v" ) ) )
    {
       switch(c)
       {
@@ -63,11 +65,14 @@ Options *ParseOptions(int argc, char *argv[])
       case 'e':
          o->bESwap = 1;
          break;
+      case 'f':
+         o->cFields = optarg[0];
+         break;
       case 'h':
          o->bHelp = 1;
          break;
       case 'p':
-	o->iPasses = atoi(optarg);
+         o->iPasses = atoi(optarg);
          break;
       case 'v':
          o->bVerbose = 1;
@@ -96,14 +101,14 @@ Options *ParseOptions(int argc, char *argv[])
    {
       if ( NULL == o->bpffile )
       {
-         if (NULL == (o->bpffile = mkstring(argv[index])))
+         if (NULL == (o->bpffile = nc_mkstring(argv[index])))
             return(NULL);
       }
       else
       {
          if ( NULL == o->binfile )
          {
-            if (NULL == (o->binfile = mkstring(argv[index])))
+            if (NULL == (o->binfile = nc_mkstring(argv[index])))
                return(NULL);
          }
          else
@@ -253,6 +258,44 @@ int parse_opt_numeric(int *rv, char *line)
 }
 
 /* ========================================================================= */
+/* This is copied from / based on parse_opt_numeric()                        */
+int parse_opt_char(char *rv, char *line)
+{
+   char open_quote = 0;
+   char pv; /* Parsed value (not return value) */
+
+   /* Move off leading ws */
+   eat_ws(&line);
+
+   if ( *line == 0 )
+      return(1);
+
+   if (( *line == '\'' ) || ( *line == '\"' ))
+   {
+      open_quote = *line;
+      line++;
+   }
+
+   if ( isprint(*line) )
+   {
+      pv = *line;
+      line++;
+   }
+   else
+      return(1);
+
+   if ( open_quote )
+   {
+      if ( *line != open_quote )
+         return(1);
+   }
+
+   /* Good to go */
+   *rv = pv;
+   return(0);
+}
+
+/* ========================================================================= */
 /* This is an error function specific to ParseBPFOptions()                   */
 int opt_err_msg(char thisopt, int lineno)
 {
@@ -306,6 +349,7 @@ int ParseBPFOptions(Options *o)
          case 'v':
          case 'c':
          case 'e':
+         case 'f':
          case 'p':
             thisopt = *line;
             break;
@@ -349,6 +393,11 @@ int ParseBPFOptions(Options *o)
             break;
          case 'e':
             if ( -1 == (o->bESwap = parse_opt_tail(line)) )
+               return(opt_err_msg(thisopt, f->lineno));
+            parsed++;
+            break;
+         case 'f':
+            if ( parse_opt_char(&o->cFields, line) )
                return(opt_err_msg(thisopt, f->lineno));
             parsed++;
             break;

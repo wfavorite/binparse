@@ -2,6 +2,7 @@
 
 setopt p 2
 setopt v true
+setopt f ":"
 
 # simple.bin is a little-endian file
 

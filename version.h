@@ -103,10 +103,9 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [_] The help output has a few different output methods. These are not
-       covered in the options struct (with appropriate flags), nor is the
-       help output clear on what the options mean. (Specifically: The output
-       needs to relate that this option modifies the output format.)
+   [ ] Finish the 64bit endian code.
+   [ ] Output should be offered in -x (hex).
+   [ ] Read length of label to determine label length allotment (%<something>s)
    [ ] Insure that must= is not used with non-numeric data.
    [ ] For now... Find the longest label and use this as the length of the
        default output for all labels. Such as printf("%-Xs : ...) where X
@@ -153,6 +152,10 @@
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
 
   Done:
+   [X] The help output has a few different output methods. These are not
+       covered in the options struct (with appropriate flags), nor is the
+       help output clear on what the options mean. (Specifically: The output
+       needs to relate that this option modifies the output format.)
    [X] A swap endian feature needs to be added to support different endian
        files.
    [X] Verbose mode should show the reads. It is too easy to mess up the BPF

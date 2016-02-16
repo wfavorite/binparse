@@ -61,6 +61,12 @@ typedef struct Options
    int iPasses;          /* The number of passes to attempt on data retrieval*/
    int bESwap;           /* To endian swap or not                            */
 
+
+   /* Output options */
+   int bTagVal;          /* Use the tag name, not the label for output       */
+   char cFields;
+
+   int bColon;           /* (Output) display the colon between label/data    */
    char *bpffile;
    char *binfile;
 } Options;
