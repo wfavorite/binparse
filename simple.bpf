@@ -6,7 +6,7 @@ setopt f ":"
 
 # simple.bin is a little-endian file
 
-fstart 1 magic "Magic string" char must=0x23 hidden=false
+fstart 1 magic "Magic string" char must=0x23 hidden=true
 
 1 1 noff "Numeric offset" uint8
 

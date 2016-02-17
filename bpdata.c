@@ -416,3 +416,73 @@ int InsertETag(RuleSet *rs, ExplicitTag *e)
 
    return(0);
 }
+
+/* ========================================================================= */
+int InsertPP(RuleSet *rs, ParsePoint *pp)
+{
+   Enum *thise;
+   ExplicitTag *thiset;
+   ParsePoint *thispp;
+
+   assert(NULL != rs);
+   assert(NULL != pp);
+
+   /* Walk the explicit tag list looking for a pattern match */
+   thiset = rs->etlist;
+   while(thiset)
+   {
+      if ( 0 == strcmp(pp->tag, thiset->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Explicit tag naming collision. Two tags are called \"%s\".\n", pp->tag);
+         return(1);
+      }
+
+      thiset = thiset->next;
+   }
+
+   /* Walk the enum list looking for a pattern match */
+   thise = rs->elist;
+   while(thise)
+   {
+      if ( 0 == strcmp(pp->tag, thise->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum naming collision. Two enums are called \"%s\".\n", pp->tag);
+         return(1);
+      }
+
+      thise = thise->next;
+   }
+
+   /* Is it the first item in the list? */
+   if ( NULL == rs->pplist )
+   {
+      rs->pplist = pp;
+      return(0);
+   }
+
+   /* Walk the list in an *ordered* manner so we can preserve the order as 
+      specified by the user in the bpf file. */
+   thispp = rs->pplist;
+   while(thispp)
+   {
+      if ( 0 == strcmp(thispp->tag, pp->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Unable to (re)use tag named \"%s\". Check tags on lines %d and %d.\n", pp->tag, thispp->lineno, pp->lineno);
+         return(1);
+      }
+
+      if ( NULL == thispp->next )
+      {
+         /* Add to the list there */
+         thispp->next = pp;
+         return(0);
+      }
+
+      thispp = thispp->next;
+   }
+
+   return(1);
+}

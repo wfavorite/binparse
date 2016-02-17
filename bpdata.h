@@ -137,12 +137,10 @@ typedef struct enumbase
 } Enum;
 
 /* ========================================================================= */
-/* This is a STUBbed version of an explicit tag */
 /* Explicit tags allow you to define a value in the BPF file and then use
    it referentially throught the file.
    
-   The rules for this have not been defined at this time, it is expected 
-   that it will work like any other entity.                                  */
+   This should work like any other entity.                                   */
 typedef struct etag
 {
   char *tag;
@@ -223,8 +221,9 @@ typedef struct RuleSet
    ExplicitTag *etlist;    /* The list of explicit tags                      */
 
    int parserr;
+#ifdef STUB_NOT_USED
    int pass;               /* The pass that was completed */
-
+#endif
    /* (Bin) File related data */
    int f;                  /* File descriptor                                */
    char *fname;            /* File name (used for open())                    */
@@ -295,10 +294,6 @@ int IsPPDataResolved(ParsePoint *pp, int flag);
  */
 int InsertEnum(RuleSet *rs, Enum *e);
 int InsertETag(RuleSet *rs, ExplicitTag *e);
-
-
-
-
-
+int InsertPP(RuleSet *rs, ParsePoint *pp);
 
 #endif

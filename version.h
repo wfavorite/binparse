@@ -94,6 +94,8 @@
     0.16.0   2/17/16 - Re-work of the display (dump) code.
                      - Cleanup / simplification of endian code.
                      - $TUB elimination.
+                     - Code cleanup, basic feature work, refactoring.
+                     - Added (initial) support of explicit tags.
 */
 #define VERSION_STRING "0.16.0"
 /*
@@ -106,28 +108,24 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [_] Output should be offered in -x (hex).
-   [_] Test support of settag operator.
+   [_] Test support of settag operator. Specifically tag resolution and tag
+       collisions with other types (pp, enum, et). Does the PP insert code
+       properly check this list?
+   [ ] Solaris port.
+   [ ] FreeBSD port.
+   [ ] binpass.h does not have a function header definition.
+   [ ] display.h does not have a function header definition.
+   [ ] Write a test case that has two different types of strings in it
+       (similar to simple.h).
    [ ] There is a hole in ParseOptions that lets a config escape without
        paramater checking. Fix this.
-   [ ] Inserting parse points does not *completely* look for name collisions.
    [ ] Read length of label to determine label length allotment (%<something>s)
    [ ] Insure that must= is not used with non-numeric data.
    [ ] For now... Find the longest label and use this as the length of the
        default output for all labels. Such as printf("%-Xs : ...) where X
        is the length of the longest label.
    [ ] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
-   [_] Re-indent all source files (I don't have my .emacs file on this
-       computer and the indentation is all messed up.)
-   [ ] RuleSet->pass does not appear to have been used anywhere. This was
-       designed to denote that the *entire* pass was completed. I am not sure
-       that this is required any more.
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
-   [Q] When printing the error messages in bpfparse.c::resolve_tag(), the
-       void pointer in the union is used. How do you know this is good (that
-       it points to a string and not another struct)? It may be appropriate
-       to write a gettor function, check this before writing, or have a
-       solid look at the code and comment the shit out of it.
    [ ] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
@@ -144,9 +142,6 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [D] Consider removing all the validate_* code in pmath.c. This should all
-       be doable in a single pass. Drop the naieve approach and move on. It is
-       incorrect to have parsing rules in two different places.
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
    [ ] Fill out all the empty function paramater comment blocks.
@@ -156,6 +151,21 @@
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
 
   Done:
+   [X] Inserting parse points does not *completely* look for name collisions.
+   [X] RuleSet->pass does not appear to have been used anywhere. This was
+       designed to denote that the *entire* pass was completed. I am not sure
+       that this is required any more.
+   [X] Consider removing all the validate_* code in pmath.c. This should all
+       be doable in a single pass. Drop the naieve approach and move on. It is
+       incorrect to have parsing rules in two different places.
+   [X] When printing the error messages in bpfparse.c::resolve_tag(), the
+       void pointer in the union is used. How do you know this is good (that
+       it points to a string and not another struct)? It may be appropriate
+       to write a gettor function, check this before writing, or have a
+       solid look at the code and comment the shit out of it.
+   [X] Output should be offered in -x (hex).
+   [X] Re-indent all source files (I don't have my .emacs file on this
+       computer and the indentation is all messed up.)
    [X] Some of the print statements (such as bVerbose) are stdin AND stderr.
    [X] Move InsertEnum() and InsertETag() to bpdata.h/c
    [X] Close the binary file on end of read.

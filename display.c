@@ -3,8 +3,104 @@
 
 #include "display.h"
 
+/* ========================================================================= */
+int print_fl_string(ParsePoint *pp, Options *o)
+{
+   BPInt i;
+   char *cp;
+
+   cp = pp->data;
+
+   /* If hex, then the proper leading value */
+   switch ( o->eDumpHex )
+   {
+   case OUTPUT_HEX_UC:
+      printf("0X");
+      break;
+   case OUTPUT_HEX_LC:
+      printf("0x");
+      break;
+   }
+
+   /* Print out the string */
+   while( i < pp->rSize )
+   {
+      switch ( o->eDumpHex )
+      {
+      case OUTPUT_DEC:
+         if ( isprint(cp[i]) )
+            printf("%c", cp[i]);
+         else
+            printf(".");
+         break;
+      case OUTPUT_HEX_UC:
+         printf("%02X", (unsigned char)cp[i]);
+         break;
+      case OUTPUT_HEX_LC:
+         printf("%02x", (unsigned char)cp[i]);
+         break;
+      }
+      
+      i++;
+   }
+
+   printf("\n");
+}
+
+/* ========================================================================= */
+int print_zt_string(ParsePoint *pp, Options *o)
+{
+   BPInt i;
+   char *cp;
+
+   cp = pp->data;
+
+   /* If hex, then the proper leading value */
+   switch ( o->eDumpHex )
+   {
+   case OUTPUT_HEX_UC:
+      printf("0X");
+      break;
+   case OUTPUT_HEX_LC:
+      printf("0x");
+      break;
+   }
+
+   /* Print out the string */
+   while( 0 != cp[i] )
+   {
+      switch ( o->eDumpHex )
+      {
+      case OUTPUT_DEC:
+         if ( isprint(cp[i]) )
+            printf("%c", cp[i]);
+         else
+            printf(".");
+         break;
+      case OUTPUT_HEX_UC:
+         printf("%02X", (unsigned char)cp[i]);
+         break;
+      case OUTPUT_HEX_LC:
+         printf("%02x", (unsigned char)cp[i]);
+         break;
+      }
+      
+      i++;
+   }
+
+   printf("\n");
+}
+
+/* ========================================================================= */
 int print_datatype(ParsePoint *pp, Options *o)
 {
+   /* Get the string types out of the way */
+   if ( pp->dt == DT_ZTSTR )
+      return(print_zt_string(pp, o));
+
+   if ( pp->dt == DT_FLSTR )
+      return(print_fl_string(pp, o));
+
    if ( OUTPUT_DEC == o->eDumpHex )
    {
       switch ( pp->dt )
@@ -36,14 +132,6 @@ int print_datatype(ParsePoint *pp, Options *o)
       case DT_INT64:
          printf("%d\n", (int64_t)(*(int64_t *)pp->data));
          break;
-
-
-
-      case DT_ZTSTR:
-      case DT_FLSTR:
-         printf("STUB\n");
-         break;
-
       case DT_NULL:
       default:
          /* This will end badly - error on a output line half way through printing
@@ -79,19 +167,9 @@ int print_datatype(ParsePoint *pp, Options *o)
       case DT_INT64:
          printf("0X%016X\n", (uint64_t)(*(uint64_t *)pp->data));
          break;
-
-
-
-      case DT_ZTSTR:
-      case DT_FLSTR:
-         printf("STUB\n");
-         break;
-
       case DT_NULL:
       default:
-         /* This will end badly - error on a output line half way through printing
-            data. This is more of an assert()-like error, so feel free to print LFs
-            agressively to insure that we are clear of the data. */
+         /* See notes on similar section above */
          printf("\n");
          fflush(stdout);
          
@@ -122,19 +200,9 @@ int print_datatype(ParsePoint *pp, Options *o)
       case DT_INT64:
          printf("0x%016x\n", (uint64_t)(*(uint64_t *)pp->data));
          break;
-
-
-
-      case DT_ZTSTR:
-      case DT_FLSTR:
-         printf("STUB\n");
-         break;
-
       case DT_NULL:
       default:
-         /* This will end badly - error on a output line half way through printing
-            data. This is more of an assert()-like error, so feel free to print LFs
-            agressively to insure that we are clear of the data. */
+         /* See notes on similar section above */
          printf("\n");
          fflush(stdout);
          
@@ -143,7 +211,6 @@ int print_datatype(ParsePoint *pp, Options *o)
       }
       return(0);
    }
-
 
    /* Something was not handled */
    printf("\n");

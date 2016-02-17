@@ -31,7 +31,9 @@ RuleSet *new_ruleset(Options *o)
 
    rs->pplist = NULL;    /* Start with an empty list.                        */
    rs->parserr = 0;      /* No errors at this time.                          */
+#ifdef STUB_NOT_USED
    rs->pass = 0;         /* No pass has been completed                       */
+#endif
 
    rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
    rs->belist = NULL;    /* Empty list for the (builtin) enums               */
@@ -46,44 +48,6 @@ RuleSet *new_ruleset(Options *o)
       return(NULL);
 
    return(rs);
-}
-
-/* ========================================================================= */
-int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
-{
-   ParsePoint *thispp;
-
-   /* Is it the first item in the list? */
-   if ( NULL == rs->pplist )
-   {
-      rs->pplist = pp;
-      return(0);
-   }
-
-   /* Walk the list in an *ordered* manner so we can preserve the order as 
-      specified by the user in the bpf file. */
-   thispp = rs->pplist;
-   while(thispp)
-   {
-      if ( 0 == strcmp(thispp->tag, pp->tag) )
-      {
-         fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Unable to (re)use tag named \"%s\". Check tags on lines %d and %d.\n", pp->tag, thispp->lineno, pp->lineno);
-         return(1);
-      }
-
-      if ( NULL == thispp->next )
-      {
-         /* Add to the list there */
-         thispp->next = pp;
-         return(0);
-      }
-
-      thispp = thispp->next;
-   }
-
-   /* This is just not going to fail (this way) */
-   return(1);
 }
 
 /* ========================================================================= */
@@ -211,7 +175,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
-         fprintf(stderr, "\"hidden=\" operator on line %d.\n", pp->lineno);
+         fprintf(stderr, "   \"hidden=\" operator on line %d.\n", pp->lineno);
          pp->fail_bail = 1;
          return(1);
       }
@@ -236,7 +200,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
-         fprintf(stderr, "\"hidden=\" operator on line %d.\n", pp->lineno);
+         fprintf(stderr, "   \"hidden=\" operator on line %d.\n", pp->lineno);
          pp->fail_bail = 1;
          return(1);
       }
@@ -250,7 +214,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
-         fprintf(stderr, "\"must=\" operator on line %d.\n", pp->lineno);
+         fprintf(stderr, "   \"must=\" operator on line %d.\n", pp->lineno);
          pp->fail_bail = 1;
          return(1);
       }
@@ -259,7 +223,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
-         fprintf(stderr, "\"must=\" operator on line %d.\n", pp->lineno);
+         fprintf(stderr, "   \"must=\" operator on line %d.\n", pp->lineno);
          pp->fail_bail = 1;
          return(1);
       }
@@ -276,7 +240,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to locate right hand side of\n");
-         fprintf(stderr, "\"mask=\" operator on line %d.\n", pp->lineno);
+         fprintf(stderr, "   \"mask=\" operator on line %d.\n", pp->lineno);
          pp->fail_bail = 1;
          return(1);
       }
@@ -285,7 +249,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
-         fprintf(stderr, "\"mask=\" operator on line %d.\n", pp->lineno);
+         fprintf(stderr, "   \"mask=\" operator on line %d.\n", pp->lineno);
          pp->fail_bail = 1;
          return(1);
       }
@@ -630,40 +594,6 @@ RuleSet *ParseBPFFile(Options *o)
          continue;
       }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      /* STUB: Line sniff for htagXXXX */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       if ( NULL != (pp = get_parse_point(f)) )
       {
          if ( pp->fail_bail )
@@ -672,7 +602,7 @@ RuleSet *ParseBPFFile(Options *o)
             return(NULL);
          }
 
-         if (add_pp_to_rs(rs, pp))
+         if (InsertPP(rs, pp))
          {
             /* This fails for one reason only. The tag name was redundant. */
             /* Error message at point of failure */
