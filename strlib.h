@@ -15,7 +15,6 @@
  */
 char *three_dot_trunc(char *fill, int fill_len, char *source);
 
-
 /* =========================================================================
  * Name: mkstring
  * Desc: Create a malloc()'d string given string input
@@ -56,7 +55,6 @@ char *mkstring(const char *input);
  */
 char *nc_mkstring(const char *input);
 
-
 /* =========================================================================
  * Name: is_valid_tag_char
  * Desc: Is the char input a valid char in a tag name?
@@ -71,8 +69,19 @@ char *nc_mkstring(const char *input);
  */
 int is_valid_tag_char(char x);
 
-
-/* STUB: Where is my header? */
+/* =========================================================================
+ * Name: mid_trunc
+ * Desc: Truncate the middle of a string (into another string)
+ * Params: char * - String to copy in to
+ *         char * - String to truncate
+ *         unsigned long - Truncated string must fit here (the size of
+ *                  the first string).
+ * Returns: non-zero if input string was modified
+ * Side Effects: 
+ * Notes: Not extensively tested at the time of this doucmentation. I have
+ *        used this in the past as a truncate method for long file names 
+ *        where we need the start and the end - and have sufficient space.
+ */
 char *mid_trunc(char *str, const char *input, unsigned long len);
 
 /* =========================================================================
@@ -87,6 +96,16 @@ char *mid_trunc(char *str, const char *input, unsigned long len);
  *        cases. Check the integrity of your strings elsewhere.
  */
 int hash_trunc(char *istr);
+
+/* =========================================================================
+ * Name: ws_trunc
+ * Desc: Truncate all ws chars (' '|'\t') at end of string
+ * Params: Input string to be modified
+ * Returns: non-zero if input string was modified
+ * Side Effects: Will modify the input string
+ * Notes: 
+ */
+int ws_trunc(char *istr);
 
 /* =========================================================================
  * Name: leadingwst

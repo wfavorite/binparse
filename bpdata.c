@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
-
-#include <stdio.h> /* STUB: Temp for debuggery */
+#include <string.h>
+#include <stdio.h>
 
 #include "bpdata.h"
 #include "strlib.h"
@@ -67,92 +67,81 @@ int CountBuiltinEnums(RuleSet *rs)
 /* ========================================================================= */
 int CountExplicitTags(RuleSet *rs)
 {
-  ExplicitTag *thiset;
-  int i;
+   ExplicitTag *thiset;
+   int i;
 
-  i = 0;
-  thiset = rs->etlist;
-  while ( thiset )
-  {
-    i++;
-    thiset = thiset->next;
-  }
+   i = 0;
+   thiset = rs->etlist;
+   while ( thiset )
+   {
+      i++;
+      thiset = thiset->next;
+   }
 
-  return(i);
+   return(i);
 }
 
 /* ========================================================================= */
 int SetPPDataResolved(ParsePoint *pp, int flag)
 {
-  pp->data_resolved |= flag;
+   pp->data_resolved |= flag;
 
-  return(pp->data_resolved);
+   return(pp->data_resolved);
 }
 
 /* ========================================================================= */
 int IsPPDataResolved(ParsePoint *pp, int flag)
 {
-  if ( flag == ( pp->data_resolved & flag ) )
-    return(1);
+   if ( flag == ( pp->data_resolved & flag ) )
+      return(1);
 
-  return(0);
+   return(0);
 }
 
 /* ========================================================================= */
 int SetBPIntFromVoid(ParsePoint *pp)
 {
-  switch ( pp->dt )
-  {
-  case DT_INT8:
-    pp->rdata = (BPInt)(*((int8_t *)pp->data));
-    break;
-  case DT_CHAR:
-  case DT_UINT8:
-    pp->rdata = (BPInt)(*((int8_t *)pp->data));
-    break;
-  case DT_UINT16:
-    pp->rdata = (BPInt)(*((uint16_t *)pp->data));
-    break;
-  case DT_INT16:
-    pp->rdata = (BPInt)(*((int16_t *)pp->data));
-    break;
-  case DT_UINT32:
-    pp->rdata = (BPInt)(*((uint32_t *)pp->data));
-    break;
-  case DT_INT32:
-    pp->rdata = (BPInt)(*((int32_t *)pp->data));
-    break;
-  case DT_UINT64:
-    pp->rdata = (BPInt)(*((uint64_t *)pp->data));
-    break;
-  case DT_INT64:
-    pp->rdata = (BPInt)(*((int64_t *)pp->data));
-    break;
-  case DT_ZTSTR:
-  case DT_FLSTR:
-    break;
-  case DT_NULL:
-  default:
-    /* Likely impossible to reach. (This is really only called
-       in one place, and this is checked beforehand.) */
-    return(1);
-  }
+   switch ( pp->dt )
+   {
+   case DT_INT8:
+      pp->rdata = (BPInt)(*((int8_t *)pp->data));
+      break;
+   case DT_CHAR:
+   case DT_UINT8:
+      pp->rdata = (BPInt)(*((int8_t *)pp->data));
+      break;
+   case DT_UINT16:
+      pp->rdata = (BPInt)(*((uint16_t *)pp->data));
+      break;
+   case DT_INT16:
+      pp->rdata = (BPInt)(*((int16_t *)pp->data));
+      break;
+   case DT_UINT32:
+      pp->rdata = (BPInt)(*((uint32_t *)pp->data));
+      break;
+   case DT_INT32:
+      pp->rdata = (BPInt)(*((int32_t *)pp->data));
+      break;
+   case DT_UINT64:
+      pp->rdata = (BPInt)(*((uint64_t *)pp->data));
+      break;
+   case DT_INT64:
+      pp->rdata = (BPInt)(*((int64_t *)pp->data));
+      break;
+   case DT_ZTSTR:
+   case DT_FLSTR:
+      break;
+   case DT_NULL:
+   default:
+      /* Likely impossible to reach. (This is really only called
+         in one place, and this is checked beforehand.) */
+      return(1);
+   }
 
-  /* STUB: Apply the mask= here */
+   /* STUB: Apply the mask= here */
   
-  return(0);
+   return(0);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /* ========================================================================= */
 int ParseBPInt(BPInt *val, char *str)
@@ -278,7 +267,7 @@ int ParseBPInt(BPInt *val, char *str)
          ...3h      <----- Invalid 3h is not a number, nor a tag, etc...
          ...3+      <----- Could be a mathematical expression
          ...3 4     <----- Is invalid (because 4 has no context), but would NOT
-                           be flagged as wrong here.
+         be flagged as wrong here.
       */
 
       switch ( *str )
@@ -308,4 +297,122 @@ int ParseBPInt(BPInt *val, char *str)
    }
 
    return(1);
+}
+
+/* ========================================================================= */
+int InsertEnum(RuleSet *rs, Enum *e)
+{
+   Enum *thise;
+   ExplicitTag *thiset;
+   ParsePoint *thispp;
+
+   assert(NULL != rs);
+   assert(NULL != e);
+
+   /* Walk the explicit tag list looking for a pattern match */
+   thiset = rs->etlist;
+   while(thiset)
+   {
+      if ( 0 == strcmp(e->tag, thiset->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum tag naming collision. Two tags are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thiset = thiset->next;
+   }
+   
+   /* Walk the pp list looking for a pattern match */
+   thispp = rs->pplist;
+   while(thispp)
+   {
+      if ( 0 == strcmp(e->tag, thispp->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum tag naming collision. Two tags are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thispp = thispp->next;
+   }
+
+   /* Walk the enum list looking for a pattern match */
+   thise = rs->elist;
+   while(thise)
+   {
+      if ( 0 == strcmp(e->tag, thise->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum naming collision. Two enums are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thise = thise->next;
+   }
+
+   /* If we made it here, then we are unique (on the user-defined list) */
+   e->next = rs->elist;
+   rs->elist = e;
+
+   return(0);
+}
+
+/* ========================================================================= */
+int InsertETag(RuleSet *rs, ExplicitTag *e)
+{
+   Enum *thise;
+   ExplicitTag *thiset;
+   ParsePoint *thispp;
+
+   assert(NULL != rs);
+   assert(NULL != e);
+
+   /* Walk the explicit tag list looking for a pattern match */
+   thiset = rs->etlist;
+   while(thiset)
+   {
+      if ( 0 == strcmp(e->tag, thiset->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Explicit tag naming collision. Two tags are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thiset = thiset->next;
+   }
+   
+   /* Walk the pp list looking for a pattern match */
+   thispp = rs->pplist;
+   while(thispp)
+   {
+      if ( 0 == strcmp(e->tag, thispp->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Explicit tag naming collision. Two tags are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thispp = thispp->next;
+   }
+
+   /* Walk the enum list looking for a pattern match */
+   thise = rs->elist;
+   while(thise)
+   {
+      if ( 0 == strcmp(e->tag, thise->tag) )
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Enum naming collision. Two enums are called \"%s\".\n", e->tag);
+         return(1);
+      }
+
+      thise = thise->next;
+   }
+
+   /* Just insert - order does not matter */
+   e->next = rs->etlist;
+   rs->etlist = e;
+
+   return(0);
 }

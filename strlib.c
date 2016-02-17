@@ -202,6 +202,36 @@ int hash_trunc(char *istr)
 }
 
 /* ========================================================================= */
+int ws_trunc(char *istr)
+{
+   int i;
+   int rv = 0;
+
+   /* NULL input - line not modified */
+   if ( NULL == istr )
+      return(0);
+
+   /* Empty string - line not modified */
+   if ( istr[0] == 0 )
+      return(0);
+
+   i = strlen(istr) - 1;
+
+   while((istr[i] == ' ') || (istr[i] == '\t'))
+   {
+      istr[i] = 0;
+
+      rv = 1;
+      i--;
+
+      if ( i < 0 )
+         return(1);
+   }
+
+   return(rv);
+}
+
+/* ========================================================================= */
 char *leadingwst(char *istr)
 {
    if ( NULL == istr )
@@ -808,3 +838,4 @@ int conv_to_uc(char *cpstr)
 
    return(0);
 }
+

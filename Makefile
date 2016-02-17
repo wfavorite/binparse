@@ -82,7 +82,7 @@ eswap.o: eswap.c eswap.h
 	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
-binpass.o: binpass.c binpass.h
+binpass.o: binpass.c binpass.h options.h bpdata.h
 	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 

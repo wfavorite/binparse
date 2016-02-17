@@ -56,9 +56,9 @@ int NextLine(File *f);
 /* =========================================================================
  * Name: EndFile
  * Description: Close the file, release the File object
- * Paramaters: 
- * Returns: 
- * Side Effects: 
+ * Paramaters: File "object" 
+ * Returns: Nothing of value
+ * Side Effects: Closes the file, releases memory
  * Notes: 
  */
 int EndFile(File *f);

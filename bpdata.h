@@ -284,4 +284,21 @@ int SetBPIntFromVoid(ParsePoint *pp);
 int SetPPDataResolved(ParsePoint *pp, int flag);
 int IsPPDataResolved(ParsePoint *pp, int flag);
 
+/* =========================================================================
+ * Name: Insert*
+ * Desc: Insert the item in the appropriate list in the RuleSet
+ * Params: RuleSet - Where to insert
+ *         <item to insert>
+ * Returns: 0 on success, non-0 on failure
+ * Side Effects: Modifies the list
+ * Notes: The tag will be checked for collisions.
+ */
+int InsertEnum(RuleSet *rs, Enum *e);
+int InsertETag(RuleSet *rs, ExplicitTag *e);
+
+
+
+
+
+
 #endif

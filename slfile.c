@@ -3,7 +3,6 @@
 #include "slfile.h"
 #include "strlib.h"
 
-
 /* ========================================================================= */
 File *NewFile(char *filename)
 {

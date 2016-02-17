@@ -10,9 +10,13 @@ BPF - Binary Parse Format (The language used by bp)
 
 <bpf file> := <line statement> {<line statement>}
 
-<line statement> := <parse point> | <setopt> | <enum>
+<line statement> := <parse point> | <setopt> | <enum> | <etag>
 
-<setopt> := "setopt" <ws> <cmd-line option> <ws> <bool> <eol>
+<setopt> := "setopt" <ws> <cmd-line option> <ws> <opt_val> <eol>
+
+<opt_val> := <bool> for simple switches, the arg for option switches
+
+<etag> := "settag" <tag> <ws> "=" <ws> <value>
 
 <enum> := "setenum" <enumtag> <ws> "=" <ws> <enum clause>
 

@@ -16,20 +16,3 @@ void eswap_32( void *val );
 void eswap_64( void *val );
 
 #endif
-
-
-
-
-
-
-#ifdef STUB_REMOVE
-void eswap_uint16( uint16_t *val );
-void eswap_int16( int16_t *val );
-
-void eswap_uint32( uint32_t *val );
-void eswap_int32( int32_t *val );
-
-void eswap_uint64( uint64_t *val );
-void eswap_int64( int64_t *val );
-#endif
-

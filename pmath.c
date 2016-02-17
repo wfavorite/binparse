@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 
 #include "pmath.h"
 #include "strlib.h"
@@ -166,8 +167,8 @@ Entity *parse_token(int *move, char *str, int lineno)
       {
          /* Errors are in parse_expr() */
          /*
-         fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Problems parsing mathematical expression \"%s\" line %d.\n", three_dot_trunc(errmsg, 18, str), lineno);
+           fprintf(stderr, "-------------------------------------------------------------------------------\n");
+           fprintf(stderr, "Problems parsing mathematical expression \"%s\" line %d.\n", three_dot_trunc(errmsg, 18, str), lineno);
          */
          return(NULL);
       }
@@ -259,7 +260,7 @@ Entity *parse_token(int *move, char *str, int lineno)
    
    /* Unreachable */
    *move = 0;
-   printf("ERROR: Please contact author because this code is broken.\n");
+   fprintf(stderr, "ERROR: Please contact author because this code is broken.\n");
    return(NULL);
 }
 
@@ -409,7 +410,7 @@ int parse_numeric(long *val, char *str, int lineno)
          ...3h      <----- Invalid 3h is not a number, nor a tag, etc...
          ...3+      <----- Could be a mathematical expression
          ...3 4     <----- Is invalid (because 4 has no context), but would NOT
-                           be flagged as wrong here.
+         be flagged as wrong here.
       */
 
       switch ( *str )
@@ -594,6 +595,193 @@ Entity *ParseEntity(char *str, int lineno)
    return(e);
 }
 
+/* ========================================================================= */
+int IsETagLine(char *estr)
+{
+   /* Handle the enpty string case(s) */
+   if ( NULL == estr )
+      return(0);
 
+   if ( 0 == estr[0] ) /* This is a bit redundant */
+      return(0);
+   
+   /* This would be handled by the calling func, but make sure. */
+   eat_ws(&estr);
 
+   /* The settag line must begin with an expected pattern */
+   if ( estr != strstr(estr, "settag") )
+      return(0);
 
+   /* Move off the directive */
+   estr += 6;
+
+   /* We gotta be on whitespace */
+   if (( *estr != ' ' ) && ( *estr != '\t' ))
+   {
+      return(0);
+   }
+
+   /* STOP HERE! (Copied from IsEnumLine()) 
+      Why? Because extensive sniffing will just validate the entire line,
+      see the syntax error, and report it as a skipped line. We want loose
+      checking here so we drop into the heavier / well (error) messaged
+      section of the parsing. This gives the user better messaging on a
+      parsing failure. */
+   return(1);
+}
+
+/* ========================================================================= */
+ExplicitTag *ParseETag(char *estr, int lineno)
+{
+   char tagname[MAX_TAG_LEN + 1];
+   int i;
+   int lb;  /* Count of left brackets                                        */
+   int rb;  /* Count of right brackets                                       */
+   int eq;  /* Count of '=' characters                                       */
+   int sq;  /* Count of single quote characters                              */
+   int dq;  /* Count of double quote characters                              */
+   
+   Entity *ent;
+   ExplicitTag *et;
+   char errmsg[12];
+
+   /* Walk off leading white space */
+   eat_ws(&estr);
+
+   /* Just because I got tired of the test framework throwing errors on
+      empty strings. Calling functions insure this is never an empty string. */
+   if ( *estr == 0 )
+      return(NULL); /* Fail silently - This should be unreachable in 
+                       normal operations! */
+
+   /* The enum line must begin with an expected pattern */
+   if ( estr != strstr(estr, "settag") )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "settag line begins with wrong settag directive on line %d.\n", lineno);
+      return(NULL);
+   }
+
+   /* Move off the directive */
+   estr += 6;
+
+   /* We gotta be on whitespace */
+   if (( *estr != ' ' ) && ( *estr != '\t' ))
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Syntax error on settag directive parsing at \"%s\". Line %d.\n", three_dot_trunc(errmsg, 12, estr), lineno);
+      return(NULL);
+   }
+
+   /* Now move off that whitespace */
+   eat_ws(&estr);
+
+   /* Copy off the tag */
+   i = 0;
+   while ( is_valid_tag_char(estr[i]) )
+   {
+      if ( i < MAX_TAG_LEN )
+         tagname[i] = estr[i];
+      else
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Tag label length on line %d exceeded maximum length of %d.\n", lineno, MAX_TAG_LEN);
+         return(NULL);
+      }
+
+      i++;
+   }
+
+   /* Make sure that the length of the tag is sufficient */
+   if ( i < 1 )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Unable to parse tag label on line %d.\n", lineno);
+      return(NULL);
+   }
+
+   /* Make sure that we are on the expected character */
+   if (( estr[i] == ' ' ) || ( estr[i] == '\t' ) || ( estr[i] == '=' ))
+   {
+      /* Terminate the tag. All is well */
+      tagname[i] = 0;
+   }
+   else
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Unexpected characters in settag operation on line number %d.\n", lineno);
+      return(NULL);
+   }
+
+   /* Move our pointer up */
+   estr += i;
+
+   /* Check for expected characters (in remainder of string) */
+   eq = 0;
+   lb = 0;
+   rb = 0;
+   sq = 0;
+   dq = 0;
+   i = 0;
+   while ( estr[i] != 0 )
+   {
+      if ( estr[i] == '{' )
+         lb++;
+
+      if ( estr[i] == '=' )
+         eq++;
+
+      if ( estr[i] == '}' )
+         rb++;
+
+      if ( estr[i] == '\"' )
+         dq++;
+
+      if ( estr[i] == '\'' )
+         sq++;
+
+      if ( estr[i] == '#' )
+         break;
+
+      i++;
+   }
+
+   if ( ( lb != 0 ) || ( rb != 0 ) || ( eq != 1 ) || ( dq != 0 ) || ( sq != 0 ) )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Basic syntatical problem parsing line %d. Missing expected, or extra symbol\n", lineno);
+      fprintf(stderr, "   elements.\n");
+      return(NULL);
+   }
+
+   /* Walk off leading white space */
+   eat_ws(&estr);
+
+   /* Validate that we got an '=' */
+   if ( *estr == '=' )
+      estr++;
+   else
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Missing equality \"=\" for settag operator on line %d.\n", lineno);
+      return(NULL);
+   }
+
+   /* Walk off leading white space */
+   eat_ws(&estr);
+
+   if ( NULL == (ent = ParseEntity(estr, lineno)) )
+      return(NULL);
+
+   if ( NULL == ( et = (ExplicitTag *)malloc(sizeof(ExplicitTag)) ) )
+   {
+      fprintf(stderr, "ERROR: Failed to allocate memory for explicit tag structure.\n");
+      return(NULL);
+   }
+
+   et->tag = nc_mkstring(tagname);
+   et->e = ent;
+   et->next = NULL;
+
+   return(et);
+}

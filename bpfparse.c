@@ -21,31 +21,31 @@ int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o);
 /* ========================================================================= */
 RuleSet *new_ruleset(Options *o)
 {
-  RuleSet *rs;
+   RuleSet *rs;
 
-  if ( NULL == (rs = malloc(sizeof(RuleSet))) )
-  {
-    fprintf(stderr, "ERROR: Unable to allocate memory for RuleSet structure.\n");
-    return(NULL);
-  }
+   if ( NULL == (rs = malloc(sizeof(RuleSet))) )
+   {
+      fprintf(stderr, "ERROR: Unable to allocate memory for RuleSet structure.\n");
+      return(NULL);
+   }
 
-  rs->pplist = NULL;    /* Start with an empty list.                        */
-  rs->parserr = 0;      /* No errors at this time.                          */
-  rs->pass = 0;         /* No pass has been completed                       */
+   rs->pplist = NULL;    /* Start with an empty list.                        */
+   rs->parserr = 0;      /* No errors at this time.                          */
+   rs->pass = 0;         /* No pass has been completed                       */
 
-  rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
-  rs->belist = NULL;    /* Empty list for the (builtin) enums               */
-  rs->etlist = NULL;    /* Empty list of explicit tags                      */
+   rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
+   rs->belist = NULL;    /* Empty list for the (builtin) enums               */
+   rs->etlist = NULL;    /* Empty list of explicit tags                      */
 
-  rs->f = -1;           /* The file has not been opened                     */
-  rs->fname = o->binfile; /* The binary file that will be opened later      */
+   rs->f = -1;           /* The file has not been opened                     */
+   rs->fname = o->binfile; /* The binary file that will be opened later      */
 
-  rs->bESwap = o->bESwap; /* Save off the directive to do byte swapping     */
+   rs->bESwap = o->bESwap; /* Save off the directive to do byte swapping     */
   
-  if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
-     return(NULL);
+   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
+      return(NULL);
 
-  return(rs);
+   return(rs);
 }
 
 /* ========================================================================= */
@@ -72,18 +72,18 @@ int add_pp_to_rs(RuleSet *rs, ParsePoint *pp)
          return(1);
       }
 
-    if ( NULL == thispp->next )
-    {
-      /* Add to the list there */
-      thispp->next = pp;
-      return(0);
-    }
+      if ( NULL == thispp->next )
+      {
+         /* Add to the list there */
+         thispp->next = pp;
+         return(0);
+      }
 
-    thispp = thispp->next;
-  }
+      thispp = thispp->next;
+   }
 
-  /* This is just not going to fail (this way) */
-  return(1);
+   /* This is just not going to fail (this way) */
+   return(1);
 }
 
 /* ========================================================================= */
@@ -323,209 +323,209 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 /* ========================================================================= */
 ParsePoint *get_parse_point(File *f)
 {
-  ParsePoint *pp;
-  Entity *e;
-  char raw_offset[MAX_TOKEN_LEN];
-  char raw_size[MAX_TOKEN_LEN];
-  char raw_tag[MAX_TOKEN_LEN];
-  char raw_label[MAX_TOKEN_LEN];
-  char raw_dt[MAX_TOKEN_LEN];
-  char raw_ppopt[MAX_TOKEN_LEN];
-  uint32_t nval;
-  int i;
-  //int lineno;
-  char *line;
+   ParsePoint *pp;
+   Entity *e;
+   char raw_offset[MAX_TOKEN_LEN];
+   char raw_size[MAX_TOKEN_LEN];
+   char raw_tag[MAX_TOKEN_LEN];
+   char raw_label[MAX_TOKEN_LEN];
+   char raw_dt[MAX_TOKEN_LEN];
+   char raw_ppopt[MAX_TOKEN_LEN];
+   uint32_t nval;
+   int i;
+   //int lineno;
+   char *line;
 
-  assert(NULL != f);
+   assert(NULL != f);
 
-  /* Local use convenience */
-  //lineno = f->lineno;
-  line = f->line;
+   /* Local use convenience */
+   //lineno = f->lineno;
+   line = f->line;
 
-  /* If we got here, then we have sufficient data */
-  if ( NULL == (pp = new_parsepoint(f->lineno)) )
-  {
-    /* We MUST exit on error here. The only means of failure is a bad
-       malloc(). We cannot simply return NULL on a bad malloc(). We must
-       throw and exception and exit. */
-    exit(1);
-  }
+   /* If we got here, then we have sufficient data */
+   if ( NULL == (pp = new_parsepoint(f->lineno)) )
+   {
+      /* We MUST exit on error here. The only means of failure is a bad
+         malloc(). We cannot simply return NULL on a bad malloc(). We must
+         throw and exception and exit. */
+      exit(1);
+   }
 
-  /* Check first to see if this is an empty line. That is a no-error return */
-  eat_ws(&line);
-  if ( *line == 0 )
-     return(NULL);
+   /* Check first to see if this is an empty line. That is a no-error return */
+   eat_ws(&line);
+   if ( *line == 0 )
+      return(NULL);
 
-  if ( strlen(line) <= 10 )
-  {
-     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-     fprintf(stderr, "Problems parsing line %d due to length issues.\n", pp->lineno);
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   if ( strlen(line) <= 10 )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Problems parsing line %d due to length issues.\n", pp->lineno);
+      pp->fail_bail = 1;
+      return(pp);
+   }
   
-  if ( copy_out_nth_token(raw_offset, MAX_TOKEN_LEN, line, 1) )
-  {
-     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-     fprintf(stderr, "Problems parsing the first element in line %d.\n", pp->lineno);
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   if ( copy_out_nth_token(raw_offset, MAX_TOKEN_LEN, line, 1) )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Problems parsing the first element in line %d.\n", pp->lineno);
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  if ( copy_out_nth_token(raw_size, MAX_TOKEN_LEN, line, 2) )
-  {
-     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-     fprintf(stderr, "Problems parsing the second element in line %d.\n", pp->lineno);
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   if ( copy_out_nth_token(raw_size, MAX_TOKEN_LEN, line, 2) )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Problems parsing the second element in line %d.\n", pp->lineno);
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  if ( copy_out_nth_token(raw_tag, MAX_TOKEN_LEN, line, 3) )
-  {
-     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-     fprintf(stderr, "Problems parsing the third element in line %d.\n", pp->lineno);
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   if ( copy_out_nth_token(raw_tag, MAX_TOKEN_LEN, line, 3) )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Problems parsing the third element in line %d.\n", pp->lineno);
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  if ( copy_out_nth_token(raw_label, MAX_TOKEN_LEN, line, 4) )
-  {
-     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-     fprintf(stderr, "Problems parsing the fourth element in line %d.\n", pp->lineno);
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   if ( copy_out_nth_token(raw_label, MAX_TOKEN_LEN, line, 4) )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Problems parsing the fourth element in line %d.\n", pp->lineno);
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  if ( copy_out_nth_token(raw_dt, MAX_TOKEN_LEN, line, 5) )
-  {
-     fprintf(stderr, "-------------------------------------------------------------------------------\n");
-     fprintf(stderr, "Problems parsing the fifth element in line %d.\n", pp->lineno);
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   if ( copy_out_nth_token(raw_dt, MAX_TOKEN_LEN, line, 5) )
+   {
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Problems parsing the fifth element in line %d.\n", pp->lineno);
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  /* Parse the options (which are *optional*) after parsing the items
-     that are *required*. We do this because they can be more than one,
-     and trying to hold them in some sort of temporary list is a PITA.
-     So lets parse them right into the parse point struct. For this
-     reason, we create the parse point struct before this last set of
-     item(s). */
+   /* Parse the options (which are *optional*) after parsing the items
+      that are *required*. We do this because they can be more than one,
+      and trying to hold them in some sort of temporary list is a PITA.
+      So lets parse them right into the parse point struct. For this
+      reason, we create the parse point struct before this last set of
+      item(s). */
 #define ALLOW_MULTIPLE_OPTIONS
 
 #ifdef ALLOW_MULTIPLE_OPTIONS
-  /* This code path allows multiple options. The options are not
-     mutually exclusive, so (in some cases), more than one might
-     exist together. */
-  i = 6;
-  while ( 0 == copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, i) )
-  {
-     if( handle_ppopt(pp, raw_ppopt) )
-     {
-        /* Doh! something happened. Error at point of failure. Bail. */
-        /* This should be set elsewhere. I set again to be sure. */
-        pp->fail_bail = 1;
-        return(pp);
-     }
+   /* This code path allows multiple options. The options are not
+      mutually exclusive, so (in some cases), more than one might
+      exist together. */
+   i = 6;
+   while ( 0 == copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, i) )
+   {
+      if( handle_ppopt(pp, raw_ppopt) )
+      {
+         /* Doh! something happened. Error at point of failure. Bail. */
+         /* This should be set elsewhere. I set again to be sure. */
+         pp->fail_bail = 1;
+         return(pp);
+      }
 
-     i++;
-  }
+      i++;
+   }
 #else
-  /* Mutually exclusive options - as it stands, you can only use ONE option in
-     a parse point! This is because they are ALL mutually exclusive. This may
-     not always be the case. */
+   /* Mutually exclusive options - as it stands, you can only use ONE option in
+      a parse point! This is because they are ALL mutually exclusive. This may
+      not always be the case. */
 
-  /* I "re-use" i here. Rename it this code path is chosen */
-  i = copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, 6);
+   /* I "re-use" i here. Rename it this code path is chosen */
+   i = copy_out_nth_token(raw_ppopt, MAX_TOKEN_LEN, line, 6);
 #endif
 
-  /*** Copy everything into the ParsePoint ***/
+   /*** Copy everything into the ParsePoint ***/
   
-  /* The offset */
-  if ( NULL != ( e = ParseEntity(raw_offset, f->lineno) ) )
-  {
-     /* STUB: What to do here? 
-        DBG_dump_entity(0, e); */
-     pp->Offset = e;
-  }
-  else
-  {
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   /* The offset */
+   if ( NULL != ( e = ParseEntity(raw_offset, f->lineno) ) )
+   {
+      /* These function calls are left here because they are canditates to
+         convert into a -+ debug option. */
+      /* DBG_dump_entity(0, e); */
+      pp->Offset = e;
+   }
+   else
+   {
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  /* The size */
-  if ( NULL != ( e = ParseEntity(raw_size, f->lineno) ) )
-  {
-     /* STUB: Make this an option of debug?
-        DBG_dump_entity(0, e); */
-     pp->Size = e;
-  }
-  else
-  {
-     pp->fail_bail = 1;
-     return(pp);
-  }
+   /* The size */
+   if ( NULL != ( e = ParseEntity(raw_size, f->lineno) ) )
+   {
+      /* DBG_dump_entity(0, e); */
+      pp->Size = e;
+   }
+   else
+   {
+      pp->fail_bail = 1;
+      return(pp);
+   }
 
-  /* The two strings (tag and label) */
-  pp->tag = nc_mkstring(raw_tag);
-  pp->label = nc_mkstring(raw_label);
+   /* The two strings (tag and label) */
+   pp->tag = nc_mkstring(raw_tag);
+   pp->label = nc_mkstring(raw_label);
 
-  /* Parse the data type (from a string to #define/enum */
-  if ( 0 == strcmp(raw_dt, "uint8") )
-    pp->dt = DT_UINT8;
+   /* Parse the data type (from a string to #define/enum */
+   if ( 0 == strcmp(raw_dt, "uint8") )
+      pp->dt = DT_UINT8;
 
-  if ( 0 == strcmp(raw_dt, "int8") )
-    pp->dt = DT_INT8;
+   if ( 0 == strcmp(raw_dt, "int8") )
+      pp->dt = DT_INT8;
 
-  if ( 0 == strcmp(raw_dt, "uint16") )
-    pp->dt = DT_UINT16;
+   if ( 0 == strcmp(raw_dt, "uint16") )
+      pp->dt = DT_UINT16;
 
-  if ( 0 == strcmp(raw_dt, "int16") )
-    pp->dt = DT_INT16;
+   if ( 0 == strcmp(raw_dt, "int16") )
+      pp->dt = DT_INT16;
 
-  if ( 0 == strcmp(raw_dt, "uint32") )
-    pp->dt = DT_UINT32;
+   if ( 0 == strcmp(raw_dt, "uint32") )
+      pp->dt = DT_UINT32;
 
-  if ( 0 == strcmp(raw_dt, "int32") )
-    pp->dt = DT_INT32;
+   if ( 0 == strcmp(raw_dt, "int32") )
+      pp->dt = DT_INT32;
 
-  if ( 0 == strcmp(raw_dt, "uint64") )
-    pp->dt = DT_UINT64;
+   if ( 0 == strcmp(raw_dt, "uint64") )
+      pp->dt = DT_UINT64;
 
-  if ( 0 == strcmp(raw_dt, "int64") )
-    pp->dt = DT_INT64;
+   if ( 0 == strcmp(raw_dt, "int64") )
+      pp->dt = DT_INT64;
 
-  if ( 0 == strcmp(raw_dt, "char") )
-    pp->dt = DT_CHAR;
+   if ( 0 == strcmp(raw_dt, "char") )
+      pp->dt = DT_CHAR;
 
-  if ( 0 == strcmp(raw_dt, "ztstr") )
-    pp->dt = DT_ZTSTR;
+   if ( 0 == strcmp(raw_dt, "ztstr") )
+      pp->dt = DT_ZTSTR;
 
-  if ( 0 == strcmp(raw_dt, "flstr") )
-    pp->dt = DT_FLSTR;
+   if ( 0 == strcmp(raw_dt, "flstr") )
+      pp->dt = DT_FLSTR;
 
-  if ( DT_NONE == pp->dt )
-  {
-    fprintf(stderr, "Parse file error: Problems parsing a token.\n  Line: %d\n  Token: %s\n",
-	    pp->lineno, raw_dt);
-    /* What we can do here...
-       1. Press on, and try to parse the rest of the items in the file with
-          the risk that this line is NOT a dependent line. Throw away the pp
-	       allocation (don't free it - too much trouble not a big deal(?))
-       2. Return NULL, toss the pp memory reservation - we will be exiting soon.
-       3. Adhere to some command line driven option to determine behaviour of
-          the application in regards to #1 or #2.
-       4. Do one of the three previous items, but free the memory for the pp.
-       5. Return the pp with fail_bail set. This will cause us to error and exit.
-    */
-    pp->fail_bail = 1; /* Now you did it. We are exiting on option 5. */
-    return(pp);
-  }
+   if ( DT_NONE == pp->dt )
+   {
+      fprintf(stderr, "Parse file error: Problems parsing a token.\n  Line: %d\n  Token: %s\n",
+              pp->lineno, raw_dt);
+      /* What we can do here...
+         1. Press on, and try to parse the rest of the items in the file with
+         the risk that this line is NOT a dependent line. Throw away the pp
+         allocation (don't free it - too much trouble not a big deal(?))
+         2. Return NULL, toss the pp memory reservation - we will be exiting soon.
+         3. Adhere to some command line driven option to determine behaviour of
+         the application in regards to #1 or #2.
+         4. Do one of the three previous items, but free the memory for the pp.
+         5. Return the pp with fail_bail set. This will cause us to error and exit.
+      */
+      pp->fail_bail = 1; /* Now you did it. We are exiting on option 5. */
+      return(pp);
+   }
 
-  pp->fail_bail = 0; /* Clear any assumed error. (Currently errors are not
-                        assumed - then cleared. It is the opposite. This is
-                        just a bit of safety. */
-  return(pp);
+   pp->fail_bail = 0; /* Clear any assumed error. (Currently errors are not
+                         assumed - then cleared. It is the opposite. This is
+                         just a bit of safety. */
+   return(pp);
 }
 
 /* ========================================================================= */
@@ -533,6 +533,7 @@ RuleSet *ParseBPFFile(Options *o)
 {
    RuleSet *rs;
    ParsePoint *pp;
+   ExplicitTag *et;
    Enum *e;
    File *f;
    char *line;
@@ -580,7 +581,7 @@ RuleSet *ParseBPFFile(Options *o)
       chomp(line);              /* Kill EOL chars */
       line = leadingwst(line);  /* Kill leading WS */
       hash_trunc(line);         /* Truncate Hash based comments */
-      /* STUB: Why not clear off trailing ws? */
+      ws_trunc(line);           /* Truncate trailing ws */
 
       /* Eliminate empty lines (early) */
       if ( *line == 0 )
@@ -605,6 +606,23 @@ RuleSet *ParseBPFFile(Options *o)
          continue;
       }
 
+      /* Line sniff for explicit tag */
+      if ( IsETagLine(line) )
+      {
+         if ( NULL != ( et = ParseETag(line, f->lineno) ) )
+         {
+            if ( InsertETag(rs, et) )
+            {
+               /* Error message at point of failure */
+               return(NULL);
+            }
+         }
+         
+         /* Line was an explicit tag. Don't try to parse as something else.
+            Instead, go get another line. */
+         continue;
+      }
+
       /* Line sniff for option (setopt) */
       if ( IsSetOpt(line) )
       {
@@ -612,7 +630,38 @@ RuleSet *ParseBPFFile(Options *o)
          continue;
       }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       /* STUB: Line sniff for htagXXXX */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       if ( NULL != (pp = get_parse_point(f)) )
@@ -666,118 +715,111 @@ RuleSet *ParseBPFFile(Options *o)
    Called only by resolve entity tag. */
 int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
 {
-  ParsePoint *thispp;
-  ExplicitTag *thiset;
+   ParsePoint *thispp;
+   ExplicitTag *thiset;
   
-  /* Walk the list of PPs for a matching tag */
-  thispp = rs->pplist;
-  while ( thispp )
-  {
-    if ( 0 == strcmp(e->u.tag, thispp->tag) )
-    {
-      if ( pp == thispp )
+   /* Walk the list of PPs for a matching tag */
+   thispp = rs->pplist;
+   while ( thispp )
+   {
+      if ( 0 == strcmp(e->u.tag, thispp->tag) )
       {
-	fprintf(stderr, "-------------------------------------------------------------------------------\n");
-	fprintf(stderr, "Tag resolution failure. Tag \"%s\" on line %d\n", (char *)e->u.tag, pp->lineno);
-	fprintf(stderr, "   is self referential. A tagged offset/size can not reference the same line.\n");
-	return(1);
-      }
+         if ( pp == thispp )
+         {
+            fprintf(stderr, "-------------------------------------------------------------------------------\n");
+            fprintf(stderr, "Tag resolution failure. Tag \"%s\" on line %d\n", (char *)e->u.tag, pp->lineno);
+            fprintf(stderr, "   is self referential. A tagged offset/size can not reference the same line.\n");
+            return(1);
+         }
 	
-      /* Fall through to success */
-      e->u.tag = thispp;
-      e->type = ETYPE_TAGPP;    /* Mark tag resolved (to a ParsePoint) */
-      pp->rtag_count++;
-      return(0);
-    }
+         /* Fall through to success */
+         e->u.tag = thispp;
+         e->type = ETYPE_TAGPP;    /* Mark tag resolved (to a ParsePoint) */
+         pp->rtag_count++;
+         return(0);
+      }
     
-    thispp = thispp->next;
-  }
+      thispp = thispp->next;
+   }
 
-  /* If not resolved to a PP, then look at explicit tags */
-  thiset = rs->etlist;
-  while ( thiset )
-  {
-    if ( 0 == strcmp(e->u.tag, thiset->tag) )
-    {
-      e->u.tag = thiset;
-      e->type = ETYPE_TAGET;    /* Mark tag resolved (to an ExplicitTag) */
-      pp->rtag_count++;
-      return(0);
-    }
+   /* If not resolved to a PP, then look at explicit tags */
+   thiset = rs->etlist;
+   while ( thiset )
+   {
+      if ( 0 == strcmp(e->u.tag, thiset->tag) )
+      {
+         e->u.tag = thiset;
+         e->type = ETYPE_TAGET;    /* Mark tag resolved (to an ExplicitTag) */
+         pp->rtag_count++;
+         return(0);
+      }
 
-    thiset = thiset->next;
-  }
+      thiset = thiset->next;
+   }
   
-  /* If we got here, then tag was not resolved */
-  fprintf(stderr, "-------------------------------------------------------------------------------\n");
-  fprintf(stderr, "Tag resolution failure. Unable to resolve the tag \"%s\"\n", (char *)e->u.tag);
-  fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-  return(1);
+   /* If we got here, then tag was not resolved */
+   fprintf(stderr, "-------------------------------------------------------------------------------\n");
+   fprintf(stderr, "Tag resolution failure. Unable to resolve the tag \"%s\"\n", (char *)e->u.tag);
+   fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+   return(1);
 }
 
 /* ========================================================================= */
 int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
 {
-  switch(e->type)
-  {
-  case ETYPE_NOTYP:
-    fprintf(stderr, "ERROR: Uninitialized entity found while resolving tags.\n");
-    return(1);
-  case ETYPE_VALUE:
-    return(0);
-  case ETYPE_MEXPR:
-    return(resolve_expression_tags(rs, pp, e->u.math, o));
-  case ETYPE_TAGCP:
-    /* This is (the only place) where tags actually get resolved */
-    return(findnset_entity_tag(rs, pp, e, o));
-  case ETYPE_TAGPP:
-  case ETYPE_TAGET:
-    fprintf(stderr, "ERROR: Unresolved entity tag claims to be resolved.\n");
-    return(1);
-  default:
-    fprintf(stderr, "ERROR: Unexpected value found while resolving an entity tag.\n");
-    return(1);
-  }
+   switch(e->type)
+   {
+   case ETYPE_NOTYP:
+      fprintf(stderr, "ERROR: Uninitialized entity found while resolving tags.\n");
+      return(1);
+   case ETYPE_VALUE:
+      return(0);
+   case ETYPE_MEXPR:
+      return(resolve_expression_tags(rs, pp, e->u.math, o));
+   case ETYPE_TAGCP:
+      /* This is (the only place) where tags actually get resolved */
+      return(findnset_entity_tag(rs, pp, e, o));
+   case ETYPE_TAGPP:
+   case ETYPE_TAGET:
+      fprintf(stderr, "ERROR: Unresolved entity tag claims to be resolved.\n");
+      return(1);
+   default:
+      fprintf(stderr, "ERROR: Unexpected value found while resolving an entity tag.\n");
+      return(1);
+   }
 
-  /* Smarter compilers do not require a return here. This is unreachable. */
+   /* Smarter compilers do not require a return here. This is unreachable. */
 }
 
 /* ========================================================================= */
 int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options *o)
 {
-  /* Expressions are simply two entities. Resolve them both. */
+   /* Expressions are simply two entities. Resolve them both. */
 
-  /* Left (Hand Side) */
-  if ( resolve_entity_tag(rs, pp, m->left, o) )
-    return(1);
+   /* Left (Hand Side) */
+   if ( resolve_entity_tag(rs, pp, m->left, o) )
+      return(1);
 
-  /* Right (Hand Side) */
-  if ( resolve_entity_tag(rs, pp, m->right, o) )
-    return(1);
+   /* Right (Hand Side) */
+   if ( resolve_entity_tag(rs, pp, m->right, o) )
+      return(1);
   
-  return(0);
+   return(0);
 }
 
-/* =========================================================================
- * Name: resolve_pp_tags
- * Desc: 
- * Params:
- * Returns: 0 on successful tag resolution
- * Side Effects:
- * Notes: Aka: 2nd pass resolution
- */
+/* ========================================================================= */
 int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
 {
-  ParsePoint *thispp;
-  Enum *thise;
+   ParsePoint *thispp;
+   Enum *thise;
 
-  /*** Resolve the offset tag first ***/
-  if(resolve_entity_tag(rs, pp, pp->Offset, o))
-    return(1);
+   /*** Resolve the offset tag first ***/
+   if(resolve_entity_tag(rs, pp, pp->Offset, o))
+      return(1);
   
-  /*** Resolve the size tag next ***/
-  if(resolve_entity_tag(rs, pp, pp->Size, o))
-    return(1);
+   /*** Resolve the size tag next ***/
+   if(resolve_entity_tag(rs, pp, pp->Size, o))
+      return(1);
    
    if ( pp->enum_tag ) /* If an enum tag reference is set */
    {
@@ -829,14 +871,14 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
       if ( pp->rtag_count )
          fprintf(stderr, "  Resolved %d %s on line %d (%s).\n",
                  pp->rtag_count,
-		 pp->rtag_count == 1 ? "tag" : "tags",
+                 pp->rtag_count == 1 ? "tag" : "tags",
                  pp->lineno,
                  pp->tag);
    }
 
-  /* If we got here, then all tags for this item are resolved. */
-  pp->tags_resolved = 1;
-  return(0);
+   /* If we got here, then all tags for this item are resolved. */
+   pp->tags_resolved = 1;
+   return(0);
 } 
 
 /* =========================================================================
@@ -876,100 +918,3 @@ int ResolveTags(RuleSet *rs, Options *o)
    
    return(0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* STUB: Junk locker */
-#ifdef STUB_REMOVE
-   
-   /*** Resolve the offset tag first ***/
-   if ( pp->Offset->type == ETYPE_TAGCP )
-   {
-      /* Offset is a tag (that needs to be resolved) */
-      thispp = rs->pplist;
-      while ( thispp )
-      {
-	fprintf(stderr, "strcmp(%s, %s)", pp->Offset->u.tag, thispp->tag);
-	
-         if ( 0 == strcmp(pp->Offset->u.tag, thispp->tag) )
-         {
-	   fprintf(stderr, "  Match!\n");
-	   
-            if ( pp == thispp )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "Tag resolution failure. Offset tag \"%s\" on line %d\n", (char *)pp->Offset->u.tag, pp->lineno);
-               fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
-               return(1);
-            }
-	
-            /* Fall through to success */
-            pp->Offset->u.tag = thispp;
-            pp->Offset->type = ETYPE_TAGPP;    /* Mark tag resolved */
-            resolved++;
-	    break;
-         }
-	 else
-	   fprintf(stderr, "  not.\n");
-	 
-         thispp = thispp->next;
-      }
-
-      
-      if ( pp->Offset->type == ETYPE_TAGCP )
-      {
-         fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Tag resolution failure. Unable to resolve the offset tag \"%s\"\n", (char *)pp->Offset->u.tag);
-         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-         return(1);
-      }
-   }
-
-   /*** Resolve the size tag next ***/
-   if ( pp->Size->type == ETYPE_TAGCP )
-   {
-      /* Size is a tag (that needs to be resolved) */
-      thispp = rs->pplist;
-      while ( thispp )
-      {
-         if ( 0 == strcmp(pp->Size->u.tag, thispp->tag) )
-         {
-            if ( pp == thispp )
-            {
-               fprintf(stderr, "-------------------------------------------------------------------------------\n");
-               fprintf(stderr, "Tag resolution failure. Size tag \"%s\" on line %d\n", (char *)pp->Size->u.tag, pp->lineno);
-               fprintf(stderr, "   is self referential. A tagged offset can not reference the same line.\n");
-               return(1);
-            }
-	
-            /* Fall through to success */
-            pp->Size->u.tag = thispp;
-            pp->Size->type = ETYPE_TAGRS;    /* Mark tag resolved */
-            resolved++;
-         }
-         thispp = thispp->next;
-      }
-
-      
-      if ( pp->Size->type == ETYPE_TAGCP )
-      {
-         fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Tag resolution failure. Unable to resolve the size tag \"%s\"\n", (char *)pp->Size->u.tag);
-         fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
-         return(1);
-      }
-   }
-#endif

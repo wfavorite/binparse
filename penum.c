@@ -444,34 +444,6 @@ ENVP *parse_enum_pair(int *moved, char *estr, int lineno)
 }
 
 /* ========================================================================= */
-int InsertEnum(RuleSet *rs, Enum *e)
-{
-   Enum *thise;
-
-   assert(NULL != rs);
-   assert(NULL != e);
-
-   thise = rs->elist;
-   while(thise)
-   {
-      if ( 0 == strcmp(e->tag, thise->tag) )
-      {
-         fprintf(stderr, "-------------------------------------------------------------------------------\n");
-         fprintf(stderr, "Enum naming collision. Two enums are called \"%s\".\n", e->tag);
-         return(1);
-      }
-
-      thise = thise->next;
-   }
-
-   /* If we made it here, then we are unique (on the user-defined list) */
-   e->next = rs->elist;
-   rs->elist = e;
-
-   return(0);
-}
-
-/* ========================================================================= */
 Enum *new_enum(char *tag, char *raw)
 {
    Enum *e;

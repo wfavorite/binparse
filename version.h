@@ -93,6 +93,7 @@
                      - Work on endianess swapping. Basic testing complete.
     0.16.0   2/17/16 - Re-work of the display (dump) code.
                      - Cleanup / simplification of endian code.
+                     - $TUB elimination.
 */
 #define VERSION_STRING "0.16.0"
 /*
@@ -105,23 +106,23 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [_] Finish the 64bit endian code.
    [_] Output should be offered in -x (hex).
+   [_] Test support of settag operator.
    [ ] There is a hole in ParseOptions that lets a config escape without
        paramater checking. Fix this.
+   [ ] Inserting parse points does not *completely* look for name collisions.
    [ ] Read length of label to determine label length allotment (%<something>s)
    [ ] Insure that must= is not used with non-numeric data.
    [ ] For now... Find the longest label and use this as the length of the
        default output for all labels. Such as printf("%-Xs : ...) where X
        is the length of the longest label.
    [ ] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
-   [ ] Re-indent all source files (I don't have my .emacs file on this
+   [_] Re-indent all source files (I don't have my .emacs file on this
        computer and the indentation is all messed up.)
    [ ] RuleSet->pass does not appear to have been used anywhere. This was
        designed to denote that the *entire* pass was completed. I am not sure
        that this is required any more.
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
-   [ ] Some of the print statements (such as bVerbose) are stdin AND stderr.
    [Q] When printing the error messages in bpfparse.c::resolve_tag(), the
        void pointer in the union is used. How do you know this is good (that
        it points to a string and not another struct)? It may be appropriate
@@ -131,9 +132,8 @@
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
-   [ ] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
-       to be utilized in parsing a ParsePoint. 
-   [ ] There is still no support for the "settag" operator.
+   [_] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
+       to be utilized in parsing a ParsePoint.
    [ ] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
@@ -156,6 +156,11 @@
    [Q] How do you handle exceptions in strlib.c::mid_trunc()?
 
   Done:
+   [X] Some of the print statements (such as bVerbose) are stdin AND stderr.
+   [X] Move InsertEnum() and InsertETag() to bpdata.h/c
+   [X] Close the binary file on end of read.
+   [X] There is still no support for the "settag" operator.
+   [X] Finish the 64bit endian code.
    [X] The help output has a few different output methods. These are not
        covered in the options struct (with appropriate flags), nor is the
        help output clear on what the options mean. (Specifically: The output
