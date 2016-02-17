@@ -32,6 +32,8 @@ Options *new_options(void)
    o->bESwap = 0;
 
    o->cFields = ':';
+   o->bShowLabel = 1;
+   o->eDumpHex = OUTPUT_DEFAULT;
 
    /* Send it off */
    return(o);
@@ -49,7 +51,7 @@ Options *ParseOptions(int argc, char *argv[])
       return(NULL);
   
    /* Parse the options */
-   while ( -1 != ( c = getopt(argc, argv, "+acef:hp:v" ) ) )
+   while ( -1 != ( c = getopt(argc, argv, "+acef:hlp:vxX" ) ) )
    {
       switch(c)
       {
@@ -71,17 +73,24 @@ Options *ParseOptions(int argc, char *argv[])
       case 'h':
          o->bHelp = 1;
          break;
+      case 'l':
+         o->bShowLabel = 0;
+         break;
       case 'p':
          o->iPasses = atoi(optarg);
          break;
       case 'v':
          o->bVerbose = 1;
          break;  
+      case 'x':
+         o->eDumpHex |= OUTPUT_HEX_LC;
+         break;  
+      case 'X':
+         o->eDumpHex |= OUTPUT_HEX_UC;
+         break;  
       case ':':
          fprintf (stderr, "ERROR: Missing the argument to the \"-%c\" option.\n", optopt);
          return(NULL); /* Just bail */
-         break;
-
       case '?': /* User entered some unknown/unsupported argument */
          if (isprint (optopt))
             fprintf (stderr, "ERROR: Unknown option \"-%c\".\n", optopt);
@@ -89,7 +98,7 @@ Options *ParseOptions(int argc, char *argv[])
             fprintf (stderr,
                      "ERROR: Unknown option character `\\x%x'.\n",
                      optopt);
-         break;
+         return(NULL); /* Just bail */
       default: /* Really an unreachable place */
          return(o);
       }
@@ -122,6 +131,8 @@ Options *ParseOptions(int argc, char *argv[])
    }
 
    /* Validate the options */
+
+   /* STUB: Validate all the display options */
    
    /* No additional processing required if any of these are set */
    if (( o->bAbout ) || ( o->bHelp ))
@@ -155,6 +166,8 @@ Options *ParseOptions(int argc, char *argv[])
      fprintf(stderr, "ERROR: A BPF file was not specified on the command line.\n");
      return(NULL);
    }
+
+   /* STUB: Check that both -x and -X were not used */
 
    if ( 0 == o->bValidate )
    {
@@ -350,6 +363,7 @@ int ParseBPFOptions(Options *o)
          case 'c':
          case 'e':
          case 'f':
+         case 'l':
          case 'p':
             thisopt = *line;
             break;
@@ -398,6 +412,11 @@ int ParseBPFOptions(Options *o)
             break;
          case 'f':
             if ( parse_opt_char(&o->cFields, line) )
+               return(opt_err_msg(thisopt, f->lineno));
+            parsed++;
+            break;
+         case 'l':
+            if ( -1 == (o->bShowLabel = parse_opt_tail(line)) )
                return(opt_err_msg(thisopt, f->lineno));
             parsed++;
             break;

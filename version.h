@@ -91,8 +91,10 @@
                      - grep $TUB * | wc -l ----> 25
     0.15.0   2/16/16 - AIX port
                      - Work on endianess swapping. Basic testing complete.
+    0.16.0   2/17/16 - Re-work of the display (dump) code.
+                     - Cleanup / simplification of endian code.
 */
-#define VERSION_STRING "0.15.0"
+#define VERSION_STRING "0.16.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
@@ -103,8 +105,10 @@
       the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
-   [ ] Finish the 64bit endian code.
-   [ ] Output should be offered in -x (hex).
+   [_] Finish the 64bit endian code.
+   [_] Output should be offered in -x (hex).
+   [ ] There is a hole in ParseOptions that lets a config escape without
+       paramater checking. Fix this.
    [ ] Read length of label to determine label length allotment (%<something>s)
    [ ] Insure that must= is not used with non-numeric data.
    [ ] For now... Find the longest label and use this as the length of the

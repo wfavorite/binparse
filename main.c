@@ -160,9 +160,11 @@ int show_help(void)
   printf("     -c         Validate the BPF file (stop after 2nd stage compile).\n");
   printf("     -f X       Output separator ---> <label>X<value>\n");
   printf("     -h         Show \"help\" information (and exit).\n");
-  printf("*    -s         <value>\n");
+  printf("     -l         Simplified output ---> <value>\n");
   printf("     -t         Use tag instead of label in output ---> <tag>:<value>\n");
   printf("     -v         Be verbose\n");
+  printf("     -x         Dump output in Hex (0xdeadbeef)\n");
+  printf("     -X         Dump output in Hex (0XDEADBEEF)\n");
   fflush(stdout);
   return(0);
 }

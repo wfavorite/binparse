@@ -161,22 +161,16 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
      switch ( pp->dt )
      {
      case DT_UINT16:
-        eswap_uint16(pp->data);
-        break;
      case DT_INT16:
-        eswap_int16(pp->data);
+        eswap_16(pp->data);
         break;
      case DT_UINT32:
-        eswap_uint32(pp->data);
-        break;
      case DT_INT32:
-        eswap_int32(pp->data);
+        eswap_32(pp->data);
         break;
      case DT_UINT64:
-        eswap_uint64(pp->data);
-        break;
      case DT_INT64:
-        eswap_uint64(pp->data);
+        eswap_64(pp->data);
         break;
      }
   }

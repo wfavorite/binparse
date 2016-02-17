@@ -51,6 +51,10 @@
    gets passed to any function that acts differently according to user
    dictates.
 */
+#define OUTPUT_DEC     0
+#define OUTPUT_HEX_UC  1
+#define OUTPUT_HEX_LC  2
+#define OUTPUT_DEFAULT OUTPUT_DEC
 typedef struct Options
 {
    int bAbout;           /* Show about. Exit                                 */
@@ -65,10 +69,12 @@ typedef struct Options
    /* Output options */
    int bTagVal;          /* Use the tag name, not the label for output       */
    char cFields;
+   int bShowLabel;
 
    int bColon;           /* (Output) display the colon between label/data    */
    char *bpffile;
    char *binfile;
+   int eDumpHex;         /* Uses OUTPUT_* macros                             */
 } Options;
 
 /* =========================================================================
