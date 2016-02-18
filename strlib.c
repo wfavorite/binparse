@@ -364,15 +364,12 @@ char *nth_token_location(char *istr, int n)
       while((istr[i] == ' ') || (istr[i] == '\t'))
          i++;
 
-      /* fprintf(stderr, "STUB DEBUG: TopOfLoop(%s, %d);\n", &istr[i], n); */
-
       if ((istr[i] != 0)&&(istr[i] != '\n')&&(istr[i] != '\r')) 
       {
          t++; /* We are on a new token */
 
          if ( n == t )
          {
-            /* fprintf(stderr, "STUB DEBUG: Nth_token_location(%s, %d);\n", &istr[i], n); */
             return(&istr[i]);
          }
 

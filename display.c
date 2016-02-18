@@ -5,6 +5,29 @@
 #include "display.h"
 
 /* ========================================================================= */
+int print_pp_enum(ParsePoint *pp, Options *o)
+{
+   ENVP *this_envp;
+
+   this_envp = pp->use_enum->elist;
+   while ( this_envp )
+   {
+      if ( pp->rdata == this_envp->value )
+      {
+         printf("%s\n", this_envp->name);
+         return(0);
+      }
+
+      this_envp = this_envp->next;
+   }
+   
+   /* Not found */
+   printf("%s\n", pp->use_enum->defval->name);
+   return(0);
+}
+
+
+/* ========================================================================= */
 int print_fl_string(ParsePoint *pp, Options *o)
 {
    BPInt i;
@@ -108,6 +131,9 @@ int print_datatype(ParsePoint *pp, Options *o)
 
    if ( pp->dt == DT_FLSTR )
       return(print_fl_string(pp, o));
+
+   if ( pp->use_enum )
+      return(print_pp_enum(pp, o));
 
    if ( OUTPUT_DEC == o->eDumpHex )
    {

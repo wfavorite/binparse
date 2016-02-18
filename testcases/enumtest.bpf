@@ -1,0 +1,15 @@
+#!./bp
+
+setopt p 2
+setopt v true
+setopt f ">"
+
+# enumtest.bin is a text file
+
+0 1 chara "The letter A" uint8 enum=letters
+
+setenum letters = { default:"?"; 65:Aaaay; 66:Bee; 67:Sea }
+
+1 1 isset "Has a value or not" uint8 enum=enumBool
+
+2 1 charb "The letter B" uint8 enum=letters

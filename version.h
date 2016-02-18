@@ -108,7 +108,7 @@
                        the Sun compilers yet. Same for AIX.
                      - Moved to native compilers. (AIX and Solaris)
                      - Fixed various compiler warnings on each OS.
-                     - grep $TUB * | wc -l ----> 8
+                     - grep $TUB * | wc -l ----> 6
 */
 #define VERSION_STRING "0.18.0"
 /*
@@ -119,7 +119,6 @@
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
    [_] Fill out all the empty function paramater comment blocks.
-   [ ] Enums are not printed.
    [ ] FreeBSD port.
    [ ] Insure that must= is not used with non-numeric data.
    [ ] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
@@ -128,6 +127,9 @@
        to be utilized in parsing a ParsePoint.
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
+   [ ] An option should exist to print in hex (specify hex) in the parse
+       point. The suggested syntax is: base=HEX, base=hex, base=dec. This
+       would override the global command line or file setting.
    [ ] Write man pages for bp(1) and bpf(5).
    [D] Need to properly differentiate between ' and " in the strlib.
    [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
@@ -154,6 +156,8 @@
        BPF file executable and using file magic to get your bp interperter.)
 
   Done:
+   [X] Write an enum testcase.
+   [X] Enums are not printed.
    [X] For now... Find the longest label and use this as the length of the
        default output for all labels. Such as printf("%-Xs : ...) where X
        is the length of the longest label.
