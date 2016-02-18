@@ -1,0 +1,22 @@
+#!./bp
+
+setopt p 2
+setopt v true
+setopt f ":"
+
+# twostr.bin is a bi-endian file
+
+settag START = 0
+
+START 1 hash "Magic hash" char must=0x23 hidden=true
+(START + 1) 1 bang "Magic bang" char must=0x21 hidden=true
+
+4 1 fsoff "Fixed string offset" uint8
+5 1 fslen "Fixed string length" uint8
+
+6 1 ztoff "0Term string offset" uint8
+7 1 ztlen "0Term string length" uint8
+
+fsoff fslen flstr "Fixed length string" flstr
+
+ztoff ztlen zterm "Zero terminated str" ztstr

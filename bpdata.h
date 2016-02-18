@@ -126,7 +126,7 @@ typedef struct envp
 typedef struct enumbase
 {
    char *raw;
-   char *tag; /* STUB: This does not need a malloc() could be static */
+   char *tag;
    struct envp *defval;  /* A single default value ENVP. Do NOT follow this
                             as a linked list. The linked list item is
                             self-referential. It is a way of detecting the
@@ -221,9 +221,7 @@ typedef struct RuleSet
    ExplicitTag *etlist;    /* The list of explicit tags                      */
 
    int parserr;
-#ifdef STUB_NOT_USED
-   int pass;               /* The pass that was completed */
-#endif
+
    /* (Bin) File related data */
    int f;                  /* File descriptor                                */
    char *fname;            /* File name (used for open())                    */

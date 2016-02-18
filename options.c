@@ -100,7 +100,8 @@ Options *ParseOptions(int argc, char *argv[])
                      optopt);
          return(NULL); /* Just bail */
       default: /* Really an unreachable place */
-         return(o);
+         fprintf(stderr, "ERROR: Encountered problems parsing the command line options.\n");
+         return(NULL);
       }
    }
 
@@ -130,10 +131,8 @@ Options *ParseOptions(int argc, char *argv[])
       index++;
    }
 
-   /* Validate the options */
+   /*** Validate the options ***/
 
-   /* STUB: Validate all the display options */
-   
    /* No additional processing required if any of these are set */
    if (( o->bAbout ) || ( o->bHelp ))
    {
@@ -152,7 +151,7 @@ Options *ParseOptions(int argc, char *argv[])
          return(NULL);
       }
 
-      if ((o->bVerbose) || (o->bDebug))
+      if ((o->bVerbose) || (o->bDebug) || ( o->eDumpHex & OUTPUT_HEX_UC ) || ( o->eDumpHex & OUTPUT_HEX_LC ))
       {
          fprintf(stderr, "ERROR: The -a and -h options are mutually exclusive.\n");
          return(NULL);
@@ -167,7 +166,17 @@ Options *ParseOptions(int argc, char *argv[])
      return(NULL);
    }
 
-   /* STUB: Check that both -x and -X were not used */
+   /* It is not possible (in the current settings design) to tell if the user
+      selected to not show the label, then decided how the label should be printed.
+      This is a contradiction of options and the user should be notified, but
+      there is no way to tell if the user did this. So (for now) we will just
+      ignore these (specific) conflicts. */
+
+   if ( ( o->eDumpHex & OUTPUT_HEX_UC ) && ( o->eDumpHex & OUTPUT_HEX_LC ) )
+   {
+      fprintf(stderr, "ERROR: The -X and -x options are mutually exclusive.\n");
+      return(NULL);
+   }
 
    if ( 0 == o->bValidate )
    {

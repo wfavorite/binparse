@@ -57,24 +57,27 @@
 #define OUTPUT_DEFAULT OUTPUT_DEC
 typedef struct Options
 {
+   /* Immediate exit options */
    int bAbout;           /* Show about. Exit                                 */
    int bHelp;            /* Show help. Exit.                                 */
+
+   /* General behaviour modification options */
    int bDebug;           /* Turn on diag messages                            */
    int bVerbose;         /* Show some extra verbosity while working.         */
    int bValidate;        /* Validate (stop at third stage of compile)        */
    int iPasses;          /* The number of passes to attempt on data retrieval*/
    int bESwap;           /* To endian swap or not                            */
 
-
-   /* Output options */
+   /* Output-specific options */
    int bTagVal;          /* Use the tag name, not the label for output       */
    char cFields;
    int bShowLabel;
+   int eDumpHex;         /* Uses OUTPUT_* macros                             */
 
-   int bColon;           /* (Output) display the colon between label/data    */
+   /* The files */
    char *bpffile;
    char *binfile;
-   int eDumpHex;         /* Uses OUTPUT_* macros                             */
+
 } Options;
 
 /* =========================================================================

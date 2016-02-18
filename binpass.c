@@ -49,8 +49,10 @@ int get_entity_value(RuleSet *rs, BPInt *out, Entity *ent);
 int bin_read_pp(RuleSet *rs, ParsePoint *pp)
 {
    BPInt got;
+   BPInt msize;
    struct stat s;
    BPInt expected_size = 0;
+   char *casthelp;
   
    /* Open the file if it is not already open */
    if ( -1 == rs->f )
@@ -141,8 +143,19 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
    }
 
    /* Allocate the memory for the read-into target */
-   /* STUB: extra size for a string */
-   if ( NULL == (pp->data = malloc(pp->rSize)) )
+   msize = pp->rSize;     /* Start with the requested size */
+   if ( pp->dt == DT_FLSTR ) /* Add a byte if it is a fixed length string */
+      msize++;            /* WHY: Because I *could* treat this as a normal
+                                  NULL terminated string. Here, the thinking
+                                  is that I want that safety, and I want
+                                  aligned data. */
+
+   /* Now insure that the malloc is alligned (It would be padded by allocator
+      anyways. This just rounds out the malloc(). */
+   while( msize % 4 != 0 )
+      msize++;
+
+   if ( NULL == (pp->data = malloc(msize)) )
    {
       fprintf(stderr, "ERROR: Failed to allocate memory for a data item.\n");
       return(1);
@@ -155,6 +168,16 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
       fprintf(stderr, "Data retrieval failure. Parse point \"%s\" on line %d.\n", pp->tag, pp->lineno);
       fprintf(stderr, "   cannot be read.\n");
       return(1);
+   }
+
+   if ( pp->dt == DT_FLSTR )
+   {
+      /* Throw in some termination */
+
+      /* Compiler warned on void casting. I could work through a solid
+         casting effort, or just assign it to a specific pointer type. */
+      casthelp = (char *)pp->data;
+      casthelp[pp->rSize] = 0;
    }
 
    if ( rs->bESwap )

@@ -96,8 +96,13 @@
                      - $TUB elimination.
                      - Code cleanup, basic feature work, refactoring.
                      - Added (initial) support of explicit tags.
+    0.17.0   2/18/16 - Band-aids on options parsing. It now works in a 
+                       generally consistent way, but should be considered
+                       for a re-design.
+                     - Fixed some bad pointer stuff with string handling in
+                       the display code.
 */
-#define VERSION_STRING "0.16.0"
+#define VERSION_STRING "0.17.0"
 /*
   Notes:
     - Just wanted to capture this somewhere. I thought it up and think I should
@@ -111,14 +116,11 @@
    [_] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
+   [ ] Enums are not printed.
    [ ] Solaris port.
    [ ] FreeBSD port.
    [ ] binpass.h does not have a function header definition.
    [ ] display.h does not have a function header definition.
-   [ ] Write a test case that has two different types of strings in it
-       (similar to simple.h).
-   [ ] There is a hole in ParseOptions that lets a config escape without
-       paramater checking. Fix this.
    [ ] Read length of label to determine label length allotment (%<something>s)
    [ ] Insure that must= is not used with non-numeric data.
    [ ] For now... Find the longest label and use this as the length of the
@@ -132,7 +134,20 @@
        BPF file executable and using file magic to get your bp interperter.)
    [_] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint.
-   [ ] Technically.... You should be able to call the executable bpf file with
+   [ ] Make the location of the function description comment consistent.
+       Consider creating function comment blocks for *all* functions.
+   [ ] Fill out all the empty function paramater comment blocks.
+   [ ] Write man pages for bp(1) and bpf(5).
+   [ ] Need to properly differentiate between ' and " in the strlib.
+   [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
+   [Q] How do you handle exceptions in strlib.c::mid_trunc()?
+   [D] Completely re-design the options parsing to have *layers* of options
+       (defaults, file-set, and CL-set) that can be read out of order, but
+       applied in order. These should be read (out of order), then "flattened"
+       where some validation checks can be done. There is another todo in 
+       this area that deals with option parsing and using file magic. This
+       should be integrated into this design.
+   [D] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
         argv[1] = "./mybpf"
@@ -142,15 +157,12 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [ ] Make the location of the function description comment consistent.
-       Consider creating function comment blocks for *all* functions.
-   [ ] Fill out all the empty function paramater comment blocks.
-   [ ] Write man pages for bp(1) and bpf(5).
-   [ ] Need to properly differentiate between ' and " in the strlib.
-   [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
-   [Q] How do you handle exceptions in strlib.c::mid_trunc()?
 
   Done:
+   [X] Write a test case that has two different types of strings in it
+       (similar to simple.h).
+   [X] There is a hole in ParseOptions that lets a config escape without
+       paramater checking. Fix this.
    [X] Inserting parse points does not *completely* look for name collisions.
    [X] RuleSet->pass does not appear to have been used anywhere. This was
        designed to denote that the *entire* pass was completed. I am not sure

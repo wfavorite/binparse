@@ -23,6 +23,7 @@ int print_fl_string(ParsePoint *pp, Options *o)
    }
 
    /* Print out the string */
+   i = 0;
    while( i < pp->rSize )
    {
       switch ( o->eDumpHex )
@@ -45,6 +46,7 @@ int print_fl_string(ParsePoint *pp, Options *o)
    }
 
    printf("\n");
+   fflush(stdout);
 }
 
 /* ========================================================================= */
@@ -67,6 +69,7 @@ int print_zt_string(ParsePoint *pp, Options *o)
    }
 
    /* Print out the string */
+   i = 0;
    while( 0 != cp[i] )
    {
       switch ( o->eDumpHex )
