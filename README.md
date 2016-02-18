@@ -1,6 +1,4 @@
-# binparse
-Binary parsing tool
-===================
+# binparse - A Binary parsing tool
 
 A tool for reading binary file description files (BPF - Bin Parse Format), and
 using these to reference fields and data types in a binary file.

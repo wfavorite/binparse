@@ -259,9 +259,6 @@ Entity *parse_token(int *move, char *str, int lineno)
    }
    
    /* Unreachable */
-   *move = 0;
-   fprintf(stderr, "ERROR: Please contact author because this code is broken.\n");
-   return(NULL);
 }
 
 /* ========================================================================= */

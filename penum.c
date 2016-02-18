@@ -287,6 +287,7 @@ char *parse_envp_name(char *str)
    if ( 0 == str[0] )
       return(NULL);
 
+#ifdef STUB_REMOVE_LATER
    /* STUB: Resolve this. Can I safely leave it? *Should* it be removed? */
    /* ---- Yank start ---- */
    /* Chomp off leading WS if it exists */
@@ -299,6 +300,7 @@ char *parse_envp_name(char *str)
    if ( *str == ':' )
       str++;
    /* ---- Yank end ---- */
+#endif
 
    /* Chomp off leading WS if it exists */
    eat_ws(&str);
@@ -342,12 +344,8 @@ char *parse_envp_name(char *str)
       return(rv);
    }
 
-   return(NULL);
+   /* Unreachable */
 }
-
-/* STUB: WTF is this? */
-   /*char value[MAX_TAG_LEN]; / * This value is not entirely appropriate, but safe */
-
 
 /* ========================================================================= */
 ENVP *parse_enum_pair(int *moved, char *estr, int lineno)

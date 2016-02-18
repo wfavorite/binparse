@@ -45,6 +45,9 @@ Options *ParseOptions(int argc, char *argv[])
    Options *o;
    int index;
    int c;
+   extern char *optarg;
+   extern int optind, optopt;
+
 
    /* Allocate and initialize a new options struct */
    if ( NULL == ( o = new_options() ) )
@@ -331,8 +334,6 @@ int ParseBPFOptions(Options *o)
 {
    File *f;
    char *line;
-   char opt[16];  /* The length here is an arbitrarly long length. */
-   char tail[64]; /* Same here. */
    char thisopt;
    int parsed = 0;
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <ctype.h>
 
 #include "display.h"
 
@@ -47,6 +48,8 @@ int print_fl_string(ParsePoint *pp, Options *o)
 
    printf("\n");
    fflush(stdout);
+
+   return(0);
 }
 
 /* ========================================================================= */
@@ -92,6 +95,8 @@ int print_zt_string(ParsePoint *pp, Options *o)
    }
 
    printf("\n");
+
+   return(0);
 }
 
 /* ========================================================================= */
@@ -130,10 +135,10 @@ int print_datatype(ParsePoint *pp, Options *o)
          printf("%d\n", (int32_t)(*(int32_t *)pp->data));
          break;
       case DT_UINT64:
-         printf("%u\n", (uint64_t)(*(uint64_t *)pp->data));
+         printf("%lu\n", (uint64_t)(*(uint64_t *)pp->data));
          break;
       case DT_INT64:
-         printf("%d\n", (int64_t)(*(int64_t *)pp->data));
+         printf("%ld\n", (int64_t)(*(int64_t *)pp->data));
          break;
       case DT_NULL:
       default:
@@ -168,7 +173,7 @@ int print_datatype(ParsePoint *pp, Options *o)
          break;
       case DT_UINT64:
       case DT_INT64:
-         printf("0X%016X\n", (uint64_t)(*(uint64_t *)pp->data));
+         printf("0X%016lX\n", (uint64_t)(*(uint64_t *)pp->data));
          break;
       case DT_NULL:
       default:
@@ -201,7 +206,7 @@ int print_datatype(ParsePoint *pp, Options *o)
          break;
       case DT_UINT64:
       case DT_INT64:
-         printf("0x%016x\n", (uint64_t)(*(uint64_t *)pp->data));
+         printf("0x%016lx\n", (uint64_t)(*(uint64_t *)pp->data));
          break;
       case DT_NULL:
       default:
@@ -221,7 +226,7 @@ int print_datatype(ParsePoint *pp, Options *o)
 }
 
 /* ========================================================================= */
-int print_parsepoint(ParsePoint *pp, Options *o)
+int print_parsepoint(RuleSet *rs, ParsePoint *pp, Options *o)
 {
    char *lhs;
    char FMT[16];
@@ -250,7 +255,7 @@ int print_parsepoint(ParsePoint *pp, Options *o)
       else
       {
          lhs = pp->label;
-         sprintf(FMT, "%%-%ds %%c ", MAX_TAG_LEN);
+         sprintf(FMT, "%%-%ds %%c ", rs->maxlabel);
       }
 
       /* Now actually print it to stdout */
@@ -269,7 +274,7 @@ int DumpResults(RuleSet *rs, Options *o)
    thispp = rs->pplist;
    while ( thispp )
    {
-      print_parsepoint(thispp, o);
+      print_parsepoint(rs, thispp, o);
       
       thispp = thispp->next;
    }

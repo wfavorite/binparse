@@ -125,9 +125,6 @@ char *mid_trunc(char *str, const char *input, unsigned long len)
       str[i] = 0;
       return(str);
    }
-
-   /* This code is unreachable */
-   return(NULL);
 }
 
 /* ========================================================================= */
@@ -772,7 +769,6 @@ int is_valid_tag_char(char x)
 char *three_dot_trunc(char *fill, int fill_len, char *source)
 {
    int i;
-   int stop_at;
 
    /* Fail silently when used inappropriately. */
    if ( NULL == fill )

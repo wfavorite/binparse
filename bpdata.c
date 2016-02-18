@@ -293,7 +293,7 @@ int ParseBPInt(BPInt *val, char *str)
          break;
       }
 
-      return(1);
+      /* Unreachable */
    }
 
    return(1);
@@ -458,6 +458,7 @@ int InsertPP(RuleSet *rs, ParsePoint *pp)
    /* Is it the first item in the list? */
    if ( NULL == rs->pplist )
    {
+      rs->maxlabel = strlen(pp->label);
       rs->pplist = pp;
       return(0);
    }
@@ -477,6 +478,10 @@ int InsertPP(RuleSet *rs, ParsePoint *pp)
       if ( NULL == thispp->next )
       {
          /* Add to the list there */
+
+         if ( strlen(pp->label) > rs->maxlabel )
+            rs->maxlabel = strlen(pp->label);
+
          thispp->next = pp;
          return(0);
       }

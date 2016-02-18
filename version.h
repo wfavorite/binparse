@@ -101,46 +101,37 @@
                        for a re-design.
                      - Fixed some bad pointer stuff with string handling in
                        the display code.
+    0.18.0   2/18/16 - Pushed to repo to test new markdown documentation.
+                     - Code documentation
+                     - Label field width now auto-sizes (unbounded).
+                     - Solaris port. Clean compile using gcc. Need to move to
+                       the Sun compilers yet. Same for AIX.
+                     - Moved to native compilers. (AIX and Solaris)
+                     - Fixed various compiler warnings on each OS.
+                     - grep $TUB * | wc -l ----> 8
 */
-#define VERSION_STRING "0.17.0"
+#define VERSION_STRING "0.18.0"
 /*
   Notes:
-    - Just wanted to capture this somewhere. I thought it up and think I should
-      use it from now on out. It is:
-      When completing a simple $TUB comment, the $TUB text should be removed
-      and the comment should remain as a clear denotation of where we are
-      doing. When completing a design choice with a block of commentary, then
-      the $TUB strings should be converted to RESOLVED, CHOSEN & REJECTED tags.
 
   ToDo:                                                                      !
    [_] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
+   [_] Fill out all the empty function paramater comment blocks.
    [ ] Enums are not printed.
-   [ ] Solaris port.
    [ ] FreeBSD port.
-   [ ] binpass.h does not have a function header definition.
-   [ ] display.h does not have a function header definition.
-   [ ] Read length of label to determine label length allotment (%<something>s)
    [ ] Insure that must= is not used with non-numeric data.
-   [ ] For now... Find the longest label and use this as the length of the
-       default output for all labels. Such as printf("%-Xs : ...) where X
-       is the length of the longest label.
    [ ] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
    [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
-   [ ] The options parsed in the BPF file override those set on the command
-       line. This is reverse of what it *should* be. (Note: At the time of
-       this writing, command-line options are not allowed when setting your
-       BPF file executable and using file magic to get your bp interperter.)
    [_] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint.
    [ ] Make the location of the function description comment consistent.
        Consider creating function comment blocks for *all* functions.
-   [ ] Fill out all the empty function paramater comment blocks.
    [ ] Write man pages for bp(1) and bpf(5).
-   [ ] Need to properly differentiate between ' and " in the strlib.
-   [ ] Test strlib.c::mid_trunc(). It looks like a weak implementation.
-   [Q] How do you handle exceptions in strlib.c::mid_trunc()?
+   [D] Need to properly differentiate between ' and " in the strlib.
+   [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
+   [D] How do you handle exceptions in strlib.c::mid_trunc()?
    [D] Completely re-design the options parsing to have *layers* of options
        (defaults, file-set, and CL-set) that can be read out of order, but
        applied in order. These should be read (out of order), then "flattened"
@@ -157,8 +148,20 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
+   [D] The options parsed in the BPF file override those set on the command
+       line. This is reverse of what it *should* be. (Note: At the time of
+       this writing, command-line options are not allowed when setting your
+       BPF file executable and using file magic to get your bp interperter.)
 
   Done:
+   [X] For now... Find the longest label and use this as the length of the
+       default output for all labels. Such as printf("%-Xs : ...) where X
+       is the length of the longest label.
+   [X] The Sun Studio port errors on compile. Fix this.
+   [X] Solaris port.
+   [X] Read length of label to determine label length allotment (%<something>s)
+   [X] binpass.h does not have a function header definition.
+   [X] display.h does not have a function header definition.
    [X] Write a test case that has two different types of strings in it
        (similar to simple.h).
    [X] There is a hole in ParseOptions that lets a config escape without

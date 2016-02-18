@@ -31,13 +31,12 @@ RuleSet *new_ruleset(Options *o)
 
    rs->pplist = NULL;    /* Start with an empty list.                        */
    rs->parserr = 0;      /* No errors at this time.                          */
-#ifdef STUB_NOT_USED
-   rs->pass = 0;         /* No pass has been completed                       */
-#endif
 
    rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
    rs->belist = NULL;    /* Empty list for the (builtin) enums               */
    rs->etlist = NULL;    /* Empty list of explicit tags                      */
+
+   rs->maxlabel = 0;     /* Set to sane default. It will be overwritten.     */
 
    rs->f = -1;           /* The file has not been opened                     */
    rs->fname = o->binfile; /* The binary file that will be opened later      */
@@ -295,20 +294,18 @@ ParsePoint *get_parse_point(File *f)
    char raw_label[MAX_TOKEN_LEN];
    char raw_dt[MAX_TOKEN_LEN];
    char raw_ppopt[MAX_TOKEN_LEN];
-   uint32_t nval;
    int i;
-   //int lineno;
    char *line;
 
    assert(NULL != f);
 
    /* Local use convenience */
-   //lineno = f->lineno;
    line = f->line;
 
    /* If we got here, then we have sufficient data */
    if ( NULL == (pp = new_parsepoint(f->lineno)) )
    {
+      /* STUB: Error message at the point of failure. */
       /* We MUST exit on error here. The only means of failure is a bad
          malloc(). We cannot simply return NULL on a bad malloc(). We must
          throw and exception and exit. */
@@ -619,7 +616,7 @@ RuleSet *ParseBPFFile(Options *o)
             /* Print verbose debuggery */
             printf("%03d:%s\n", f->lineno, line);
             printf(" pp->Offset->type = %d\n", pp->Offset->type);
-            /* STUB: data type? */
+            printf(" pp->dt     = %ld\n", pp->dt);
             printf(" pp->tag    = %s\n", pp->tag);
             printf(" pp->label  = %s\n", pp->label);
          }
@@ -740,7 +737,6 @@ int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options 
 /* ========================================================================= */
 int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
 {
-   ParsePoint *thispp;
    Enum *thise;
 
    /*** Resolve the offset tag first ***/

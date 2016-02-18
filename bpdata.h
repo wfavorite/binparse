@@ -221,6 +221,7 @@ typedef struct RuleSet
    ExplicitTag *etlist;    /* The list of explicit tags                      */
 
    int parserr;
+   int maxlabel;           /* The size of the largest label to print         */
 
    /* (Bin) File related data */
    int f;                  /* File descriptor                                */

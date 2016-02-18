@@ -1,9 +1,47 @@
 .PHONY: Gmake clean lean ccstart
 
+# The default options
 CC=gcc
 LD=gcc
-CCOPTS=-Wall -Werror
-LDOPTS=
+CC_OPTS=-Wall -Werror -m64 -O2 -DPORT_$(shell uname -s)
+LD_OPTS=-m64 -O2
+OSSUP=GCC
+CCSUP_STOP=true
+
+ifeq "$(shell uname -s)" "Linux"
+        CC=gcc
+        CC_OPTS=-Wall -Werror -m64 -O2 -DPORT_$(shell uname -s)
+        LD_OPTS=-m64 -O2
+        OSSUP=GCC
+        LANG=C
+endif
+
+ifeq "$(shell uname -s)" "SunOS"
+        CC=/bb/util/common/SS12_3-20131030/SUNWspro/bin/c99
+        LD=/bb/util/common/SS12_3-20131030/SUNWspro/bin/c99
+        CC_OPTS=-xtarget=generic -m64 -xO3 -DPORT_$(shell uname -s) -D_XOPEN_SOURCE=600 -D__EXTENSIONS__
+        LD_OPTS=-m64 -xO3
+        OSSUP=Sun Studio
+        LANG=C
+endif
+
+ifeq "$(shell uname -s)" "AIX"
+        CC=/bb/util/version11-042012/usr/vac/bin/xlc
+        LD=/bb/util/version11-042012/usr/vac/bin/xlc
+        CC_OPTS=-q64 -O2 -DPORT_$(shell uname -s)
+        LD_OPTS=-q64 -O2
+        OSSUP=xlc
+endif
+
+
+ifneq "$(shell ls -d /bb/bin)" "/bb/bin"
+        CC=gcc
+        LD=gcc
+        CC_OPTS=-Wall -Werror -m64 -O2 -DPORT_$(shell uname -s)
+        LD_OPTS=-m64 -O2
+        OSSUP=GCC
+endif
+
 
 bp: ccstart main.o bpfparse.o options.o strlib.o pmath.o penum.o slfile.o bpdata.o binpass.o display.o eswap.o
 	@printf "Done.\nLinking..."
@@ -39,27 +77,27 @@ penum: penum_test.o penum.o pmath.o strlib.o slfile.o
 	@printf "."
 
 pmath_test.o: pmath_test.c pmath.h penum.h
-	@$(CC) $(CCOPTS) -c $<
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 penum_test.o: penum_test.c pmath.h penum.h
-	@$(CC) $(CCOPTS) -c $<
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 pmath.o: pmath.c pmath.h strlib.h
-	@$(CC) $(CCOPTS) -c $<
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 penum.o: penum.c penum.h bpdata.h strlib.h
-	@$(CC) $(CCOPTS) -c $<
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 slfile.o: slfile.c slfile.h strlib.h
-	@$(CC) $(CCOPTS) -c $<
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 bpdata.o: bpdata.c bpdata.h
-	@$(CC) $(CCOPTS) -c $<
+	@$(CC) $(CC_OPTS) -c $<
 	@printf "."
 
 main.o: main.c options.h bpfparse.h version.h strlib.h binpass.h bpdata.h display.h
@@ -91,12 +129,16 @@ display.o: display.c display.h bpdata.h options.h
 	@printf "."
 
 # PHONY targets
-ccstart:
+ccstart: ccsup
 	@printf "Compiling source files."
 
 ldstart:
 	@printf "Done.\n"
 	@printf "Linking object files."
+
+ccsup:
+	@printf "The compiler used: %s\n" "$(OSSUP)"
+	@$(CCSUP_STOP)
 
 Gmake:
 	@printf "ERROR: This is a gmake makefile. Use gmake, not make." >&2

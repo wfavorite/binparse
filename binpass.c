@@ -1,3 +1,7 @@
+#ifdef PORT_Linux
+#define _XOPEN_SOURCE 500
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -5,6 +9,7 @@
 #include <sys/stat.h>
 
 #include "binpass.h"
+#include "eswap.h"
 
 /* How:
    Repeatedly rake the linked list for the data. If it is in order*
@@ -48,7 +53,6 @@ int get_entity_value(RuleSet *rs, BPInt *out, Entity *ent);
 /* ========================================================================= */
 int bin_read_pp(RuleSet *rs, ParsePoint *pp)
 {
-   BPInt got;
    BPInt msize;
    struct stat s;
    BPInt expected_size = 0;
