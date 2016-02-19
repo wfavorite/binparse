@@ -287,8 +287,13 @@ char *parse_envp_name(char *str)
    if ( 0 == str[0] )
       return(NULL);
 
-#ifdef STUB_REMOVE_LATER
-   /* STUB: Resolve this. Can I safely leave it? *Should* it be removed? */
+#ifdef DEAD_CODE
+   /* This is dead code. It was added during development (mostly in the
+      test framework stage) to handle stuff that was showing up broken.
+      I fixed that, but decided to keep the commentary and the dead code
+      to address what I was up against, and the nature of how this is 
+      parsed. So, it stays for now. */
+
    /* ---- Yank start ---- */
    /* Chomp off leading WS if it exists */
    eat_ws(&str);

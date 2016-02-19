@@ -110,21 +110,25 @@
                      - Fixed various compiler warnings on each OS.
                      - grep $TUB * | wc -l ----> 6
     0.19.0   2/19/16 - Applied the mask= value.
+                     - Minor fixes
+                     - Working with data types
+                     - grep $TUB * | wc -l ----> 2
 */
 #define VERSION_STRING "0.19.0"
 /*
   Notes:
 
   ToDo:                                                                      !
+   [ ] Many of the "pending done" ToDos really only need testing. Test them.
+       I have marked them with "T" for test.
    [ ] Write check to insure that if a mask= is used, that the data type
        is compatible.
-   [ ] The -e option is not documented in the -h output.
-   [_] "setopt X true" does not work. (Fixed. Not tested.)
-   [ ] Check where the mask= value is set. (The number is converted from a
+   [T] "setopt X true" does not work. (Fixed. Not tested.)
+   [T] Check where the mask= value is set. (The number is converted from a
        signed value to a unsigned. This should likely always be unsigned.
        or converted to an unsigned without dropping the sign bit.
-   [ ] rdata should not be used when an unsigned long.
-   [_] Test support of settag operator. Specifically tag resolution and tag
+   [T] rdata should not be used when an unsigned long.
+   [T] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
    [_] Fill out all the empty function paramater comment blocks.
@@ -164,6 +168,7 @@
    [C] Zeroth (pre-compile) pass should print options set when in verbose mode.
 
   Done:
+   [X] The -e option is not documented in the -h output.
    [X] Write endian_is() function. Put results in verbose output.
    [X] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
    [X] Write an enum testcase.
