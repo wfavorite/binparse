@@ -336,6 +336,7 @@ int ParseBPFOptions(Options *o)
    char *line;
    char thisopt;
    int parsed = 0;
+   int gotval;
 
    /* These items are checked elsewhere. This is just a final firewall,
       and assert()-like errors would be appropriate for an unset filename
@@ -375,6 +376,8 @@ int ParseBPFOptions(Options *o)
          case 'f':
          case 'l':
          case 'p':
+         case 'x':
+         case 'X':
             thisopt = *line;
             break;
          case 'a':
@@ -438,6 +441,20 @@ int ParseBPFOptions(Options *o)
          case 'v':
             if ( -1 == (o->bVerbose = parse_opt_tail(line)) )
                return(opt_err_msg(thisopt, f->lineno));
+            parsed++;
+            break;
+         case 'x':
+            if ( -1 == (gotval = parse_opt_tail(line)) )
+               return(opt_err_msg(thisopt, f->lineno));
+            if ( gotval )
+               o->eDumpHex = OUTPUT_HEX_LC;
+            parsed++;
+            break;
+         case 'X':
+            if ( -1 == (gotval = parse_opt_tail(line)) )
+               return(opt_err_msg(thisopt, f->lineno));
+            if ( gotval )
+               o->eDumpHex = OUTPUT_HEX_UC;
             parsed++;
             break;
             /* You can't have a "default" option here. Other paths have been eliminated. */

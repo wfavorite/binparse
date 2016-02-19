@@ -137,7 +137,6 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
          return(1);
       }
 
-      /* STUB: Something must be decided here */
       if ( ParseBPUInt(&rhsn, eqstr) )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
@@ -225,10 +224,9 @@ ParsePoint *get_parse_point(File *f)
    /* If we got here, then we have sufficient data */
    if ( NULL == (pp = NewParsepoint(f->lineno)) )
    {
-      /* STUB: Error message at the point of failure. */
-      /* We MUST exit on error here. The only means of failure is a bad
-         malloc(). We cannot simply return NULL on a bad malloc(). We must
-         throw and exception and exit. */
+      /* Print the error message at the point of error... blah, blah, blah...
+         The fact of the matter is that NewParsepoint() will call exit()
+         itself. So this code is technically unreachable. */
       exit(1);
    }
 

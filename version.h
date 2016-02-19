@@ -119,7 +119,7 @@
    [ ] Write check to insure that if a mask= is used, that the data type
        is compatible.
    [ ] The -e option is not documented in the -h output.
-   [ ] "setopt X true" does not work.
+   [_] "setopt X true" does not work. (Fixed. Not tested.)
    [ ] Check where the mask= value is set. (The number is converted from a
        signed value to a unsigned. This should likely always be unsigned.
        or converted to an unsigned without dropping the sign bit.

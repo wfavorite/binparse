@@ -166,6 +166,7 @@ int show_help(void)
    printf("   Options:\n");
    printf("     -a         Show \"about\" information (and exit).\n");
    printf("     -c         Validate the BPF file (stop after 2nd stage compile).\n");
+   printf("     -e         Swap endianness of the data\n");
    printf("     -f X       Output separator ---> <label>X<value>\n");
    printf("     -h         Show \"help\" information (and exit).\n");
    printf("     -l         Simplified output ---> <value>\n");
