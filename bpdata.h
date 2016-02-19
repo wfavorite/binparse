@@ -17,9 +17,11 @@
 
 /* ========================================================================= */
 /* This is the native data type for all internal numerics such as stored
-   (generic) values - (Think: offsets, sizes, and must= values.) It is not
-   widely used at this time - But will be expanded to support all instances. */
+   (generic) values - (Think: offsets, sizes, and must= values.)
+
+   As bpdata is *intended* for 64 bit, this will be a 64 bit int.            */
 typedef long BPInt;
+typedef unsigned long BPUInt; /* Used for the mask value */
 
 /* ========================================================================= */
 /* An Entity is a parsed item from a parse point line. (It is a numeric-ish
@@ -188,11 +190,13 @@ typedef struct ParsePoint
    int   use_muste;         /* Boolean --> 1 use must=, 0 do not use must=   */
    BPInt muste_val;         /* The value to use for must= directives         */
    int   use_mask;          /* Boolean --> 1 use mask=, 0 do not use mask=   */
-   BPInt mask_val;          /* The value to use for mask= directives         */
+   BPUInt mask_val;         /* The value to use for mask= directives         */
 
    /** Data and metadata */
    void *data;              /* A pointer to the data item/type               */
-   BPInt rdata;             /* Cached, standardized, copy of the int data    */ 
+   BPInt rdata;             /* Cached, standardized, copy of the int data    */
+   BPUInt rudata;           /* An unsigned version of the above (For use 
+                               with DT_UINT64 only!)                         */
   
    int lineno;              /* The line number of the "rule". Used for error
                                generation in the 2nd pass tag parsing.       */

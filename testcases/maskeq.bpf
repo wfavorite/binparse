@@ -1,0 +1,14 @@
+#!./bp
+
+setopt p 2
+setopt v true
+setopt f ":"
+
+# maskeq.bin has one regular ASCII char, and one extended ASCII char (so it
+#   is effectively a bin file - that can be printed).
+
+# This just tells if the top bit is set (True / False)
+# enumBool is a builtin enum (It does not need to be defined)
+
+0 1 dblu "The letter W" uint8 mask=0x80 enum=enumBool
+1 1 eff "A gliph resembling F" uint8 mask=0x80 enum=enumBool

@@ -109,20 +109,25 @@
                      - Moved to native compilers. (AIX and Solaris)
                      - Fixed various compiler warnings on each OS.
                      - grep $TUB * | wc -l ----> 6
+    0.19.0   2/19/16 - Applied the mask= value.
 */
-#define VERSION_STRING "0.18.0"
+#define VERSION_STRING "0.19.0"
 /*
   Notes:
 
   ToDo:                                                                      !
+   [ ] Write check to insure that if a mask= is used, that the data type
+       is compatible.
+   [ ] Check where the mask= value is set. (The number is converted from a
+       signed value to a unsigned. This should likely always be unsigned.
+       or converted to an unsigned without dropping the sign bit.
+   [ ] rdata should not be used when an unsigned long.
    [_] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
    [_] Fill out all the empty function paramater comment blocks.
    [ ] FreeBSD port.
    [ ] Insure that must= is not used with non-numeric data.
-   [ ] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
-   [ ] Zeroth (pre-compile) pass should print options set when in verbose mode.
    [_] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint.
    [ ] Make the location of the function description comment consistent.
@@ -140,7 +145,7 @@
        where some validation checks can be done. There is another todo in 
        this area that deals with option parsing and using file magic. This
        should be integrated into this design.
-   [D] Technically.... You should be able to call the executable bpf file with
+   [C] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
         argv[1] = "./mybpf"
@@ -150,12 +155,14 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [D] The options parsed in the BPF file override those set on the command
+   [C] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
+   [C] Zeroth (pre-compile) pass should print options set when in verbose mode.
 
   Done:
+   [X] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
    [X] Write an enum testcase.
    [X] Enums are not printed.
    [X] For now... Find the longest label and use this as the length of the

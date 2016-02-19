@@ -101,6 +101,31 @@ int IsPPDataResolved(ParsePoint *pp, int flag)
 /* ========================================================================= */
 int SetBPIntFromVoid(ParsePoint *pp)
 {
+   /* Apply mask= first */
+   if ( pp->use_mask )
+   {
+      switch ( pp->dt )
+      {
+      case DT_CHAR:
+      case DT_INT8:
+      case DT_UINT8:
+         *(uint8_t *)pp->data = *(uint8_t *)pp->data & (uint8_t)(pp->mask_val & 0xff);
+         break;
+      case DT_INT16:
+      case DT_UINT16:
+         *(uint16_t *)pp->data = *(uint16_t *)pp->data & (uint16_t)(pp->mask_val & 0xff);
+         break;
+      case DT_INT32:
+      case DT_UINT32:
+         *(uint32_t *)pp->data = *(uint32_t *)pp->data & (uint32_t)(pp->mask_val & 0xff);
+         break;
+      case DT_INT64:
+      case DT_UINT64:
+         *(uint64_t *)pp->data = *(uint64_t *)pp->data & (uint64_t)(pp->mask_val & 0xff);
+         break;
+      }
+   }
+
    switch ( pp->dt )
    {
    case DT_INT8:
@@ -108,7 +133,7 @@ int SetBPIntFromVoid(ParsePoint *pp)
       break;
    case DT_CHAR:
    case DT_UINT8:
-      pp->rdata = (BPInt)(*((int8_t *)pp->data));
+      pp->rdata = (BPInt)(*((uint8_t *)pp->data));
       break;
    case DT_UINT16:
       pp->rdata = (BPInt)(*((uint16_t *)pp->data));
@@ -123,7 +148,9 @@ int SetBPIntFromVoid(ParsePoint *pp)
       pp->rdata = (BPInt)(*((int32_t *)pp->data));
       break;
    case DT_UINT64:
-      pp->rdata = (BPInt)(*((uint64_t *)pp->data));
+      /* This conversion turns a large positive number negative */
+      pp->rdata = 0;
+      pp->rudata = (BPUInt)(*((uint64_t *)pp->data));
       break;
    case DT_INT64:
       pp->rdata = (BPInt)(*((int64_t *)pp->data));
@@ -137,8 +164,6 @@ int SetBPIntFromVoid(ParsePoint *pp)
          in one place, and this is checked beforehand.) */
       return(1);
    }
-
-   /* STUB: Apply the mask= here */
   
    return(0);
 }
