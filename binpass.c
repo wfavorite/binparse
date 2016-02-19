@@ -211,11 +211,24 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
    /* Check the muste (must=) value */
    if ( pp->use_muste )
    {
-      if ( pp->muste_val != pp->rdata )
+      BPUInt *muste_compare;
+
+      if ( pp->dt == DT_UINT64 )
+         muste_compare = &pp->rudata;
+      else
+         muste_compare = (BPUInt *)&pp->rdata;
+
+      fprintf(stderr, "rdata         [%lX]\n", pp->rdata);
+      fprintf(stderr, "rudata        [%lX]\n", pp->rudata);
+      fprintf(stderr, "muste_compare [%lX]\n", *muste_compare);
+      fprintf(stderr, "muste_val     [%lX]\n", pp->muste_val);
+
+      if ( pp->muste_val != *muste_compare )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Data test failure. The \"must=\" rule failed for the parse point named\n");
          fprintf(stderr, "   \"%s\" on line %d. Expected: %ld; Actual: %ld.\n", pp->tag, pp->lineno, pp->muste_val, pp->rdata);
+
          return(1);
       }
    }

@@ -1,0 +1,20 @@
+#!./bp
+
+setopt v true
+setopt f ":"
+setopt e true # The bin file is big-endian. Set this if x86.
+
+# First two bytes - are just that - two bytes
+0 1 a "Must eq 0x80" uint8 must=0x80
+1 1 b "Must eq 0x80" int8  must=0x80
+
+# Next four bytes are two short ints
+2 2 c "Must eq 0x8000" uint16 must=0x8000
+4 2 d "Must eq 0x8000" int16  must=0x8000
+
+6  4 e "Must eq 0x80000000" uint32 must=0x80000000
+10 4 f "Must eq 0x80000000" int32  must=0x80000000
+
+14 8 g "M= 0x8000000000000000" uint64 must=0x8000000000000000
+22 8 h "M= 0x8000000000000000" int64  must=0x8000000000000000
+

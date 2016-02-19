@@ -118,6 +118,8 @@
   ToDo:                                                                      !
    [ ] Write check to insure that if a mask= is used, that the data type
        is compatible.
+   [ ] The -e option is not documented in the -h output.
+   [ ] "setopt X true" does not work.
    [ ] Check where the mask= value is set. (The number is converted from a
        signed value to a unsigned. This should likely always be unsigned.
        or converted to an unsigned without dropping the sign bit.
@@ -162,6 +164,7 @@
    [C] Zeroth (pre-compile) pass should print options set when in verbose mode.
 
   Done:
+   [X] Write endian_is() function. Put results in verbose output.
    [X] Apply the mask= in bpdata.c. (Search for mask=, there is a $TUB.)
    [X] Write an enum testcase.
    [X] Enums are not printed.

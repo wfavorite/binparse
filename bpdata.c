@@ -101,9 +101,11 @@ int IsPPDataResolved(ParsePoint *pp, int flag)
 /* ========================================================================= */
 int SetBPIntFromVoid(ParsePoint *pp)
 {
+
    /* Apply mask= first */
    if ( pp->use_mask )
    {
+      /* Masks are assigned as unsigned values */
       switch ( pp->dt )
       {
       case DT_CHAR:
@@ -129,23 +131,23 @@ int SetBPIntFromVoid(ParsePoint *pp)
    switch ( pp->dt )
    {
    case DT_INT8:
-      pp->rdata = (BPInt)(*((int8_t *)pp->data));
+      pp->rdata = (BPInt)(*((int8_t *)pp->data)) & 0x00000000000000FF;
       break;
    case DT_CHAR:
    case DT_UINT8:
-      pp->rdata = (BPInt)(*((uint8_t *)pp->data));
+      pp->rdata = (BPInt)(*((uint8_t *)pp->data)) & 0x00000000000000FF;
       break;
    case DT_UINT16:
-      pp->rdata = (BPInt)(*((uint16_t *)pp->data));
+      pp->rdata = (BPInt)(*((uint16_t *)pp->data)) & 0x000000000000FFFF;
       break;
    case DT_INT16:
-      pp->rdata = (BPInt)(*((int16_t *)pp->data));
+      pp->rdata = (BPInt)(*((int16_t *)pp->data)) & 0x000000000000FFFF;
       break;
    case DT_UINT32:
-      pp->rdata = (BPInt)(*((uint32_t *)pp->data));
+      pp->rdata = (BPInt)(*((uint32_t *)pp->data)) & 0x00000000FFFFFFFF;
       break;
    case DT_INT32:
-      pp->rdata = (BPInt)(*((int32_t *)pp->data));
+      pp->rdata = (BPInt)(*((int32_t *)pp->data)) & 0x00000000FFFFFFFF;
       break;
    case DT_UINT64:
       /* This conversion turns a large positive number negative */
@@ -198,6 +200,167 @@ int ParseBPInt(BPInt *val, char *str)
       /* Apply the negative sign */
       if ( isneg )
          *val *= -1;
+
+      eat_ws(&str);
+
+      switch ( *str )
+      {
+         /* This is end of string */
+      case 0:
+         /* Other terminating conditions (various maths) */
+      case ')':
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+         /* Syntax */
+      case ';':
+      case ':':
+         /* Space terminated */
+      case ' ':
+      case '\t':
+         return(0);
+         break;
+      default:
+         return(1);
+         break;
+      }
+   }
+
+   if ( *str == '0' )
+   {
+      *val = 0;
+
+      /* Leading zero of a numeric or hex notation */
+      str++;
+      if (( *str == 'x' ) || ( *str == 'X' ))
+      {
+         str++;
+
+         while (( *str != ' ' ) && ( *str != '\t' ) && ( *str != 0 ) && ( *str != ')' ))
+         {
+            if (( *str >= '0' ) && ( *str <= '9' ))
+            {
+               *val *= 16;
+               *val += (*str - '0');
+               str++;
+            }
+            else if (( *str >= 'a' ) && ( *str <= 'f' ))
+            {
+               *val *= 16;
+               *val += ((*str - 'a') + 10);
+               str++;
+            }
+            else if (( *str >= 'A' ) && ( *str <= 'F' ))
+            {
+               *val *= 16;
+               *val += ((*str - 'A') + 10);
+               str++;
+            }
+            else
+            {
+               *val = 0;
+               return(1);
+            }
+         }
+         
+         return(0);
+      }
+
+      /* See if the leading zero was the *only* numerid (therefore zero) */
+      if (( *str == ' ' ) || ( *str == '\t' ) || ( *str == 0 ) || ( *str == ')' ))
+      {
+         /* This is a leading zero - that IS zero */
+         *val = 0;
+         return(0);
+      }
+
+      /* If it is a numeric with a leading zero, then fall through to next block */
+   }
+
+   if (( *str >= '0' ) && ( *str <= '9' ))
+   {
+      *val = 0;
+      while (( *str >= '0' ) && ( *str <= '9' ))
+      {
+         *val *= 10;
+         *val += ( *str - '0' );
+         str++;
+      }
+
+      /* TCHNICALLY... if we got this far, we are ok. The numeric is complete
+         once we hit white space. The one error condition is if the number is
+         followed (immediately - without a space) by any invalid char. For example:
+         ...3h      <----- Invalid 3h is not a number, nor a tag, etc...
+         ...3+      <----- Could be a mathematical expression
+         ...3 4     <----- Is invalid (because 4 has no context), but would NOT
+         be flagged as wrong here.
+      */
+
+      switch ( *str )
+      {
+         /* This is end of string */
+      case 0:
+         /* Other terminating conditions (various maths) */
+      case ')':
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+         /* Syntax */
+      case ';':
+      case ':':
+         /* Space terminated */
+      case ' ':
+      case '\t':
+         return(0);
+         break;
+      default:
+         return(1);
+         break;
+      }
+
+      /* Unreachable */
+   }
+
+   return(1);
+}
+
+/* ========================================================================= */
+int ParseBPUInt(BPUInt *val, char *str)
+{
+   BPInt nval;
+   int isneg = 0;
+
+   /* Walk off leading white space */
+   eat_ws(&str);
+
+   if ( *str == '-' )
+   {
+      isneg = 1;
+      str++; /* Move off the '-' char */
+
+      /* Walk off leading white space. Note: This could be an if(), but
+         my fear is the extreme edge case of two spaces from the neg to the
+         actual number. Technically any amount of white space should be fair
+         but I am being somewhat limiting here. */
+      eat_ws(&str);
+
+      nval = 0;
+      while (( *str >= '0' ) && ( *str <= '9' ))
+      {
+         nval *= 10;
+         nval += ( *str - '0' );
+         str++;
+      }
+
+      /* Apply the negative sign */
+      if ( isneg )
+         nval *= -1;
+
+      /* Now convert this to an unsigned value. No special casting, just
+         copy the bits over, the meaning of the sign mask will change. */
+      memcpy(val, &nval, sizeof(BPUInt));
 
       eat_ws(&str);
 
@@ -515,4 +678,81 @@ int InsertPP(RuleSet *rs, ParsePoint *pp)
    }
 
    return(1);
+}
+
+/* ========================================================================= */
+ParsePoint *NewParsepoint(int lineno)
+{
+   ParsePoint *pp;
+
+   if (NULL == (pp = (ParsePoint *)malloc(sizeof(ParsePoint))))
+   {
+      fprintf(stderr, "ERROR: Failed to allocate memory for a parse point.\n");
+      /* We exit because the only way to pass back failure is to pass back a
+         pp with fail_bail set. When failing on a malloc() here, just exit. */
+      exit(1);
+   }
+
+   /* Offset value */
+   pp->Offset = NULL;
+   /* Size value */
+   pp->Size = NULL;
+   /* The tag */
+   pp->tag = NULL;
+   /* The label */
+   pp->label = NULL;
+   /* Data & type */
+   pp->data = NULL;
+   pp->dt = DT_NULL;
+   /* Line number related to this rule */
+   /* Set lineno because functions that get passed a fresh ParsePoint
+      will rely upon this if they encounter an error. Generally you will be
+      dumping data into this struct (in the early setup), but this one piece
+      of data is always guarenteed to be good. This is "private". */
+   pp->lineno = lineno;
+   /* Metadata -- Boolean flags for status */
+   pp->fail_bail = 0;
+   pp->tags_resolved = 0;   /* Pass 2 not complete */
+   pp->data_resolved = 0;   /* Pass 3 not complete */
+   pp->rtag_count = 0; /* Stats for how many tags were resolved (in this pp) */
+   /* Linked list pointer */
+   pp->next = NULL;
+   /* Set all the "6th options" to defaults */
+   pp->print_result = 1; /* Always print by default */
+   pp->use_enum = NULL;
+   pp->enum_tag = NULL;
+   pp->use_muste = 0;
+   pp->muste_val = 0;
+   pp->use_mask = 0; /* The thinking is that this is unnessary. That the */
+   pp->mask_val = 0; /*   mask_val can default to all-bits-set mask,and  */
+                     /*   everything can default to having a mask.       */
+   return(pp);
+}
+
+/* ========================================================================= */
+RuleSet *NewRuleset(Options *o)
+{
+   RuleSet *rs;
+
+   if ( NULL == (rs = malloc(sizeof(RuleSet))) )
+   {
+      fprintf(stderr, "ERROR: Unable to allocate memory for RuleSet structure.\n");
+      return(NULL);
+   }
+
+   rs->pplist = NULL;    /* Start with an empty list.                        */
+   rs->parserr = 0;      /* No errors at this time.                          */
+
+   rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
+   rs->belist = NULL;    /* Empty list for the (builtin) enums               */
+   rs->etlist = NULL;    /* Empty list of explicit tags                      */
+
+   rs->maxlabel = 0;     /* Set to sane default. It will be overwritten.     */
+
+   rs->f = -1;           /* The file has not been opened                     */
+   rs->fname = o->binfile; /* The binary file that will be opened later      */
+
+   rs->bESwap = o->bESwap; /* Save off the directive to do byte swapping     */
+  
+   return(rs);
 }

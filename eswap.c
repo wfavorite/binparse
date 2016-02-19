@@ -64,3 +64,17 @@ void eswap_64( void *val )
    a[4] = t;
 }
 
+/* ========================================================================= */
+int GetEndian(void)
+{
+   long val;
+   char *valp;
+
+   val = 1;
+   valp = (char *)&val;
+
+   if ( valp[0] == 1 )
+      return(GE_LITTLE_ENDIAN);
+   
+   return(GE_BIG_ENDIAN);
+}

@@ -17,87 +17,6 @@
 int resolve_expression_tags(RuleSet *rs, ParsePoint *pp, Expression *m, Options *o);
 int resolve_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o);
 
-
-/* ========================================================================= */
-RuleSet *new_ruleset(Options *o)
-{
-   RuleSet *rs;
-
-   if ( NULL == (rs = malloc(sizeof(RuleSet))) )
-   {
-      fprintf(stderr, "ERROR: Unable to allocate memory for RuleSet structure.\n");
-      return(NULL);
-   }
-
-   rs->pplist = NULL;    /* Start with an empty list.                        */
-   rs->parserr = 0;      /* No errors at this time.                          */
-
-   rs->elist = NULL;     /* Empty list for the (user-defined) enums          */
-   rs->belist = NULL;    /* Empty list for the (builtin) enums               */
-   rs->etlist = NULL;    /* Empty list of explicit tags                      */
-
-   rs->maxlabel = 0;     /* Set to sane default. It will be overwritten.     */
-
-   rs->f = -1;           /* The file has not been opened                     */
-   rs->fname = o->binfile; /* The binary file that will be opened later      */
-
-   rs->bESwap = o->bESwap; /* Save off the directive to do byte swapping     */
-  
-   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
-      return(NULL);
-
-   return(rs);
-}
-
-/* ========================================================================= */
-ParsePoint *new_parsepoint(int lineno)
-{
-   ParsePoint *pp;
-
-   if (NULL == (pp = (ParsePoint *)malloc(sizeof(ParsePoint))))
-   {
-      fprintf(stderr, "ERROR: Failed to allocate memory for a parse point.\n");
-      /* We exit because the only way to pass back failure is to pass back a
-         pp with fail_bail set. When failing on a malloc() here, just exit. */
-      exit(1);
-   }
-
-   /* Offset value */
-   pp->Offset = NULL;
-   /* Size value */
-   pp->Size = NULL;
-   /* The tag */
-   pp->tag = NULL;
-   /* The label */
-   pp->label = NULL;
-   /* Data & type */
-   pp->data = NULL;
-   pp->dt = DT_NULL;
-   /* Line number related to this rule */
-   /* Set lineno because functions that get passed a fresh ParsePoint
-      will rely upon this if they encounter an error. Generally you will be
-      dumping data into this struct (in the early setup), but this one piece
-      of data is always guarenteed to be good. This is "private". */
-   pp->lineno = lineno;
-   /* Metadata -- Boolean flags for status */
-   pp->fail_bail = 0;
-   pp->tags_resolved = 0;   /* Pass 2 not complete */
-   pp->data_resolved = 0;   /* Pass 3 not complete */
-   pp->rtag_count = 0; /* Stats for how many tags were resolved (in this pp) */
-   /* Linked list pointer */
-   pp->next = NULL;
-   /* Set all the "6th options" to defaults */
-   pp->print_result = 1; /* Always print by default */
-   pp->use_enum = NULL;
-   pp->enum_tag = NULL;
-   pp->use_muste = 0;
-   pp->muste_val = 0;
-   pp->use_mask = 0; /* The thinking is that this is unnessary. That the */
-   pp->mask_val = 0; /*   mask_val can default to all-bits-set mask,and  */
-                     /*   everything can default to having a mask.       */
-   return(pp);
-}
-
 /* ========================================================================= */
 /* This is effectively an inline function just for handle_ppopt(). It really
    should not be used for anything else. It was designed with that STRICTLY
@@ -144,7 +63,7 @@ int copyout_equal(char *fill, char *eqsrc)
 int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
 {
    int gotit;
-   BPInt rhsn; /* Right Hand Side Numeric */
+   BPUInt rhsn; /* Right Hand Side Numeric */
 
    /* Asserts are more appropriate */
    assert(NULL != pp);
@@ -218,7 +137,8 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
          return(1);
       }
 
-      if ( ParseBPInt(&rhsn, eqstr) )
+      /* STUB: Something must be decided here */
+      if ( ParseBPUInt(&rhsn, eqstr) )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
@@ -244,7 +164,7 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
          return(1);
       }
 
-      if ( ParseBPInt(&rhsn, eqstr) )
+      if ( ParseBPUInt(&rhsn, eqstr) )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");
          fprintf(stderr, "Optional token comprehension failure. Unable to parse right hand side of\n");
@@ -303,7 +223,7 @@ ParsePoint *get_parse_point(File *f)
    line = f->line;
 
    /* If we got here, then we have sufficient data */
-   if ( NULL == (pp = new_parsepoint(f->lineno)) )
+   if ( NULL == (pp = NewParsepoint(f->lineno)) )
    {
       /* STUB: Error message at the point of failure. */
       /* We MUST exit on error here. The only means of failure is a bad
@@ -516,7 +436,10 @@ RuleSet *ParseBPFFile(Options *o)
    }
 
    /* Create a new base ruleset */
-   if ( NULL == ( rs = new_ruleset(o) ) )
+   if ( NULL == ( rs = NewRuleset(o) ) )
+      return(NULL);
+
+   if (ApplyBuiltins(rs)) /* This creates all the default builtin enums      */
       return(NULL);
 
    /* Open the file */

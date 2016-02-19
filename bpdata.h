@@ -1,6 +1,8 @@
 #ifndef BPDATA_H
 #define BPDATA_H
 
+#include "options.h"
+
 /* This is the value used in bpfparse.c for get_parse_point() */
 #define MAX_TOKEN_LEN 64
 
@@ -188,15 +190,15 @@ typedef struct ParsePoint
    Enum *use_enum;          /* Resolved enum to use to decode                */
    char *enum_tag;          /* Unresolved enum tag to use to decode          */
    int   use_muste;         /* Boolean --> 1 use must=, 0 do not use must=   */
-   BPInt muste_val;         /* The value to use for must= directives         */
+   BPUInt muste_val;        /* The value to use for must= directives         */
    int   use_mask;          /* Boolean --> 1 use mask=, 0 do not use mask=   */
    BPUInt mask_val;         /* The value to use for mask= directives         */
 
    /** Data and metadata */
    void *data;              /* A pointer to the data item/type               */
    BPInt rdata;             /* Cached, standardized, copy of the int data    */
-   BPUInt rudata;           /* An unsigned version of the above (For use 
-                               with DT_UINT64 only!)                         */
+   BPUInt rudata;           /* An unsigned version of the above. For use 
+                               with DT_UINT64 only!                          */
   
    int lineno;              /* The line number of the "rule". Used for error
                                generation in the 2nd pass tag parsing.       */
@@ -248,15 +250,16 @@ int CountBuiltinEnums(RuleSet *rs);
 int CountExplicitTags(RuleSet *rs);
 
 /* =========================================================================
- * Name: ParseBPInt
- * Desc: Read a numeric in a string (dec or hex) and put it in a BPInt
- * Params: BPInt to fill
+ * Name: ParseBP[U]Int
+ * Desc: Read a numeric in a string (dec or hex) and put it in a BP[U]Int
+ * Params: BP[U]Int to fill
  *         char * to read from
  * Returns: 0 on success, non-0 on failure
  * Side Effects: 
  * Notes: 
  */
 int ParseBPInt(BPInt *val, char *str);
+int ParseBPUInt(BPUInt *val, char *str);
 
 /* =========================================================================
  * Name: SetBPIntFromVoid
@@ -299,4 +302,18 @@ int InsertEnum(RuleSet *rs, Enum *e);
 int InsertETag(RuleSet *rs, ExplicitTag *e);
 int InsertPP(RuleSet *rs, ParsePoint *pp);
 
+
+/* =========================================================================
+ * Name: <various>
+ * Desc: Initalization functions for data types defined in this file
+ * Params: 
+ * Returns: Pointer to struct or NULL on error
+ * Side Effects: Memory will be allocated
+ * Notes: 
+ */
+ParsePoint *NewParsepoint(int lineno);
+
+RuleSet* NewRuleset(Options *o);
+
 #endif
+

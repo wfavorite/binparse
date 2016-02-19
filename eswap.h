@@ -15,4 +15,9 @@ void eswap_16( void *val );
 void eswap_32( void *val );
 void eswap_64( void *val );
 
+/* This is just too self-explanatory */
+#define GE_BIG_ENDIAN    0
+#define GE_LITTLE_ENDIAN 1
+int GetEndian(void);
+
 #endif

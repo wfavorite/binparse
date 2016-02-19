@@ -5,6 +5,7 @@
 #include "version.h"
 #include "binpass.h"
 #include "display.h"
+#include "eswap.h"
 
 /* Prototypes (for functions in this file) */
 int show_about(void);
@@ -23,8 +24,12 @@ int main ( int argc, char *argv[] )
 
    /* Verbose let the user know we started */
    if ( o->bVerbose )
+   {
       fprintf(stderr, "bp version %s started.\n", VERSION_STRING);
-  
+      fprintf(stderr, "Running on %s endian architecture.\n",
+              GetEndian() == GE_BIG_ENDIAN ? "big" : "little");
+   }
+
    /* Handle some debuggery */
    if ( o->bDebug )
    {
@@ -140,8 +145,11 @@ int show_about(void)
 {
    printf("bp - A binary parse tool\n");
    printf("   Version: %s\n", VERSION_STRING);
-   printf("   Vera Brittain <vbrittain@vad.gov.uk>\n");
-   printf("   William Favorite <wfavorite@tablespace.net>\n");
+   printf("   Endianness: %s\n",
+              GetEndian() == GE_BIG_ENDIAN ? "Big" : "Little");
+   printf("   Credits:\n");
+   printf("     Vera Brittain <vbrittain@vad.gov.uk>\n");
+   printf("     William Favorite <wfavorite@tablespace.net>\n");
 
    fflush(stdout);
 

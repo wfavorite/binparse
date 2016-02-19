@@ -1,0 +1,31 @@
+
+# The bin file is big-endian. Use -e to swap endian on x86.
+setopt e true
+
+0 1 a "uint8" uint8
+0 1 b "int8"  int8
+1 1 c "uint8" uint8
+1 1 d "int8" int8
+2 1 e "uint8" uint8
+2 1 f "int8" int8
+
+16 2 g "uint16" uint16
+16 2 h "int16"  int16
+18 2 i "uint16" uint16
+18 2 j "int16" int16
+20 2 k "uint16" uint16
+20 2 l "int16" int16
+
+32 4 m "uint32" uint32
+32 4 n "int32"  int32
+36 4 o "uint32" uint32
+36 4 p "int32" int32
+40 4 q "uint32" uint32
+40 4 r "int32" int32
+
+48 8 s "uint64" uint64
+48 8 t "int64"  int64
+56 8 u "uint64" uint64
+56 8 v "int64" int64
+64 8 w "uint64" uint64
+64 8 x "int64" int64
