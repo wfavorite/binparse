@@ -49,7 +49,19 @@ int main ( int argc, char *argv[] )
          fprintf(stderr, "  binfile = \"%s\"\n", o->binfile);
       else
          fprintf(stderr, "  binfile = NULL\n");
+
+
+      /* STUB: Just to work the problem */
+      return(0);
    }
+
+   /* STUB: Temp exit for debuggery */
+   if ( o )
+      return(1);
+
+
+
+
 
    /*** Handle all simple options ***/
    if ( o->bAbout )

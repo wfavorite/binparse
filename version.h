@@ -114,8 +114,9 @@
                      - Working with data types
                      - grep $TUB * | wc -l ----> 2
     0.20.0   2/22/16 - Testing of some of the recent features.
+    0.21.0   2/23/16 - Started re-write of options parsing
 */
-#define VERSION_STRING "0.20.0"
+#define VERSION_STRING "0.21.0"
 /*
   Notes:
 

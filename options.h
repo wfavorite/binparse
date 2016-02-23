@@ -55,6 +55,7 @@
 #define OUTPUT_HEX_UC  1
 #define OUTPUT_HEX_LC  2
 #define OUTPUT_DEFAULT OUTPUT_DEC
+#ifdef STUB_REMOVE
 typedef struct Options
 {
    /* Immediate exit options */
@@ -79,6 +80,83 @@ typedef struct Options
    char *binfile;
 
 } Options;
+#endif
+
+
+
+
+
+
+
+/* ========================================================================= */
+/* Option sources */
+#define OS_DEFAULT 0
+#define OS_CMDLINE 1
+#define OS_CFGFILE 2
+
+/* Option keys (potential options) */
+#define OK_VERBOSE  1
+#define OK_ABOUT    2
+#define OK_HELP     3
+#define OK_DEBUG    4
+#define OK_VALIDATE 5
+#define OK_PASSES   6
+#define OK_ESWAP    7
+#define OK_TAGVAL   8
+#define OK_CFIELD   9
+#define OK_SHOWLBL  10
+#define OK_DMPHEXUC 11
+#define OK_DMPHEXLC 11
+#define OK_ERROR    12
+
+/* ========================================================================= */
+typedef struct Option
+{
+   int key;
+   int value;
+
+   struct Option *next;
+} Option;
+
+/* ========================================================================= */
+typedef struct Options
+{
+   int collapsed;        /* Values have been collapsed into the base struct  */
+   /* Immediate exit options */
+   int bAbout;           /* Show about. Exit                                 */
+   int bHelp;            /* Show help. Exit.                                 */
+
+   /* General behaviour modification options */
+   int bDebug;           /* Turn on diag messages                            */
+   int bVerbose;         /* Show some extra verbosity while working.         */
+   int bValidate;        /* Validate (stop at third stage of compile)        */
+   int iPasses;          /* The number of passes to attempt on data retrieval*/
+   int bESwap;           /* To endian swap or not                            */
+
+   /* Output-specific options */
+   int bTagVal;          /* Use the tag name, not the label for output       */
+   char cFields;
+   int bShowLabel;
+   int eDumpHex;         /* Uses OUTPUT_* macros                             */
+
+   struct Option *defaults;
+   struct Option *cmdline;
+   struct Option *cfgfile;
+
+   /* The files */
+   char *bpffile;
+   char *binfile;
+
+} Options;
+
+
+
+
+
+
+
+
+
 
 /* =========================================================================
  * Name: ParseOptions
@@ -111,3 +189,8 @@ int ParseBPFOptions(Options *o);
 int IsSetOpt(char *line);
 
 #endif
+
+
+
+
+
