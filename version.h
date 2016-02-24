@@ -114,7 +114,8 @@
                      - Working with data types
                      - grep $TUB * | wc -l ----> 2
     0.20.0   2/22/16 - Testing of some of the recent features.
-    0.21.0   2/23/16 - Started re-write of options parsing
+    0.21.0   2/23/16 - Started re-write of options parsing.
+             2/24/16 - Continued work on options parsing.
 */
 #define VERSION_STRING "0.21.0"
 /*
@@ -146,13 +147,24 @@
    [D] Need to properly differentiate between ' and " in the strlib.
    [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
    [D] How do you handle exceptions in strlib.c::mid_trunc()?
-   [D] Completely re-design the options parsing to have *layers* of options
+
+  ToDo (Version 2):
+   [ ] Every option that is settable in the config file, should have an
+       inverse value on the command line so that it can be overridden. For
+       example: Config file has verbose set, but the command line only has
+       the option to set verbose again.
+   [ ] Document the --options in options.c::ParseOptions().
+
+  Done:
+   [X] ./bp kdkdkd segfaults after failing to open the file.
+   [X] Zeroth (pre-compile) pass should print options set when in verbose mode.
+   [X] Completely re-design the options parsing to have *layers* of options
        (defaults, file-set, and CL-set) that can be read out of order, but
        applied in order. These should be read (out of order), then "flattened"
        where some validation checks can be done. There is another todo in 
        this area that deals with option parsing and using file magic. This
        should be integrated into this design.
-   [C] Technically.... You should be able to call the executable bpf file with
+   [X] Technically.... You should be able to call the executable bpf file with
        command line options thusly: ./mybpf -c mybin
        This means that the args would be:
         argv[1] = "./mybpf"
@@ -162,13 +174,10 @@
        order" so to speak. This means that they are incompatible with the
        getopt() API (as intended - possibly we could advance the pointer
        when we hit a word/non-dash argument).
-   [C] The options parsed in the BPF file override those set on the command
+   [X] The options parsed in the BPF file override those set on the command
        line. This is reverse of what it *should* be. (Note: At the time of
        this writing, command-line options are not allowed when setting your
        BPF file executable and using file magic to get your bp interperter.)
-   [C] Zeroth (pre-compile) pass should print options set when in verbose mode.
-
-  Done:
    [X] "setopt X true" does not work. (Fixed. Not tested.)
    [X] The -e option is not documented in the -h output.
    [X] Write endian_is() function. Put results in verbose output.

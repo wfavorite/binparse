@@ -51,42 +51,13 @@
    gets passed to any function that acts differently according to user
    dictates.
 */
+
+/* Defines for the eDumpHex value. This single var covers two switches
+   so the code for this is somewhat different. */
 #define OUTPUT_DEC     0
 #define OUTPUT_HEX_UC  1
 #define OUTPUT_HEX_LC  2
 #define OUTPUT_DEFAULT OUTPUT_DEC
-#ifdef STUB_REMOVE
-typedef struct Options
-{
-   /* Immediate exit options */
-   int bAbout;           /* Show about. Exit                                 */
-   int bHelp;            /* Show help. Exit.                                 */
-
-   /* General behaviour modification options */
-   int bDebug;           /* Turn on diag messages                            */
-   int bVerbose;         /* Show some extra verbosity while working.         */
-   int bValidate;        /* Validate (stop at third stage of compile)        */
-   int iPasses;          /* The number of passes to attempt on data retrieval*/
-   int bESwap;           /* To endian swap or not                            */
-
-   /* Output-specific options */
-   int bTagVal;          /* Use the tag name, not the label for output       */
-   char cFields;
-   int bShowLabel;
-   int eDumpHex;         /* Uses OUTPUT_* macros                             */
-
-   /* The files */
-   char *bpffile;
-   char *binfile;
-
-} Options;
-#endif
-
-
-
-
-
-
 
 /* ========================================================================= */
 /* Option sources */
@@ -94,7 +65,9 @@ typedef struct Options
 #define OS_CMDLINE 1
 #define OS_CFGFILE 2
 
-/* Option keys (potential options) */
+/* Option keys (potential options) 
+   These should be *sequential* with no gaps. They are processed in order
+   in apply_opt_layer(). */
 #define OK_VERBOSE  1
 #define OK_ABOUT    2
 #define OK_HELP     3
@@ -106,8 +79,10 @@ typedef struct Options
 #define OK_CFIELD   9
 #define OK_SHOWLBL  10
 #define OK_DMPHEXUC 11
-#define OK_DMPHEXLC 11
-#define OK_ERROR    12
+#define OK_DMPHEXLC 12
+#define OK_ERROR    13
+#define OK_STARTKEY OK_VERBOSE
+#define OK_LASTKEY  OK_ERROR
 
 /* ========================================================================= */
 typedef struct Option
@@ -149,15 +124,6 @@ typedef struct Options
 
 } Options;
 
-
-
-
-
-
-
-
-
-
 /* =========================================================================
  * Name: ParseOptions
  * Description: Read command line options into an Options struct
@@ -187,6 +153,13 @@ int ParseBPFOptions(Options *o);
 
 /* Basic sniffing for setopt line */
 int IsSetOpt(char *line);
+
+
+int CollapseOptionLayers(Options *o);
+
+
+/* STUB: I reserve the right to rename and mvoe this funciton later */
+void DbgDumpOptions(Options *o);
 
 #endif
 

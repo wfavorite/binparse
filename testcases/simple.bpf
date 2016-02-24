@@ -1,8 +1,8 @@
-#!./bp
+#!../bp
 
 setopt p 2
 setopt v true
-setopt f ":"
+setopt f "="
 
 # simple.bin is a little-endian file
 

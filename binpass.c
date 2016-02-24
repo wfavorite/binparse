@@ -218,10 +218,14 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
       else
          muste_compare = (BPUInt *)&pp->rdata;
 
+      /* STUB: Locking this out as it is debug related. I could keep it
+               and write it conditionally, but I do not know what value
+               that might bring to the user.
       fprintf(stderr, "rdata         [%lX]\n", pp->rdata);
       fprintf(stderr, "rudata        [%lX]\n", pp->rudata);
       fprintf(stderr, "muste_compare [%lX]\n", *muste_compare);
       fprintf(stderr, "muste_val     [%lX]\n", pp->muste_val);
+      */
 
       if ( pp->muste_val != *muste_compare )
       {

@@ -30,38 +30,9 @@ int main ( int argc, char *argv[] )
               GetEndian() == GE_BIG_ENDIAN ? "big" : "little");
    }
 
-   /* Handle some debuggery */
-   if ( o->bDebug )
-   {
-      fprintf(stderr, "Options parsed:\n");
-      fprintf(stderr, "  bDebug = %d\n", o->bDebug);
-      fprintf(stderr, "  bAbout = %d\n", o->bAbout);
-      fprintf(stderr, "  bHelp = %d\n", o->bHelp);
-      fprintf(stderr, "  cFields = %c\n", o->cFields);
-      fprintf(stderr, "  iPasses = %d\n", o->iPasses);
-
-      if ( o->bpffile )
-         fprintf(stderr, "  bpffile = \"%s\"\n", o->bpffile);
-      else
-         fprintf(stderr, "  bpffile = NULL\n");
-
-      if ( o->binfile )
-         fprintf(stderr, "  binfile = \"%s\"\n", o->binfile);
-      else
-         fprintf(stderr, "  binfile = NULL\n");
-
-
-      /* STUB: Just to work the problem */
-      return(0);
-   }
-
-   /* STUB: Temp exit for debuggery */
-   if ( o )
-      return(1);
-
-
-
-
+   /* Collapse the first two layers so -a and -h can be processed */
+   if ( CollapseOptionLayers(o) )
+      return(-1);
 
    /*** Handle all simple options ***/
    if ( o->bAbout )
@@ -80,11 +51,19 @@ int main ( int argc, char *argv[] )
    if ( -1 == ( bpfopt = ParseBPFOptions(o) ) )
       return(1);
 
+   /* The last layer was succesfully read. Now collapse the layers. */
+   if ( CollapseOptionLayers(o) )
+      return(-1);
+
    /*** First pass: Read in parsed items, without tag resolution ***/
    if ( o->bVerbose )
    {
       fprintf(stderr, "Pre-compile pass complete.\n");
       fprintf(stderr, "  File-set options parsed : %d\n", bpfopt);
+
+      /* Dump the options if in debug mode */
+      DbgDumpOptions(o);
+
       fprintf(stderr, "First pass compile starting.\n");
    }
 

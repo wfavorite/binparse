@@ -1,4 +1,4 @@
-#!./bp
+#!../bp
 
 # Just print out the first four bytes (in hex)
 

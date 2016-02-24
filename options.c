@@ -161,6 +161,9 @@ int set_default_layer(Options *o)
    if ( set_option(o, OS_DEFAULT, OK_ESWAP, 0) )
       return(1);
 
+   if ( set_option(o, OS_DEFAULT, OK_TAGVAL, 1) )
+      return(1);
+
    if ( set_option(o, OS_DEFAULT, OK_HELP, 0) )
       return(1);
 
@@ -179,7 +182,7 @@ int set_default_layer(Options *o)
    if ( set_option(o, OS_DEFAULT, OK_CFIELD, ':') )
       return(1);
 
-   if ( set_option(o, OS_DEFAULT, OK_SHOWLBL, ':') )
+   if ( set_option(o, OS_DEFAULT, OK_SHOWLBL, 1) )
       return(1);
 
    return(0);
@@ -194,6 +197,8 @@ int validate_layer(Options *o, int source)
    int bHEX;
    int bhex;
    int bValidate;
+   int bShowLabel;
+   int bTagVal;
 
    /* Defaults are not validated */
    if ( source == OS_DEFAULT )
@@ -217,6 +222,12 @@ int validate_layer(Options *o, int source)
 
    if ( get_option(o, source, OK_VALIDATE, &bValidate) )
       bValidate = 0;
+
+   if ( get_option(o, source, OK_SHOWLBL, &bShowLabel) )
+      bShowLabel = 1; /* -l sets it to 0, not 1 */
+
+   if ( get_option(o, source, OK_TAGVAL, &bTagVal) )
+      bTagVal = 0;
 
 
    /*** Some basic stuff ***/
@@ -258,13 +269,11 @@ int validate_layer(Options *o, int source)
      }
    }
 
-
-   /* STUB: Resolve this following issue - now that you can */
-   /* It is not possible (in the current settings design) to tell if the user
-      selected to not show the label, then decided how the label should be printed.
-      This is a contradiction of options and the user should be notified, but
-      there is no way to tell if the user did this. So (for now) we will just
-      ignore these (specific) conflicts. */
+   if (( bTagVal ) && (0 == bShowLabel))
+   {
+      fprintf(stderr, "ERROR: The -l option is not compatible with the -t option.\n");
+      return(1);
+   }
 
    return(0);
 }
@@ -274,26 +283,53 @@ Options *new_options(void)
 {
    Options *o;
 
-   fprintf(stderr, "STUB DEBUG: new_options(");
-
    if ( NULL == (o = (Options *)malloc(sizeof(Options))) )
    {
       fprintf(stderr, "ERROR: Unable to allocate memory for Options.\n");
       return(NULL);
    }
 
-   fprintf(stderr, ".");
-
    memset(o, 0, sizeof(Options));
-
-   fprintf(stderr, ".");
 
    if ( set_default_layer(o) )
       return(NULL);
 
-   fprintf(stderr, ")\n");
    /* Send it off */
    return(o);
+}
+
+/* ========================================================================= */
+/* This is a rare case of not messaging at the point of error.               */
+int parse_opt_numeric(int *rv, char *line)
+{
+   int i;   /* Index for string */
+
+   /* Move off leading ws */
+   eat_ws(&line);
+
+   *rv = 0;
+   i = 0;
+   while (( line[i] >= '0' ) && ( line[i] <= '9' ))
+   {
+     *rv *= 10;
+     *rv += (line[i] - '0');
+     i++;
+   }
+
+   /* If nothing was parsed */
+   if ( i == 0 )
+     return(1);
+
+   while (( line[i] == ' ' ) || ( line[i] == '\t' ))
+     i++;
+   
+   /* The next char should be termination or the # starting a comment. And
+      the comment was filtered in the calling function. */
+   if (( line[i] != '#' ) && ( line[i] != 0 ))
+      return(1);
+   
+   /* Fall through to success */
+   return(0);
 }
 
 /* ========================================================================= */
@@ -335,16 +371,90 @@ int parse_opt_char(char *rv, char *line)
 }
 
 /* ========================================================================= */
+int apply_opt_layer(Options *o, int layer)
+{
+   int key;
+   int value;
+
+   key = OK_STARTKEY;
+   while ( key <= OK_LASTKEY )
+   {
+      if ( 0 == get_option(o, layer, key, &value) )
+      {
+         switch ( key )
+         {
+         case OK_VERBOSE:
+            o->bVerbose = value;
+            break;
+         case OK_ABOUT:
+            o->bAbout = value;
+            break;
+         case OK_HELP:
+            o->bHelp = value;
+            break;
+         case OK_DEBUG:
+            o->bDebug = value;
+            break;
+         case OK_VALIDATE:
+            o->bValidate = value;
+            break;
+         case OK_PASSES:
+            o->iPasses = value;
+            break;
+         case OK_ESWAP:
+            o->bESwap = value;
+            break;
+         case OK_TAGVAL:
+            o->bTagVal = value;
+            break;
+         case OK_CFIELD:
+            o->cFields = value;
+            break;
+         case OK_SHOWLBL:
+            o->bShowLabel = value;
+            break;
+         case OK_DMPHEXUC: /* These cannot both be set (we check for that) */
+            if ( value )
+               o->eDumpHex = OUTPUT_HEX_UC;
+            break;
+         case OK_DMPHEXLC:
+            if ( value )
+               o->eDumpHex = OUTPUT_HEX_LC;
+            break;
+            /* OK_ERROR is not a flag to be set / applied in a layer */
+         }
+      }
+
+      key++;
+   }
+
+   return(0);
+}
+
+/* ========================================================================= */
+int CollapseOptionLayers(Options *o)
+{
+   if ( apply_opt_layer(o, OS_DEFAULT) )
+      return(1);
+
+   if ( apply_opt_layer(o, OS_CMDLINE) )
+      return(1);
+
+   if ( apply_opt_layer(o, OS_CFGFILE) )
+      return(1);
+
+   return(0);
+}
+
+/* ========================================================================= */
 Options *ParseOptions(int argc, char *argv[])
 {
    Options *o;
    int si;      /* String index */
    int ci;      /* Char index */
    int is_option_arg;
-   /* int tmpint; STUB: for now */
+   int tmpint;
    char tmpchar;
-
-   fprintf(stderr, "STUB DEBUG: ParseOptions(%d, ...)\n", argc);
 
    /* Allocate and initialize a new options struct */
    if ( NULL == ( o = new_options() ) )
@@ -354,8 +464,6 @@ Options *ParseOptions(int argc, char *argv[])
    si = 1;
    while ( si < argc )
    {
-      fprintf(stderr, "STUB DEBUG: Working on item [%s]\n", argv[si]);
-
       /* Is this parsing an option to an argument? */
       if ( is_option_arg )
       {
@@ -365,11 +473,21 @@ Options *ParseOptions(int argc, char *argv[])
          case OK_CFIELD:
             if ( parse_opt_char(&tmpchar, argv[si]) )
             {
-               /* STUB: Is an error message appropriate? */
+               fprintf(stderr, "ERROR: Unable to parse C in the \"-f C\" option argument.\n");
                return(NULL);
             }
             
             if ( set_option(o, OS_CMDLINE, OK_CFIELD, tmpchar) )
+               return(NULL);
+            break;
+         case OK_PASSES:
+            if ( parse_opt_numeric(&tmpint, argv[si]) )
+            {
+               fprintf(stderr, "ERROR: Unable to parse N in the \"-p N\" option argument.\n");
+               return(NULL);
+            }
+                  
+            if ( set_option(o, OS_CMDLINE, OK_PASSES, tmpint) )
                return(NULL);
             break;
          default:
@@ -378,6 +496,7 @@ Options *ParseOptions(int argc, char *argv[])
             return(NULL);
          }
 
+         is_option_arg = 0; /* Clear this so we don't hit it on the next arg */
          si++;
          continue;
       }
@@ -387,7 +506,7 @@ Options *ParseOptions(int argc, char *argv[])
          if ( argv[si][1] == '-' )
          {
 
-            if ( 0 == strcmp(argv[si], "--help") )
+            if ( 0 == strcmp(argv[si], "--help") ) /* -h */
             {
                if ( set_option(o, OS_CMDLINE, OK_HELP, 1) )
                   return(NULL);
@@ -396,7 +515,7 @@ Options *ParseOptions(int argc, char *argv[])
                continue;
             }
 
-            if ( 0 == strcmp(argv[si], "--about") )
+            if ( 0 == strcmp(argv[si], "--about") ) /* -a */
             {
                if ( set_option(o, OS_CMDLINE, OK_ABOUT, 1) )
                   return(NULL);
@@ -405,7 +524,7 @@ Options *ParseOptions(int argc, char *argv[])
                continue;
             }
 
-            if ( 0 == strcmp(argv[si], "--validate") )
+            if ( 0 == strcmp(argv[si], "--validate") ) /* -c */
             {
                if ( set_option(o, OS_CMDLINE, OK_VALIDATE, 1) )
                   return(NULL);
@@ -414,7 +533,7 @@ Options *ParseOptions(int argc, char *argv[])
                continue;
             }
 
-            if ( 0 == strcmp(argv[si], "--endian_swap") )
+            if ( 0 == strcmp(argv[si], "--endian_swap") ) /* -e */
             {
                if ( set_option(o, OS_CMDLINE, OK_ESWAP, 1) )
                   return(NULL);
@@ -423,11 +542,63 @@ Options *ParseOptions(int argc, char *argv[])
                continue;
             }
 
+            if ( 0 == strcmp(argv[si], "--verbose") ) /* -v */
+            {
+               if ( set_option(o, OS_CMDLINE, OK_VERBOSE, 1) )
+                  return(NULL);
+              
+               si++;
+               continue;
+            }
 
-            if ( 0 == strcmp(argv[si], "--field_separator") )
+            if ( 0 == strcmp(argv[si], "--field_separator") ) /* -f */
             {
                is_option_arg = OK_CFIELD;
 
+               si++;
+               continue;
+            }
+
+            if ( 0 == strcmp(argv[si], "--passes") ) /* -p */
+            {
+               is_option_arg = OK_PASSES;
+
+               si++;
+               continue;
+            }
+
+            if ( 0 == strcmp(argv[si], "--no_labels") ) /* -l */
+            {
+               if ( set_option(o, OS_CMDLINE, OK_SHOWLBL, 0) )
+                  return(NULL);
+              
+               si++;
+               continue;
+            }
+
+            if ( 0 == strcmp(argv[si], "--show_tag") ) /* -t */
+            {
+               if ( set_option(o, OS_CMDLINE, OK_TAGVAL, 1) )
+                  return(NULL);
+              
+               si++;
+               continue;
+            }
+
+            if ( 0 == strcmp(argv[si], "--dump_hex") ) /* -x */
+            {
+               if ( set_option(o, OS_CMDLINE, OK_DMPHEXLC, 1) )
+                  return(NULL);
+              
+               si++;
+               continue;
+            }
+
+            if ( 0 == strcmp(argv[si], "--dump_HEX") ) /* -x */
+            {
+               if ( set_option(o, OS_CMDLINE, OK_DMPHEXUC, 1) )
+                  return(NULL);
+              
                si++;
                continue;
             }
@@ -466,7 +637,7 @@ Options *ParseOptions(int argc, char *argv[])
                {
                   if ( parse_opt_char(&tmpchar, &argv[si][ci + 1]) )
                   {
-                     /* STUB: Is an error message appropriate? */
+                     fprintf(stderr, "ERROR: Unable to parse C in the \"-fC\" option argument.\n");
                      return(NULL);
                   }
                   
@@ -489,16 +660,19 @@ Options *ParseOptions(int argc, char *argv[])
                }
                else
                {
-                  /* STUB: This is the wrong function */
-                  if ( parse_opt_char(&tmpchar, &argv[si][ci + 1]) )
+                  if ( parse_opt_numeric(&tmpint, &argv[si][ci + 1]) )
                   {
-                     /* STUB: Is an error message appropriate? */
+                     fprintf(stderr, "ERROR: Unable to parse N in the \"-pN\" option argument.\n");
                      return(NULL);
                   }
                   
-                  if ( set_option(o, OS_CMDLINE, OK_PASSES, tmpchar) ) /* STUB: NOT a char! */
+                  if ( set_option(o, OS_CMDLINE, OK_PASSES, tmpint) )
                      return(NULL);
                }
+               break;
+            case 't':
+               if ( set_option(o, OS_CMDLINE, OK_TAGVAL, 1) )
+                  return(NULL);
                break;
             case 'v':
                if ( set_option(o, OS_CMDLINE, OK_VERBOSE, 1) )
@@ -550,75 +724,119 @@ Options *ParseOptions(int argc, char *argv[])
    if ( validate_layer(o, OS_CMDLINE) )
       return(NULL);
 
-   /* Now add the config file options */
-   if ( ParseBPFOptions(o) )
-      return(NULL);
-
-   /* Validate what was just set */
-   if ( validate_layer(o, OS_CFGFILE) )
-      return(NULL);
-
   return(o);
 }
 
+/* ========================================================================= */
+void dbg_dump_key_int(Options *o, int key)
+{
+   int dval, cval, fval;
 
+   if ( 0 == get_option(o, OS_DEFAULT, key, &dval) )
+      printf(" %7d", dval);
+   else
+      printf("       -");
 
+   if ( 0 == get_option(o, OS_CMDLINE, key, &cval) )
+      printf(" %7d", cval);
+   else
+      printf("       -");
 
+   if ( 0 == get_option(o, OS_CFGFILE, key, &fval) )
+      printf(" %7d", fval);
+   else
+      printf("       -");
 
+   printf("\n");
+}
 
+/* ========================================================================= */
+void dbg_dump_key_char(Options *o, int key)
+{
+   int dval, cval, fval;
 
+   if ( 0 == get_option(o, OS_DEFAULT, key, &dval) )
+      printf("       %c", dval);
+   else
+      printf("       -");
 
+   if ( 0 == get_option(o, OS_CMDLINE, key, &cval) )
+      printf("       %c", cval);
+   else
+      printf("       -");
 
+   if ( 0 == get_option(o, OS_CFGFILE, key, &fval) )
+      printf("       %c", fval);
+   else
+      printf("       -");
 
+   printf("\n");
+}
 
+/* ========================================================================= */
+void DbgDumpOptions(Options *o)
+{
+   if (( 0 == o->bDebug ) && ( 0 == o->bVerbose ))
+      return;
 
+   printf("  User-configurable options dump\n");
+   printf("   %-16s %4s %7s %7s %7s %7s\n", "Option", "Flag", "SetVal", "Default", "CmdLine", "BPFile");
+   
+   /* Verbose */
+   printf("   %-16s    %c %7d", "Verbosity", 'v', o->bVerbose);
+   dbg_dump_key_int(o, OK_VERBOSE);
 
+   /* About */
+   printf("   %-16s    %c %7d", "About", 'a', o->bAbout);
+   dbg_dump_key_int(o, OK_ABOUT);
 
+   /* About */
+   printf("   %-16s    %c %7d", "Help", 'h', o->bHelp);
+   dbg_dump_key_int(o, OK_HELP);
 
+   /* Validate */
+   printf("   %-16s    %c %7d", "Validate", 'c', o->bValidate);
+   dbg_dump_key_int(o, OK_VALIDATE);
 
+   /* Passes */
+   printf("   %-16s    %c %7d", "Passes", 'p', o->iPasses);
+   dbg_dump_key_int(o, OK_PASSES);
 
+   /* ESwap */
+   printf("   %-16s    %c %7d", "ByteSwap", 'e', o->bESwap);
+   dbg_dump_key_int(o, OK_ESWAP);
 
+   /* TagVal */
+   printf("   %-16s    %c %7d", "TagVal", 't', o->bTagVal);
+   dbg_dump_key_int(o, OK_TAGVAL);
 
+   /* cFields */
+   printf("   %-16s    %c       %c", "FieldSep", 'f', o->cFields);
+   dbg_dump_key_char(o, OK_CFIELD);
 
+   /* bShowLabel */
+   printf("   %-16s    %c %7d", "ShowLabel", 'l', o->bShowLabel);
+   dbg_dump_key_int(o, OK_SHOWLBL);
 
+   /* eDumpHex */
+   printf("   %-16s      %7d\n", "DumpHex", o->eDumpHex);
+   printf("   %-16s    %c        ", "DumpHex(LC)", 'x');
+   dbg_dump_key_int(o, OK_DMPHEXLC);
+   printf("   %-16s    %c        ", "DumpHex(UC)", 'X');
+   dbg_dump_key_int(o, OK_DMPHEXUC);
 
+   if ( o->bpffile )
+      printf("   bpffile = \"%s\"\n", o->bpffile);
+   else
+      printf("   bpffile = NULL\n");
+   
+   if ( o->binfile )
+      printf("   binfile = \"%s\"\n", o->binfile);
+   else
+      printf("   binfile = NULL\n");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   fflush(stdout);
+}
 
 /* ========================================================================= */
 /* This is a rare case of not messaging at the point of error.               */
@@ -676,40 +894,6 @@ int parse_opt_tail(char *line)
 }
 
 /* ========================================================================= */
-/* This is a rare case of not messaging at the point of error.               */
-int parse_opt_numeric(int *rv, char *line)
-{
-   int i;   /* Index for string */
-
-   /* Move off leading ws */
-   eat_ws(&line);
-
-   *rv = 0;
-   i = 0;
-   while (( line[i] >= '0' ) && ( line[i] <= '9' ))
-   {
-     *rv *= 10;
-     *rv += (line[i] - '0');
-     i++;
-   }
-
-   /* If nothing was parsed */
-   if ( i == 0 )
-     return(1);
-
-   while (( line[i] == ' ' ) || ( line[i] == '\t' ))
-     i++;
-   
-   /* The next char should be termination or the # starting a comment. And
-      the comment was filtered in the calling function. */
-   if (( line[i] != '#' ) && ( line[i] != 0 ))
-      return(1);
-   
-   /* Fall through to success */
-   return(0);
-}
-
-/* ========================================================================= */
 /* This is an error function specific to ParseBPFOptions()                   */
 int opt_err_msg(char thisopt, int lineno)
 {
@@ -739,7 +923,8 @@ int ParseBPFOptions(Options *o)
    if ( NULL == o->bpffile )
       return(0);
 
-   f = NewFile(o->bpffile);
+   if ( NULL == (f = NewFile(o->bpffile)) )
+      return(-1);
 
    /* Now start pulling lines */
    while(NextLine(f))
@@ -894,6 +1079,10 @@ int ParseBPFOptions(Options *o)
    /* Close the file */
    EndFile(f);
 
+   /* Validate the layer we just parsed */
+   if ( validate_layer(o, OS_CFGFILE) )
+      return(-1);
+
    return(parsed);
 }
 
@@ -913,223 +1102,3 @@ int IsSetOpt(char *line)
    return(0);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifdef STUB_REMOVE_ME
-
-/* ========================================================================= */
-/* This is copied from / based on parse_opt_numeric()                        */
-int parse_opt_char(char *rv, char *line)
-{
-   char open_quote = 0;
-   char pv; /* Parsed value (not return value) */
-
-   /* Move off leading ws */
-   eat_ws(&line);
-
-   if ( *line == 0 )
-      return(1);
-
-   if (( *line == '\'' ) || ( *line == '\"' ))
-   {
-      open_quote = *line;
-      line++;
-   }
-
-   if ( isprint(*line) )
-   {
-      pv = *line;
-      line++;
-   }
-   else
-      return(1);
-
-   if ( open_quote )
-   {
-      if ( *line != open_quote )
-         return(1);
-   }
-
-   /* Good to go */
-   *rv = pv;
-   return(0);
-}
-
-
-
-/* ========================================================================= */
-/* STUB: Deprecated - remove this */
-Options *ParseOpts(int argc, char *argv[])
-{
-   Options *o;
-   int index;
-   int c;
-   extern char *optarg;
-   extern int optind, optopt;
-
-
-   /* Allocate and initialize a new options struct */
-   if ( NULL == ( o = new_options() ) )
-      return(NULL);
-  
-   /* Parse the options */
-   while ( -1 != ( c = getopt(argc, argv, "+acef:hlp:vxX" ) ) )
-   {
-      switch(c)
-      {
-      case '+':
-         o->bDebug = 1;
-         break;
-      case 'a':
-         o->bAbout = 1;
-         break;
-      case 'c':
-         o->bValidate = 1;
-         break;
-      case 'e':
-         o->bESwap = 1;
-         break;
-      case 'f':
-         o->cFields = optarg[0];
-         break;
-      case 'h':
-         o->bHelp = 1;
-         break;
-      case 'l':
-         o->bShowLabel = 0;
-         break;
-      case 'p':
-         o->iPasses = atoi(optarg);
-         break;
-      case 'v':
-         o->bVerbose = 1;
-         break;  
-      case 'x':
-         o->eDumpHex |= OUTPUT_HEX_LC;
-         break;  
-      case 'X':
-         o->eDumpHex |= OUTPUT_HEX_UC;
-         break;  
-      case ':':
-         fprintf (stderr, "ERROR: Missing the argument to the \"-%c\" option.\n", optopt);
-         return(NULL); /* Just bail */
-      case '?': /* User entered some unknown/unsupported argument */
-         if (isprint (optopt))
-            fprintf (stderr, "ERROR: Unknown option \"-%c\".\n", optopt);
-         else
-            fprintf (stderr,
-                     "ERROR: Unknown option character `\\x%x'.\n",
-                     optopt);
-         return(NULL); /* Just bail */
-      default: /* Really an unreachable place */
-         fprintf(stderr, "ERROR: Encountered problems parsing the command line options.\n");
-         return(NULL);
-      }
-   }
-
-   /* Read the non-flag options (the bpf and binary files) */
-   index = optind;
-   while ( index < argc )
-   {
-      if ( NULL == o->bpffile )
-      {
-         if (NULL == (o->bpffile = nc_mkstring(argv[index])))
-            return(NULL);
-      }
-      else
-      {
-         if ( NULL == o->binfile )
-         {
-            if (NULL == (o->binfile = nc_mkstring(argv[index])))
-               return(NULL);
-         }
-         else
-         {
-            fprintf(stderr, "ERROR: Extra arguments \"%s\" not understood.\n", argv[index]);
-            return(NULL);
-         }
-      }
-
-      index++;
-   }
-
-   /*** Validate the options ***/
-
-   /* No additional processing required if any of these are set */
-   if (( o->bAbout ) || ( o->bHelp ))
-   {
-      if (( o->bAbout ) && ( o->bHelp ))
-      {
-         /* Just quietly give them help */
-         o->bAbout = 0;
-      }
-
-      /* The next two if statements have exactly the same results. I just thought
-         that two if statements (one for filenames, one for options) was a bit more
-         readable. */
-      if ((o->bpffile) || (o->binfile))
-      {
-         fprintf(stderr, "ERROR: The -a and -h options are mutually exclusive.\n");
-         return(NULL);
-      }
-
-      if ((o->bVerbose) || (o->bDebug) || ( o->eDumpHex & OUTPUT_HEX_UC ) || ( o->eDumpHex & OUTPUT_HEX_LC ))
-      {
-         fprintf(stderr, "ERROR: The -a and -h options are mutually exclusive.\n");
-         return(NULL);
-      }
-
-      return(o);
-   }
-
-   if ( NULL == o->bpffile )
-   {
-     fprintf(stderr, "ERROR: A BPF file was not specified on the command line.\n");
-     return(NULL);
-   }
-
-   /* It is not possible (in the current settings design) to tell if the user
-      selected to not show the label, then decided how the label should be printed.
-      This is a contradiction of options and the user should be notified, but
-      there is no way to tell if the user did this. So (for now) we will just
-      ignore these (specific) conflicts. */
-
-   if ( ( o->eDumpHex & OUTPUT_HEX_UC ) && ( o->eDumpHex & OUTPUT_HEX_LC ) )
-   {
-      fprintf(stderr, "ERROR: The -X and -x options are mutually exclusive.\n");
-      return(NULL);
-   }
-
-   if ( 0 == o->bValidate )
-   {
-     if ( NULL == o->binfile )
-     {
-       fprintf(stderr, "ERROR: A target (binary) file was not specified on the command line.\n");
-       return(NULL);
-     }
-   }
-       
-  return(o);
-}
-
-#endif
