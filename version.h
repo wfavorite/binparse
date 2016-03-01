@@ -117,6 +117,7 @@
     0.21.0   2/23/16 - Started re-write of options parsing.
              2/24/16 - Continued work on options parsing.
     0.21.1    3/1/16 - Minor change to this file.
+
 */
 #define VERSION_STRING "0.21.1"
 /*
