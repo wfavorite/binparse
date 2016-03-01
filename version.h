@@ -116,12 +116,14 @@
     0.20.0   2/22/16 - Testing of some of the recent features.
     0.21.0   2/23/16 - Started re-write of options parsing.
              2/24/16 - Continued work on options parsing.
+    0.21.1    3/1/16 - Minor change to this file.
 */
-#define VERSION_STRING "0.21.0"
+#define VERSION_STRING "0.21.1"
 /*
   Notes:
 
   ToDo:                                                                      !
+   [ ] Update the markdown doc with more detailed info on the project.
    [ ] Many of the "pending done" ToDos really only need testing. Test them.
        I have marked them with "T" for test.
    [ ] Write check to insure that if a mask= is used, that the data type
