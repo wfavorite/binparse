@@ -6,6 +6,8 @@ using these to reference fields and data types in a binary file.
 How it works - The user view
 ----------------------------
 
+The BPF allows you to describe a location in the binary file and how it should be represented. This language determines where to find the data (an offset), the size of the data, how to mask off the data you want, the data type (how to interpret the data), and then how to represent it (print in hex, print a string representation of a value instead of the value, etc...).
+
 A BPF file can contain one or more of the following lines:
  - A parse point - How to interpret and display a data location in a binary file.
  - An enum definition - A *mapping* between a value and a string for decoding fields into meaningful values.
