@@ -594,7 +594,7 @@ Options *ParseOptions(int argc, char *argv[])
                continue;
             }
 
-            if ( 0 == strcmp(argv[si], "--dump_HEX") ) /* -x */
+            if ( 0 == strcmp(argv[si], "--dump_HEX") ) /* -X */
             {
                if ( set_option(o, OS_CMDLINE, OK_DMPHEXUC, 1) )
                   return(NULL);

@@ -2,7 +2,7 @@
 
 setopt v true
 setopt f ":"
-setopt e true # The bin file is big-endian. Set this if x86.
+setopt e true # The bin file is big-endian. Set this if testing on x86.
 
 # First two bytes - are just that - two bytes
 0 1 a "Must eq 0x80" uint8 must=0x80
@@ -17,4 +17,10 @@ setopt e true # The bin file is big-endian. Set this if x86.
 
 14 8 g "M= 0x8000000000000000" uint64 must=0x8000000000000000
 22 8 h "M= 0x8000000000000000" int64  must=0x8000000000000000
+
+0x20 8 i "M= 0xF0F0F0F0F0F0F0F0" uint64 must=0xF0F0F0F0F0F0F0F0
+0x30 8 j "M= 0xF0F0F0F0F0F0F0F0" int64  must=0xF0F0F0F0F0F0F0F0
+
+0x40 8 k "M= 0xFFFFFFFFFFFFFFFF" uint64  must=0xFFFFFFFFFFFFFFFF
+0x50 8 l "M= 0xFFFFFFFFFFFFFFFF" int64  must=0xFFFFFFFFFFFFFFFF
 

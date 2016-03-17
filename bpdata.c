@@ -115,15 +115,15 @@ int SetBPIntFromVoid(ParsePoint *pp)
          break;
       case DT_INT16:
       case DT_UINT16:
-         *(uint16_t *)pp->data = *(uint16_t *)pp->data & (uint16_t)(pp->mask_val & 0xff);
+         *(uint16_t *)pp->data = *(uint16_t *)pp->data & (uint16_t)(pp->mask_val & 0xffff);
          break;
       case DT_INT32:
       case DT_UINT32:
-         *(uint32_t *)pp->data = *(uint32_t *)pp->data & (uint32_t)(pp->mask_val & 0xff);
+         *(uint32_t *)pp->data = *(uint32_t *)pp->data & (uint32_t)(pp->mask_val & 0xffffffff);
          break;
       case DT_INT64:
       case DT_UINT64:
-         *(uint64_t *)pp->data = *(uint64_t *)pp->data & (uint64_t)(pp->mask_val & 0xff);
+         *(uint64_t *)pp->data = *(uint64_t *)pp->data & (uint64_t)(pp->mask_val & 0xffffffffffffffff);
          break;
       }
    }
@@ -475,10 +475,8 @@ int ParseBPUInt(BPUInt *val, char *str)
       case ' ':
       case '\t':
          return(0);
-         break;
       default:
          return(1);
-         break;
       }
 
       /* Unreachable */

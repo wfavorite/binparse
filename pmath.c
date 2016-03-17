@@ -7,6 +7,7 @@
 #include "pmath.h"
 #include "strlib.h"
 
+/* ========================================================================= */
 /* Use this to toggle */
 /* #define PRINT_DEBUG  */
 
@@ -16,6 +17,7 @@
 #define DEBUG(x, ...) /* x */
 #endif 
 
+/* ========================================================================= */
 /* ---- Allocators ---- */
 Expression *new_expression(Entity *l_ent, int operation, Entity *r_ent);
 Entity *new_entity(char *raw);
@@ -134,7 +136,6 @@ Expression *parse_expr(int *moverv, char *str, int lineno)
            three_dot_trunc(errmsg, 16, str), lineno);
    return(NULL);
 }
-
 
 /* ========================================================================= */
 Entity *parse_token(int *move, char *str, int lineno)
@@ -522,7 +523,6 @@ void DBG_dump_expression(int r, Expression *e)
    while ( i++ < r ) { printf(" "); }
    printf("Right entity:\n");
    DBG_dump_entity(r + 2, e->right);
-   
 }
 
 /* ========================================================================= */

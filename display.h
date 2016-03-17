@@ -16,7 +16,4 @@
  */
 int DumpResults(RuleSet *rs, Options *o);
 
-
-
-
 #endif

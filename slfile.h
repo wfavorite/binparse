@@ -46,8 +46,8 @@ File *NewFile(char *filename);
 /* =========================================================================
  * Name: NextLine
  * Description: Get the next line from the file
- * Paramaters: 
- * Returns: 
+ * Paramaters: The File struct returned by NewFile() 
+ * Returns: 0 on success, non-0 on failure
  * Side Effects: 
  * Notes: 
  */

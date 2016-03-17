@@ -3,6 +3,7 @@
 setopt p 2
 setopt v true
 setopt f ":"
+setopt e true # The bin file is big-endian. Set this if testing on x86.
 
 # maskeq.bin has one regular ASCII char, and one extended ASCII char (so it
 #   is effectively a bin file - that can be printed).
@@ -12,3 +13,8 @@ setopt f ":"
 
 0 1 dblu "The letter W" uint8 mask=0x80 enum=enumBool
 1 1 eff "A gliph resembling F" uint8 mask=0x80 enum=enumBool
+
+0x10 8 lrg64a "large 64 bit num" uint64 mask=0x8000000000000000
+0x18 8 maskacta "Actual value non masked" uint64
+0x20 8 lrg64b "large 64 bit num" uint64 mask=0x8000000000000000
+

@@ -312,7 +312,6 @@ int InsertPP(RuleSet *rs, ParsePoint *pp);
  * Notes: 
  */
 ParsePoint *NewParsepoint(int lineno);
-
 RuleSet* NewRuleset(Options *o);
 
 #endif

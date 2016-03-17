@@ -6,10 +6,11 @@
 
 /* =========================================================================
  * Name: ParseEnum
- * Description: 
- * Paramaters: 
- * Returns: 
- * Side Effects: 
+ * Description: Convert the syntax of an enum string to a data structure
+ * Paramaters: The string containing the enum
+ *             The line it can be found on (for error messages)
+ * Returns: Pointer to an Enum (and its sub-structures)
+ * Side Effects: Will allocate memory.
  * Notes: 
  */
 Enum *ParseEnum(char *estr, int lineno);
@@ -54,9 +55,10 @@ int InsertEnum(RuleSet *rs, Enum *e);
 /* =========================================================================
  * Name: ApplyBuiltins
  * Description: Add in a number of builtin enums into the RuleSet
- * Paramaters: 
- * Returns: 
- * Side Effects: 
+ * Paramaters: The existing RuleSet
+ * Returns: 0 on success, non-0 on failure
+ * Side Effects: Will allocate memory for new structures and pin them to
+ *         the RuleSet.
  * Notes: 
  */
 int ApplyBuiltins(RuleSet *rs);

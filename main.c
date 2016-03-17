@@ -113,7 +113,6 @@ int main ( int argc, char *argv[] )
       fprintf(stderr, "Third pass compile starting.\n");
    }
 
-
    /* This is the point were data is retrieved / resolved */
    if ( ResolveData(r, o) )
       return(1);
@@ -130,7 +129,6 @@ int main ( int argc, char *argv[] )
    return(0);
 }
 
-
 /* ========================================================================= */
 int show_about(void)
 {
@@ -146,7 +144,6 @@ int show_about(void)
 
    return(0);
 }
-
 
 /* ========================================================================= */
 int show_help(void)
@@ -165,6 +162,12 @@ int show_help(void)
    printf("     -v         Be verbose\n");
    printf("     -x         Dump output in Hex (0xdeadbeef)\n");
    printf("     -X         Dump output in Hex (0XDEADBEEF)\n");
+   printf("\n");
+   printf("    Double dash options:\n");
+   printf("      --help/-h           --about/-a          --validate/-c\n");
+   printf("      --verbose/-v        --endian_swap/-e    --field_separator/-f\n");
+   printf("      --passes/-p         --no_labels/-l      --show_tag/-t\n");
+   printf("      --dump_hex/-x       --dump_HEX/-X\n");
    fflush(stdout);
    return(0);
 }

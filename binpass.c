@@ -56,7 +56,7 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
    BPInt msize;
    struct stat s;
    BPInt expected_size = 0;
-   char *casthelp;
+   char *casthelp;          /* Used (only) to avoid an ugly cast */
   
    /* Open the file if it is not already open */
    if ( -1 == rs->f )
@@ -155,7 +155,7 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
                                   aligned data. */
 
    /* Now insure that the malloc is alligned (It would be padded by allocator
-      anyways. This just rounds out the malloc(). */
+      anyways. This just rounds out the malloc()). */
    while( msize % 4 != 0 )
       msize++;
 
@@ -176,7 +176,15 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
 
    if ( pp->dt == DT_FLSTR )
    {
-      /* Throw in some termination */
+      /* Throw in some termination for fixed length strings. These should be
+         printed differently (not simply treated as a null terminated string),
+         but we add a term character here to insure that it is not mishandled.
+
+         This is "safe" programming... "safe" in that it opens me up to potential
+         exposure later. This data type should *always* be treated differently.
+         This "let's be safe" operation justifies treating it the same (as a
+         NULL terminated string).
+      */
 
       /* Compiler warned on void casting. I could work through a solid
          casting effort, or just assign it to a specific pointer type. */
@@ -216,9 +224,9 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
       if ( pp->dt == DT_UINT64 )
          muste_compare = &pp->rudata;
       else
-         muste_compare = (BPUInt *)&pp->rdata;
+         muste_compare = (BPUInt *)&pp->rdata; /* rdata is (a pointer to) a BPInt */
 
-      /* STUB: Locking this out as it is debug related. I could keep it
+      /* NOTE: Locking this out as it is debug related. I could keep it
                and write it conditionally, but I do not know what value
                that might bring to the user.
       fprintf(stderr, "rdata         [%lX]\n", pp->rdata);

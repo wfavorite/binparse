@@ -385,7 +385,7 @@ ParsePoint *get_parse_point(File *f)
 
    if ( DT_NONE == pp->dt )
    {
-      fprintf(stderr, "Parse file error: Problems parsing a token.\n  Line: %d\n  Token: %s\n",
+      fprintf(stderr, "Parse file error: Problems parsing a data type token.\n  Line: %d\n  Token: %s\n",
               pp->lineno, raw_dt);
       /* What we can do here...
          1. Press on, and try to parse the rest of the items in the file with
@@ -728,14 +728,7 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
    return(0);
 } 
 
-/* =========================================================================
- * Name: ResolveTags
- * Desc: Walk through the ParsePoint list and resolve all tags.
- * Params:
- * Returns: 0 on successful tag resolution
- * Side Effects:
- * Notes: Aka: 2nd pass resolution
- */
+/* ========================================================================= */
 int ResolveTags(RuleSet *rs, Options *o)
 {
    ParsePoint *thispp;

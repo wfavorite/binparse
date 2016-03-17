@@ -118,9 +118,12 @@
              2/24/16 - Continued work on options parsing.
     0.21.1    3/1/16 - Minor change to this file.
     0.22.0   3/17/16 - Cleanup, documentation, and refinements.
+                     - Validataion of large value parsing.
+                     - Documented double dash options in help().
+                     - Testing.
 
 */
-#define VERSION_STRING "0.21.1"
+#define VERSION_STRING "0.22.0"
 /*
   Notes:
 
@@ -129,15 +132,13 @@
        I have marked them with "T" for test.
    [ ] Write check to insure that if a mask= is used, that the data type
        is compatible.
-   [T] Check where the mask= value is set. (The number is converted from a
-       signed value to a unsigned. This should likely always be unsigned.
-       or converted to an unsigned without dropping the sign bit.
    [T] rdata should not be used when an unsigned long.
    [T] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
-   [_] Fill out all the empty function paramater comment blocks.
    [ ] FreeBSD port.
+   [ ] There is a $TU8 in options.c. It is not clear if this is a problem or
+       not.
    [ ] Insure that must= is not used with non-numeric data.
    [_] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint.
@@ -159,6 +160,16 @@
    [ ] Document the --options in options.c::ParseOptions().
 
   Done:
+   [X] Fill out all the empty function paramater comment blocks.
+   [X] The double dash options in options.c is not in the help() output.
+   [X] Check where the mask= value is set. (The number is converted from a
+       signed value to a unsigned. This should likely always be unsigned.
+       or converted to an unsigned without dropping the sign bit.
+   [X] The discussion in options.h does not appear to match the code.
+       Investigate this and resolve.
+   [X] The must= parsing does not parse leading F in uint64. (Not a bug. There
+       was a problem in the BPF file. Some cleanup was done to the code as
+       part of this effort.)
    [X] Update the markdown doc with more detailed info on the project.
    [X] ./bp kdkdkd segfaults after failing to open the file.
    [X] Zeroth (pre-compile) pass should print options set when in verbose mode.

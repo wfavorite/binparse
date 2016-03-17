@@ -6,7 +6,7 @@
 #include "penum.h"
 #include "strlib.h"
 
-
+/* ========================================================================= */
 ENVP *parse_enum_pair(int *moved, char *estr, int lineno);
 
 /* ========================================================================= */
@@ -45,7 +45,6 @@ int IsEnumLine(char *estr)
       parsing failure. */
    return(1);
 }
-
 
 /* ========================================================================= */
 Enum *ParseEnum(char *estr, int lineno)
