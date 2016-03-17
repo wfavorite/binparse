@@ -7,22 +7,21 @@ How it works - The user view
 ----------------------------
 
 A BPF file can contain one or more of the following lines:
- - A parse point (a data location)
- - An enum definition
- - An explicit tag
- - An option
+ - A parse point - How to interpret and display a data location in a binary file.
+ - An enum definition - A *mapping* between a value and a string for decoding fields into meaningful values.
+ - An explicit tag - Used to define a frequently used location in the binary file.
+ - An option - Provides the ability to "pass" command line options in the BPF file. 
  - Comments or blank lines
 
 ### Parse point
 
-A parse point is a line that describes a piece of data in the file, and assigns
-a tag to that data. The following items are required for the parse point:
+A parse point is a line that describes a piece of data in the file, how to interpret it, and assigns a tag to that data. The following items are required for the parse point:
  - Offset (in bytes, from the start of the file)
  - Size (in bytes, of the object to be read)
  - Tag - A name for the data
  - Label - A quoted string to be displayed with the data
  - Data type - One of a set of pre-defined labels for data types
- - Extra options (must=, hidden=, enum=)
+ - Extra mainpulation and parsing options (must=, hidden=, enum=)
 
 Offsets and sizes can be a numerical value, a tag (that references another
 value), or a *simplified* mathematical expression. The mathematical expression
@@ -33,7 +32,7 @@ mathematical expression using tags would look like this:
 `( 2 + ( 5 * voffset ))`
 
 The data type can be one of the following:
- - char - 8 bits, assumed ASCII
+ - char - 8 bits, rendered as ASCII
  - uint8
  - int8
  - uint16
@@ -47,7 +46,7 @@ The data type can be one of the following:
 
 The extra options can be one of the following:
  - must= - The data in the field must equal a value (or processing will stop)
- - enum= - Specify an enum to display, instead of the data
+ - enum= - Specify an enum (string) to display, instead of the data
  - hidden= - Should the data be output or not (true/false)
 
 ### Enum definition
@@ -62,7 +61,7 @@ Note in the above example that:
  - Strings *can* be quoted, or not (if no spaces)
  - The enum definition is bounded by `{` and `}`
  - The `;` char divides items, but is optional on last item
- - The tag "mybenum" can be referenced in a parse point
+ - The tag "mybenum" can be referenced in a parse point (using the enum= operator)
  - Numerical values can be in hex or dec
 
 ### Explicit tags
@@ -83,7 +82,7 @@ As the BPF file can be set executable and use file magic to find the bp
 with a setopt operator and then the options, much like they would be on the
 command line, but without the dash options. If the option is a simple boolean
 option, then it is followed by true or false. The following setopt option will
-turn on verbose output:
+turn on verbose output (like -v would on the command line):
 
 `setopt v true`
 

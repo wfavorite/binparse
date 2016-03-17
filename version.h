@@ -117,6 +117,7 @@
     0.21.0   2/23/16 - Started re-write of options parsing.
              2/24/16 - Continued work on options parsing.
     0.21.1    3/1/16 - Minor change to this file.
+    0.22.0   3/17/16 - Cleanup, documentation, and refinements.
 
 */
 #define VERSION_STRING "0.21.1"
@@ -124,7 +125,6 @@
   Notes:
 
   ToDo:                                                                      !
-   [ ] Update the markdown doc with more detailed info on the project.
    [ ] Many of the "pending done" ToDos really only need testing. Test them.
        I have marked them with "T" for test.
    [ ] Write check to insure that if a mask= is used, that the data type
@@ -159,6 +159,7 @@
    [ ] Document the --options in options.c::ParseOptions().
 
   Done:
+   [X] Update the markdown doc with more detailed info on the project.
    [X] ./bp kdkdkd segfaults after failing to open the file.
    [X] Zeroth (pre-compile) pass should print options set when in verbose mode.
    [X] Completely re-design the options parsing to have *layers* of options
