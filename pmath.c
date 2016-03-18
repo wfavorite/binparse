@@ -9,7 +9,9 @@
 
 /* ========================================================================= */
 /* Use this to toggle */
-/* #define PRINT_DEBUG  */
+/* * /
+#define PRINT_DEBUG
+/ * */
 
 #ifdef PRINT_DEBUG
 #define DEBUG(FMTSTR, ...); fprintf(stderr, FMTSTR, ##__VA_ARGS__);

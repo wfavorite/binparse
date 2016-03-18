@@ -161,7 +161,7 @@ int set_default_layer(Options *o)
    if ( set_option(o, OS_DEFAULT, OK_ESWAP, 0) )
       return(1);
 
-   if ( set_option(o, OS_DEFAULT, OK_TAGVAL, 1) )
+   if ( set_option(o, OS_DEFAULT, OK_TAGVAL, 0) )
       return(1);
 
    if ( set_option(o, OS_DEFAULT, OK_HELP, 0) )
@@ -956,6 +956,7 @@ int ParseBPFOptions(Options *o)
          case 'f':
          case 'l':
          case 'p':
+         case 't':
          case 'x':
          case 'X':
             thisopt = *line;
@@ -1044,6 +1045,26 @@ int ParseBPFOptions(Options *o)
 
             parsed++;
             break;
+
+
+
+
+
+         case 't':
+            if ( -1 == (temptail = parse_opt_tail(line)) )
+               return(opt_err_msg(thisopt, f->lineno));
+
+            if ( set_option(o, OS_CFGFILE, OK_TAGVAL, temptail) )
+               return(1);
+
+            parsed++;
+            break;
+
+
+
+
+
+
          case 'v':
             if ( -1 == (temptail = parse_opt_tail(line)) )
                return(opt_err_msg(thisopt, f->lineno));

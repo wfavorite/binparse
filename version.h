@@ -121,9 +121,13 @@
                      - Validataion of large value parsing.
                      - Documented double dash options in help().
                      - Testing.
+    0.23.0   3/17/16 - Working with edge test cases.
+                     - Changed line read code to properly detect buffer
+                       overruns.
+                     - Fixed bug with "setopt t" not working.
 
 */
-#define VERSION_STRING "0.22.0"
+#define VERSION_STRING "0.23.0"
 /*
   Notes:
 
@@ -140,13 +144,6 @@
    [ ] There is a $TU8 in options.c. It is not clear if this is a problem or
        not.
    [ ] Insure that must= is not used with non-numeric data.
-   [_] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
-       to be utilized in parsing a ParsePoint.
-   [ ] Make the location of the function description comment consistent.
-       Consider creating function comment blocks for *all* functions.
-   [ ] An option should exist to print in hex (specify hex) in the parse
-       point. The suggested syntax is: base=HEX, base=hex, base=dec. This
-       would override the global command line or file setting.
    [ ] Write man pages for bp(1) and bpf(5).
    [D] Need to properly differentiate between ' and " in the strlib.
    [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
@@ -158,8 +155,17 @@
        example: Config file has verbose set, but the command line only has
        the option to set verbose again.
    [ ] Document the --options in options.c::ParseOptions().
+   [ ] An option should exist to print in hex (specify hex) in the parse
+       point. The suggested syntax is: base=HEX, base=hex, base=dec. This
+       would override the global command line or file setting.
 
   Done:
+   [X] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
+       to be utilized in parsing a ParsePoint.
+   [X] TagVal (-t) defaults to 1. This should be 0. 
+   [X] Make the location of the function description comment consistent.
+       Consider creating function comment blocks for *all* functions.
+   [X] Test flstr parsing and printing.
    [X] Fill out all the empty function paramater comment blocks.
    [X] The double dash options in options.c is not in the help() output.
    [X] Check where the mask= value is set. (The number is converted from a

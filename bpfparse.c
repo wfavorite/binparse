@@ -542,6 +542,12 @@ RuleSet *ParseBPFFile(Options *o)
             printf(" pp->label  = %s\n", pp->label);
          }
       }
+   } /* while(NextLine(f)) */
+
+   if ( WasAReadError(f) )
+   {
+      fprintf(stderr, "ERROR: Problems reading from BPF file.\n");
+      return(NULL);
    }
   
    /* Close the file */

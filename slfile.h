@@ -54,6 +54,16 @@ File *NewFile(char *filename);
 int NextLine(File *f);
 
 /* =========================================================================
+ * Name: WasAReadError
+ * Description: This is to determine if the last (non)read was a failure
+ * Paramaters: File "object" 
+ * Returns: Boolean - 0 means non-error, 1 means error (somewhere)
+ * Side Effects: None.
+ * Notes: 
+ */
+int WasAReadError(File *f);
+
+/* =========================================================================
  * Name: EndFile
  * Description: Close the file, release the File object
  * Paramaters: File "object" 

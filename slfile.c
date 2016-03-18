@@ -33,20 +33,46 @@ File *NewFile(char *filename)
 /* ========================================================================= */
 int NextLine(File *f)
 {
-   if ( fgets(f->line, MAX_LINE_LEN, f->fh) )
+   char got;
+   unsigned long lpos;
+
+   lpos = 0;
+
+   while ( EOF != (got = fgetc(f->fh)) )
    {
-      f->lineno++;
-      /* Fall through to success */
-   }
-   else
-   {
-      f->line[0] = 0;
-      f->eof = 1;
-      return(0);
+      if ( lpos < MAX_LINE_LEN )
+      {
+         if ( got == '\n' )
+         {
+            f->line[lpos] = 0;
+            f->lineno++;
+            return(1);
+         }
+         else
+         {
+            f->line[lpos] = got;
+         }
+
+         lpos++;
+      }
+      else
+      {
+         f->line[lpos - 1] = 0;
+         f->readerr = 1;
+         return(0);
+      }
    }
 
-   /* Non-zero means keep on trucking... */
-   return(1);
+   f->line[lpos] = 0;
+   f->eof = 1;
+   return(0);
+}
+
+/* ========================================================================= */
+int WasAReadError(File *f)
+{
+   /* Just a gettor */
+   return(f->readerr);
 }
 
 /* ========================================================================= */
