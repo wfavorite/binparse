@@ -113,10 +113,15 @@ then
     echo "SHOULD FAIL"
 
     echo "========================================================================="
-    # Invalid hex number
-    echo "TEST: \"( 0 + (somesc + 2)\""
-    ./pmath "( 0 + (somesc + 2)"
+    # Non-terminated (complex) math formula
+    echo "TEST: \"((1 + inilen) + (1 + fnlen)\""
+    ./pmath "((1 + inilen) + (1 + fnlen)"
     echo "SHOULD FAIL"
+
+    echo "========================================================================="
+    # Too big to parse
+    echo "TEST: \"((((1 + inilen) + (1 + fnlen)) + (1 + mnlen)) + 1)\""
+    ./pmath "((((1 + inilen) + (1 + fnlen)) + (1 + mnlen)) + 1)"
 
 
 

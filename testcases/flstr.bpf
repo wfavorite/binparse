@@ -1,0 +1,30 @@
+#!../bp
+
+setopt p 2
+setopt v true
+setopt f "="
+
+# flstr.bin is a bi-endian file (all data is flstr or byte)
+
+# Initials
+0 1 inilen "Initial length" uint8 hidden=true
+1 inilen initials "Initials" flstr 
+
+# First name
+(1 + inilen) 1 fnlen "First name length" uint8 hidden=true
+(2 + inilen) fnlen firstn "First name" flstr
+
+# Middle name
+((1 + inilen) + (1 + fnlen)) 1 mnlen "Middle name length" uint8 hidden=true
+((1 + inilen) + (1 + fnlen) + 1) mnlen middlen "Middle name" flstr
+
+# Last name
+(((1 + inilen) + (1 + fnlen)) + (1 + mnlen)) 1 lnlen "Last name length" uint8 hidden=true
+((((1 + inilen) + (1 + fnlen)) + (1 + mnlen)) + 1) lnlen lastn "Last name" flstr
+
+
+
+
+
+
+settag fstart = 0
