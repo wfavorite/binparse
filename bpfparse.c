@@ -578,8 +578,12 @@ int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
    {
       if ( 0 == strcmp(e->u.tag, thispp->tag) )
       {
-         if ( pp == thispp )
+         if ( pp == thispp ) /* pp can be NULL here */
          {
+            /* Note that pp->lineno appears to be exposed here. This is NOT 
+               the case as thispp would need to be NULL as well to fall into
+               this condition. That cannot be.
+            */
             fprintf(stderr, "-------------------------------------------------------------------------------\n");
             fprintf(stderr, "Tag resolution failure. Tag \"%s\" on line %d\n", (char *)e->u.tag, pp->lineno);
             fprintf(stderr, "   is self referential. A tagged offset/size can not reference the same line.\n");
@@ -589,7 +593,8 @@ int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
          /* Fall through to success */
          e->u.tag = thispp;
          e->type = ETYPE_TAGPP;    /* Mark tag resolved (to a ParsePoint) */
-         pp->rtag_count++;
+         if ( pp ) /* pp is checked before use */
+            pp->rtag_count++;
          return(0);
       }
     
@@ -604,17 +609,28 @@ int findnset_entity_tag(RuleSet *rs, ParsePoint *pp, Entity *e, Options *o)
       {
          e->u.tag = thiset;
          e->type = ETYPE_TAGET;    /* Mark tag resolved (to an ExplicitTag) */
-         pp->rtag_count++;
+         if ( pp )
+            pp->rtag_count++;
          return(0);
       }
 
       thiset = thiset->next;
    }
-  
-   /* If we got here, then tag was not resolved */
-   fprintf(stderr, "-------------------------------------------------------------------------------\n");
-   fprintf(stderr, "Tag resolution failure. Unable to resolve the tag \"%s\"\n", (char *)e->u.tag);
-   fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+
+   if ( pp )
+   {  
+      /* If we got here, then tag was not resolved */
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Tag resolution failure. Unable to resolve the tag \"%s\"\n", (char *)e->u.tag);
+      fprintf(stderr, "   for item \"%s\" on line %d.\n", pp->tag, pp->lineno);
+   }
+   else
+   {
+      /* If we got here, then tag was not resolved - and this is not a parse point entity. */
+      fprintf(stderr, "-------------------------------------------------------------------------------\n");
+      fprintf(stderr, "Tag resolution failure. Unable to resolve an explicit tag.\n");
+   }
+
    return(1);
 }
 
@@ -738,6 +754,7 @@ int resolve_pp_tags(RuleSet *rs, ParsePoint *pp, Options *o)
 int ResolveTags(RuleSet *rs, Options *o)
 {
    ParsePoint *thispp;
+   ExplicitTag *thiset;
   
    assert( NULL != rs );
    /* RESOLVED: This second assert should not be:
@@ -762,5 +779,16 @@ int ResolveTags(RuleSet *rs, Options *o)
       thispp = thispp->next;
    }
    
+   thiset = rs->etlist;
+   while ( thiset )
+   {
+      if ( resolve_entity_tag(rs, NULL, thiset->e, o) )
+      {
+         return(1);
+      }
+
+      thiset = thiset->next;
+   }
+
    return(0);
 }

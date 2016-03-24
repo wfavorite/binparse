@@ -180,6 +180,26 @@ int ParseBPInt(BPInt *val, char *str)
 
    if ( *str == '-' )
    {
+      /* This code will fail on large negative values. It does not check the
+         range of the input. The ASCII input can overflow the integer.
+
+         The recommended option is to parse as an integer (minus the sign)
+         and then store the sign in a separate intger.
+
+         This basically creates a 65 bit integer.
+
+         typedef struct Integer
+         {
+            uint64_t dfz;       / * Distance From Zero * /
+            uint8_t sign;
+         } Integer;
+
+         The integer itself can be parsed with strtoull().
+         http://pubs.opengroup.org/onlinepubs/9699919799/functions/strtoul.html
+
+         Note that strtoull() will covert both hex and dec input to binary.
+      */
+
       isneg = 1;
       str++; /* Move off the '-' char */
 

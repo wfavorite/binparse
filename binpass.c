@@ -217,6 +217,21 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
       return(1);
 
    /* Check the muste (must=) value */
+
+   /* What the heck is going on here?!?!
+
+      muste_compare is either a BPInt or a BPUint.
+
+      Whatever muste_val is, it was "converted" to a BPUInt (unsigned long long).
+
+      Basically.... all data is converted to a BPUInt or BPInt, and then the
+      comparison is done as though they were BPUInts (regardless of the sign
+      or the *original* data size).
+
+      When comparing two small positive numbers you are comparing mostly 0s,
+      and when comparing two small negative numbers (sign extended), you are
+      comparing mostly 1s.
+   */
    if ( pp->use_muste )
    {
       BPUInt *muste_compare;
@@ -235,6 +250,15 @@ int bin_read_pp(RuleSet *rs, ParsePoint *pp)
       fprintf(stderr, "muste_val     [%lX]\n", pp->muste_val);
       */
 
+      /* NOTE V2: Here we should call a compare function expressly for "Integer" types.
+
+         if ( ! AreEqual(pp->muste_val, muste_compare) )
+
+         Where the function prototype looks like this:
+         
+         int AreEqual(Integer *a, Integer *b);
+
+      */
       if ( pp->muste_val != *muste_compare )
       {
          fprintf(stderr, "-------------------------------------------------------------------------------\n");

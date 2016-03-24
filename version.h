@@ -121,22 +121,27 @@
                      - Validataion of large value parsing.
                      - Documented double dash options in help().
                      - Testing.
-    0.23.0   3/17/16 - Working with edge test cases.
+    0.23.0   3/18/16 - Working with edge test cases.
                      - Changed line read code to properly detect buffer
                        overruns.
                      - Fixed bug with "setopt t" not working.
+    0.24.0   3/23/16 - Review of the "rdata issue". The code seems ok, but
+                       is succeptable to some edge cases. A series of notes
+                       about a proposal for v2 has been added here and
+                       other parts of the code.
+                     - Added explicit tag resolution (a hack to make it
+                       work in a more limited sense). Todos were added for
+                       version 2 to unwind some dependencies in the tag
+                       resolution code.
 
 */
-#define VERSION_STRING "0.23.0"
+#define VERSION_STRING "0.24.0"
 /*
   Notes:
 
   ToDo:                                                                      !
    [ ] Many of the "pending done" ToDos really only need testing. Test them.
        I have marked them with "T" for test.
-   [ ] Write check to insure that if a mask= is used, that the data type
-       is compatible.
-   [T] rdata should not be used when an unsigned long.
    [T] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
@@ -150,6 +155,18 @@
    [D] How do you handle exceptions in strlib.c::mid_trunc()?
 
   ToDo (Version 2):
+   [ ] Resolving explicit tags in ResolveTags() uses the
+       resolve_entity_tag() API. The problem is that this is written for
+       ParsePoint resolution. The error messages use this, as well as some
+       statistics keeping. This needs to be somehow changed so that the
+       lineno and the (explicit) tag name gets passed.
+   [ ] Write check to insure that if a mask= is used, that the data type
+       is compatible.
+   [ ] The types BPInt and BPUint are disasters. This should be converted
+       into a "hybrid" data type that uses uint64 for the distance from
+       0, and another int to hold the sign. This removes some of the ugly
+       compares and conversions that make this program fragile at the 
+       edges.
    [ ] Every option that is settable in the config file, should have an
        inverse value on the command line so that it can be overridden. For
        example: Config file has verbose set, but the command line only has
@@ -160,6 +177,12 @@
        would override the global command line or file setting.
 
   Done:
+   [X] rdata should not be used when an unsigned long. (This code works,
+       but has some considerable exposure in edge cases - specifically when
+       entering large decimal numbers via input in things like must= (as
+       parsed by ParseBPUInt()). I have given a pass on this code for now,
+       but this data type issue needs to be resolved in v2.0, and I have
+       put that fix as a todo in the 2.0 list.)
    [X] The MAX_TAG_LEN define in bpdata.h is used only in penum.c. It needs
        to be utilized in parsing a ParsePoint.
    [X] TagVal (-t) defaults to 1. This should be 0. 

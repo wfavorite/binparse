@@ -25,6 +25,16 @@
 typedef long BPInt;
 typedef unsigned long BPUInt; /* Used for the mask value */
 
+/* This is not used, but is proposed for v2 of the application.
+#include <stdint.h>
+
+typedef struct Integer
+{
+   uint64_t dfz;
+   char sign;
+} Integer;
+*/
+
 /* ========================================================================= */
 /* An Entity is a parsed item from a parse point line. (It is a numeric-ish
    value. Meaning: it is ultimately translatable to a numeric value (although

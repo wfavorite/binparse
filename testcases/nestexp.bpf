@@ -1,0 +1,25 @@
+#!../bp
+
+setopt p 2
+setopt v true
+setopt f "="
+
+# simple.bin is a little-endian file
+
+fstart one magic "Magic string" char must=0x23 hidden=true
+
+1 1 noff "Numeric offset" uint8
+
+(noff - 1) 1 bnoff "Big number offset" uint8
+
+noff 1 seven "Number Seven" uint8
+
+bnoff four eleven "Number Eleven" uint32
+
+settag fstart = 0
+
+# This is a nonsense tag - but it tests nested explicit tag resolution.
+settag one = (fstart + 1)
+
+# This is a nonsense tag - but it test nested implicit tag resolution.
+settag four = (seven - 3)
