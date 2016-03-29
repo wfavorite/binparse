@@ -146,6 +146,8 @@ int handle_ppopt(ParsePoint *pp, char *raw_ppopt)
          return(1);
       }
 
+      /* must= data type compatibility is enforsed in get_parse_point() */
+
       pp->use_muste = 1;    /* This means the next value is "set".       */
       pp->muste_val = rhsn; /* Assign (set) a value                      */
 
@@ -400,6 +402,20 @@ ParsePoint *get_parse_point(File *f)
       pp->fail_bail = 1; /* Now you did it. We are exiting on option 5. */
       return(pp);
    }
+
+   if ( pp->use_muste )
+   {
+      /* Insure that the must= is only used with valid data types */
+      if (( pp->dt < DT_MUSTE_LBARRIER ) || ( pp->dt > DT_MUSTE_HBARRIER ))
+      {
+         fprintf(stderr, "-------------------------------------------------------------------------------\n");
+         fprintf(stderr, "Optional token compatibility failure. Usage of must= directive with non-integer\n");
+         fprintf(stderr, "   data type %lu on line %d.\n", pp->dt, pp->lineno);
+         pp->fail_bail = 1;
+         return(pp);
+      }
+   }
+
 
    pp->fail_bail = 0; /* Clear any assumed error. (Currently errors are not
                          assumed - then cleared. It is the opposite. This is

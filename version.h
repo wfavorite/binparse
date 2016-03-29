@@ -133,9 +133,11 @@
                        work in a more limited sense). Todos were added for
                        version 2 to unwind some dependencies in the tag
                        resolution code.
+    0.25.0   3/29/16 - Added a check for must= compatibility with the
+                       data type. (must= does not work with strings.)
 
 */
-#define VERSION_STRING "0.24.0"
+#define VERSION_STRING "0.25.0"
 /*
   Notes:
 
@@ -148,7 +150,6 @@
    [ ] FreeBSD port.
    [ ] There is a $TU8 in options.c. It is not clear if this is a problem or
        not.
-   [ ] Insure that must= is not used with non-numeric data.
    [ ] Write man pages for bp(1) and bpf(5).
    [D] Need to properly differentiate between ' and " in the strlib.
    [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
@@ -177,6 +178,7 @@
        would override the global command line or file setting.
 
   Done:
+   [X] Insure that must= is not used with non-numeric data.
    [X] rdata should not be used when an unsigned long. (This code works,
        but has some considerable exposure in edge cases - specifically when
        entering large decimal numbers via input in things like must= (as

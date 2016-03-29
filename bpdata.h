@@ -168,6 +168,7 @@ typedef struct etag
 /* First used in get_parse_point() */
 #define DT_NULL     0
 #define DT_NONE     DT_NULL
+#define DT_MUSTE_LBARRIER 1 /* Anything below this will not work with must= */
 #define DT_UINT8    1
 #define DT_INT8     2
 #define DT_UINT16   3
@@ -177,7 +178,8 @@ typedef struct etag
 #define DT_UINT64   7
 #define DT_INT64    8
 
-#define DT_CHAR     20  /* Printable character (8 bits)    */
+#define DT_CHAR     10  /* Printable character (8 bits)    */
+#define DT_MUSTE_HBARRIER 10 /* Anything above this will not work with must= */
 #define DT_ZTSTR    21  /* Zero terminated string          */
 #define DT_FLSTR    22  /* Fixed length string             */
 
