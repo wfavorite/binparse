@@ -1,0 +1,98 @@
+.\" TH <binary_name> <man_section> <date> <string_bottom> <string_top>
+.TH binparse 1 1-24-2016 "binparse 1.x" "User Commands"
+
+.SH Name
+\fBbp\fR - Binary Parser
+
+.SH Description
+.PP
+\fBbp\fR (binparse) is a tool for parsing and dumping contents of a binary
+file using a BPF (BinParse Format) file to describe the binary data and how
+it should be represented. \fBbp\fR is different than a hex or octal dump in
+that data types can be defined and represented as numeric data (displayed in
+hex or decimal) as opposed to strings of byte data.
+.RE
+.SH Usage
+.PP
+\fBbp\fR -a | -h | [options] <BPF_file> <binary_file>
+.RE
+.SH Options
+.PP
+.TP
+\fB-a\fR, \fB--about\fR
+Show "about" information (and exit).
+.TP
+\fB-c\fR, \fB--validate\fR
+Validate (check) the syntax of the BPF file and exit without parsing a file.
+.TP
+\fB-e\fR, \fB--endian_swap\fR
+Swap endianness (for binary files created on different archecture). This only applies to 16, 32, and 64-bit data types.
+.TP
+\fB-f x\fR, \fB--field_separator x\fR
+Set the field separator (between label and data) to "x". (This defaults to ":".)
+.TP
+\fB-h\fR, \fB--help\fR
+Show "help" information (and exit).
+.TP
+\fB-l\fR, \fB--no_labels\fR
+Display the data and not the labels. (The label name is still a required BPF element and can be "-" when using this option.)
+.TP
+\fB-p x\fR, \fB--passes x\fR
+Set the number of data passes in the third parsing phase. This limits the depth of resolution in dependendent tags (when a reference to a tag is used in another tag). (This defaults to 5.)
+.TP
+\fB-t\fR, \fB--show_tag\fR
+Use the shortened tag name as opposed to the longer label in output. (The label name is still a required BPF element and can be "-" when using this option.)
+.TP
+\fB-v\fR, \fB--verbose\fR
+Show verbose reporting of the parsing phases. This is useful when debugging a BPF file.
+.TP
+\fB-x\fR, \fB--dump_hex\fR
+Dump all numeric output in lower case hex.
+.TP
+\fB-X\fR, \fB--dump_HEX\fR
+Dump all numeric output in upper case hex.
+.RE
+
+.SH Concepts
+A data parse point is expressed in multiple fields (see \fBbp(5)\fR), that form implicit tags. The tag then becomes a handle on the data that can be used in other parse points. This is useful if a field has an offset or size that is represented by a data field in the file.
+
+The offset and size in a parse point can be a simplified mathematical function that may also include other tags. These dependencies can be multple levels deep. (Parsing of this depth is controlled with the \fB-p x\fR option.
+
+A tag is a reference to a data item. Data parse points are called implicit tags - as the tag is a secondary effect of defining a data point. Explicit tags are tag definitions for things like offsets or basic formulae that are too annoying to include on every BPF parse point line.
+
+Enums are a method of decoding data into a string representation. Speccific values are represented not as numeric, but as their string representation. Enums require a default value if the numeric is not matched. (See \fBbp(5)\fR for syntax of enum definitions.
+
+Default output is to print each parse point on a single line using the following format: <label><separator><data>. All three items are configurable using the \fB-l\fR, \fB-f\fR, \fB-x\fR, and \fB-X\fR options.
+.RE
+
+.SH Method
+Parsing and resolving data takes several passes (phases) of the BPF file. The phases are actually passes of the config file, but are named differentely so as not to be confused with passes of the data when reading the binary file. So; phases are iterative reads of the BPF file and its data, while passes are iterative retrieval of binary file data items until all dependencies are resolved. 
+
+The phases are:
+.TP
+\fBPhase 0\fR
+Read in "setopt" options (the ability to pass command line options in the BPF file). These options will determine the behaviours of later phases.
+.TP
+\fBPhase 1\fR
+Parse the BPF file entries for data parse points (implicit tags), enums, and explicit tags. File syntax is checked in this phase. 
+.TP
+\fBPhase 2\fR
+Resolve all tags (labels). This finds the tag relationships and insures that the references are valid. (The \fB-c\fR option causes \fBbp\fR to stop after this phase.)
+.TP
+\fBPhase 3\fR
+Resolve all data items. Because one data item (tag) can be used as a size or offset of another data item, the data must be retrieved and decoded in multiple passes.
+.TP
+\fBDisplay data\fR
+This is not really a pass/phase in parsing, but is simply an independent step where the data is displayed to stdout.
+.RE
+
+.SH See Also
+.TP
+\fBbp(5)\fR 
+.RE
+
+.SH Bugs
+.TP
+Contact William Favorite <wfavorite@tablespace.net> if you find any. 
+.RE
+

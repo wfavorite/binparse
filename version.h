@@ -135,9 +135,9 @@
                        resolution code.
     0.25.0   3/29/16 - Added a check for must= compatibility with the
                        data type. (must= does not work with strings.)
-
+    0.26.0   3/30/16 - Picking over the bones of the remaining todos.
 */
-#define VERSION_STRING "0.25.0"
+#define VERSION_STRING "0.26.0"
 /*
   Notes:
 
@@ -148,8 +148,6 @@
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
    [ ] FreeBSD port.
-   [ ] There is a $TU8 in options.c. It is not clear if this is a problem or
-       not.
    [ ] Write man pages for bp(1) and bpf(5).
    [D] Need to properly differentiate between ' and " in the strlib.
    [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
@@ -178,6 +176,8 @@
        would override the global command line or file setting.
 
   Done:
+   [X] There is a $TU8 in options.c. It is not clear if this is a problem or
+       not.
    [X] Insure that must= is not used with non-numeric data.
    [X] rdata should not be used when an unsigned long. (This code works,
        but has some considerable exposure in edge cases - specifically when

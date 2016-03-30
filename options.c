@@ -1030,8 +1030,9 @@ int ParseBPFOptions(Options *o)
             if ( -1 == (temptail = parse_opt_tail(line)) )
                return(opt_err_msg(thisopt, f->lineno));
 
-            /* STUB: Should this be inverted? */
-            if ( set_option(o, OS_CFGFILE, OK_SHOWLBL, temptail) )
+            /* This is inverted. The bShowLabel value is backwards from everything
+               else. A bad choice of variable name mucks everything up. */
+            if ( set_option(o, OS_CFGFILE, OK_SHOWLBL, ! temptail) )
                return(1);
 
             parsed++;
@@ -1045,11 +1046,6 @@ int ParseBPFOptions(Options *o)
 
             parsed++;
             break;
-
-
-
-
-
          case 't':
             if ( -1 == (temptail = parse_opt_tail(line)) )
                return(opt_err_msg(thisopt, f->lineno));
@@ -1059,12 +1055,6 @@ int ParseBPFOptions(Options *o)
 
             parsed++;
             break;
-
-
-
-
-
-
          case 'v':
             if ( -1 == (temptail = parse_opt_tail(line)) )
                return(opt_err_msg(thisopt, f->lineno));

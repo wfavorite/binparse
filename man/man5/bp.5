@@ -1,0 +1,98 @@
+.TH binparse 5 1-24-2016 "binparse 1.x" "BPF File"
+
+.SH Name
+.PP
+BPF (BinParse Format) File Syntax
+.RE
+
+.SH Description
+.PP
+The BPF file is a specification to the \fBbp(1)\fR utility that describes how to parse a binary file. Data parse points (tags) are defined for each data item of interest.
+.RE
+
+.SH Setting Options
+.PP
+Because BPF files can be set executable and run as a binary (using interpreter magic at the top of the file), command line options need to be set from within the BPF file. This is done with the "setopt" option. The syntax is as follows:
+
+setopt <letter_option> <argument>
+
+The <letter_option> is the letter of each command line option found in \fBbpp(1)\fR. The <argument> is "true" or "false" for boolean options and the option argument for the \fB-f\fR and \fB-p\fR options.
+
+This example turns verbose output on:
+
+setopt v true
+
+This example sets the number of dependency resolution passes to 7:
+
+setopt p 7
+
+Command line options will take precidence over setopt defined options.
+.RE
+
+.SH Defining Parse Points
+.PP
+Parse points are defined by five mandatory, and one or more optional fields, all on the same BPF line, separated by spaces. The fields are:
+.TP
+Offset [Required]
+This is the distance, in bytes, of the data point from the beginning of the file.
+.TP
+Size [Required]
+This is the size, in bytes, of the data item to be read.
+.TP
+Tag [Required]
+This is an abbreviated (no spaces) name for the data point. This reference can be used in other parse points if there are dependencies in the data.
+.TP
+Label [Required]
+This is a string (can be quoted if it has spaces) that acts as a label for the data item in output. The \fB-l\fR option ignores the label field and uses the tag for this purpose instead. This field can be a string consisting of a single char (such as "-") if the field is not used, but cannot be omitted.
+.TP
+Data Type [Required]
+This is a series of data types that \fBbp\fR supports. See the \fBSupported Data Types\fR section for a listing of types.
+.TP
+Directives [Optional]
+Directives tell how to manage or represent the data. The supported directives are \fBmust=\fR, \fBmask=\fR, \fBenum=\fR, and \fBhidden=\fR. These are explained further in the \fBDirectives\fR section below.
+.RE
+
+.SH Defining Enums
+.PP
+Enums are a means of defining string "symbols" to represent values in a field. The following is the syntax used for one of the builtin enums:
+setenum enumBool = { 0:False; default:True; }
+
+The syntax is:
+
+setenum <enum_name> = { <value>:<string>; ... }
+
+Where <value> is a number possible for the data type, and <string> is displayed when that number is encountered. This value-string pair syntax can be repeated when separated by the terminating ';' character. One of the value-string pairs must use the value of "default" to define the default value. Order does not matter.
+
+Note that the string should be quoted if it contains spaces.
+.RE
+
+.SH Defining Explicit Tags
+.PP
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+.RE
+
+.SH Supported Data Types
+.PP
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+.RE
+
+.SH Directives
+.PP
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+.RE
+
+.SH Mathematical Expressions
+.PP
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+.RE
+
+
+
+
+
+
+.SH See Also
+.PP
+\fBbp(1)\fR
+.RE
+ 
