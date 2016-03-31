@@ -505,7 +505,6 @@ Options *ParseOptions(int argc, char *argv[])
       {
          if ( argv[si][1] == '-' )
          {
-
             if ( 0 == strcmp(argv[si], "--help") ) /* -h */
             {
                if ( set_option(o, OS_CMDLINE, OK_HELP, 1) )

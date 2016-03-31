@@ -136,19 +136,21 @@
     0.25.0   3/29/16 - Added a check for must= compatibility with the
                        data type. (must= does not work with strings.)
     0.26.0   3/30/16 - Picking over the bones of the remaining todos.
+    0.27.0   3/31/16 - Work on man pages.
 */
-#define VERSION_STRING "0.26.0"
+#define VERSION_STRING "0.27.0"
 /*
   Notes:
 
   ToDo:                                                                      !
+   [ ] Check spelling on the man pages.
+   [_] Write man pages for bp(1) and bpf(5).
    [ ] Many of the "pending done" ToDos really only need testing. Test them.
        I have marked them with "T" for test.
    [T] Test support of settag operator. Specifically tag resolution and tag
        collisions with other types (pp, enum, et). Does the PP insert code
        properly check this list?
    [ ] FreeBSD port.
-   [ ] Write man pages for bp(1) and bpf(5).
    [D] Need to properly differentiate between ' and " in the strlib.
    [D] Test strlib.c::mid_trunc(). It looks like a weak implementation.
    [D] How do you handle exceptions in strlib.c::mid_trunc()?

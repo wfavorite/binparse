@@ -22,7 +22,7 @@ This example turns verbose output on:
 
 setopt v true
 
-This example sets the number of dependency resolution passes to 7:
+This example sets the number of dependency resolution (\fB-p\fR) passes to 7:
 
 setopt p 7
 
@@ -50,6 +50,8 @@ This is a series of data types that \fBbp\fR supports. See the \fBSupported Data
 .TP
 Directives [Optional]
 Directives tell how to manage or represent the data. The supported directives are \fBmust=\fR, \fBmask=\fR, \fBenum=\fR, and \fBhidden=\fR. These are explained further in the \fBDirectives\fR section below.
+.PP
+Offsets and sizes are typically numeric but can be references (/tags pointing) to the results of other parse points and/or mathematical expressions. See the sections on \fBMathematical Expressions\fR and \fBUsing Tags\fR for more information.
 .RE
 
 .SH Defining Enums
@@ -64,32 +66,78 @@ setenum <enum_name> = { <value>:<string>; ... }
 Where <value> is a number possible for the data type, and <string> is displayed when that number is encountered. This value-string pair syntax can be repeated when separated by the terminating ';' character. One of the value-string pairs must use the value of "default" to define the default value. Order does not matter.
 
 Note that the string should be quoted if it contains spaces.
+
+There are three builtin enums. They are enumBOOL, enumBool, and enumbool. They are largely identical to the enumBool example above, but each has different case rules when printing true or false (as suggested by the names).
 .RE
 
 .SH Defining Explicit Tags
 .PP
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Explicit tags are defined as a means to provide a common value to tags. For example a tag called "datastart" might hold a number or a mathematical equation that determines the offset of data caused by a header. The data items can be retrieved by using "datastart" as a pre-defined offset that contains the size of the header.
+
+Explict tags use a syntax similar to enums and options. Here is an example of the most basic explicit tag:
+
+settag datastart = 16
+
+A more realistic tag (using a mathematical expression and a tag) might look like this:
+
+settag datastart = ( 8 + hdrsize )
+.RE
+
+.SH Using Tags
+.PP
+Tags are a means to reference data items. In the simple case, tags are used in conjunction with line numbers to reference failures on parse point lines. In the more interesting case, tags can be used as offset and size values.
+
+When tags are used in this capacity (where one data point is dependent on another through a tag reference), the data for the referenced tag must be read first, so that data can be used to determine the "value" of the tag and then use it as an offset or size. This iterative re-evaluation of parse points (as each level of dependency is resolved) is controlled using the \fB-p\fR option.
 .RE
 
 .SH Supported Data Types
 .PP
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\fBbp\fR supports the following data types (all valid strings for the "Data Type" field for a parse point):
+.TP
+char - One byte. Represented in ASCII (if printable).
+.TP
+uintX - Where X is 8, 16, 32, or 64.
+.TP
+intX - Where X is 8, 16, 32, or 64.
+.TP
+flstr - Fixed length string. (Assumed NOT to be NULL terminated)
+.TP
+ztstr - Zero terminated string. (Assumed to be NULL terminated)
+.PP
+The size field in the parse point specification must be consistent with the size of the data. For example, you cannot specify uint64 as the data type with a size of anything but 8. (The only time "casting" of types is allowed is when a parse point is referenced as a tag. As long as the parse point is a numeric type, it can be used referentially in another parse point.)
 .RE
 
 .SH Directives
 .PP
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Directives are not exclusive and can be stacked for particular effects.
+.TP
+must=<integer>
+The must= directive states that the (integer or char) data type must equal a specific value.
+.TP
+mask=<integer>
+This applies an OR mask to the data. With this option, \fBbp\fR can mask off and look at individual bits. mask= can be used with must= and enum=.
+.TP
+enum=<enum_name>
+Defined enums are applied to the parse point through this directive.
+.TP
+hidden=<true|false>
+This toggles printing of the parse point. Dependent parse points may only be used for the offset data and turining off printing output may be desired.
 .RE
 
 .SH Mathematical Expressions
 .PP
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Minimalist mathematical expressions are allowed using the following syntax:
+
+( <entity> <operator> <entity> )
+
+Where <operator> is one of the following: +, -, *, or /. And where <entity> is a number, a tag, or another mathematical expression.
+
+Mathematical expressions can be used inline (inside the parse point definition fields for offset and size), or in an explicit tag definition.
 .RE
-
-
-
-
-
+.SH Caveats
+.PP
+All BPF items are case sensitive except for hex input and the keywords "true" and "false".
+.RE
 
 .SH See Also
 .PP
