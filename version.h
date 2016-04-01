@@ -137,14 +137,13 @@
                        data type. (must= does not work with strings.)
     0.26.0   3/30/16 - Picking over the bones of the remaining todos.
     0.27.0   3/31/16 - Work on man pages.
+    0.27.1    4/1/16 - Fixed man page spelling errors.
 */
-#define VERSION_STRING "0.27.0"
+#define VERSION_STRING "0.27.1"
 /*
   Notes:
 
   ToDo:                                                                      !
-   [ ] Check spelling on the man pages.
-   [_] Write man pages for bp(1) and bpf(5).
    [ ] Many of the "pending done" ToDos really only need testing. Test them.
        I have marked them with "T" for test.
    [T] Test support of settag operator. Specifically tag resolution and tag
@@ -178,6 +177,8 @@
        would override the global command line or file setting.
 
   Done:
+   [X] Write man pages for bp(1) and bpf(5).
+   [X] Check spelling on the man pages.
    [X] There is a $TU8 in options.c. It is not clear if this is a problem or
        not.
    [X] Insure that must= is not used with non-numeric data.

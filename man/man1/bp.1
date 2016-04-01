@@ -26,7 +26,7 @@ Show "about" information (and exit).
 Validate (check) the syntax of the BPF file and exit without parsing a file.
 .TP
 \fB-e\fR, \fB--endian_swap\fR
-Swap endianness (for binary files created on different archecture). This only applies to 16, 32, and 64-bit data types.
+Swap endianness (for binary files created on different architecture). This only applies to 16, 32, and 64-bit data types.
 .TP
 \fB-f x\fR, \fB--field_separator x\fR
 Set the field separator (between label and data) to "x". (This defaults to ":".)
@@ -38,7 +38,7 @@ Show "help" information (and exit).
 Display the data and not the labels. (The label name is still a required BPF element and can be "-" when using this option.)
 .TP
 \fB-p x\fR, \fB--passes x\fR
-Set the number of data passes in the third parsing phase. This limits the depth of resolution in dependendent tags (when a reference to a tag is used in another tag). (This defaults to 5.)
+Set the number of data passes in the third parsing phase. This limits the depth of resolution in dependent tags (when a reference to a tag is used in another tag). (This defaults to 5.)
 .TP
 \fB-t\fR, \fB--show_tag\fR
 Use the shortened tag name as opposed to the longer label in output. (The label name is still a required BPF element and can be "-" when using this option.)
@@ -56,17 +56,17 @@ Dump all numeric output in upper case hex.
 .SH Concepts
 A data parse point is expressed in multiple fields (see \fBbp(5)\fR), that form implicit tags. The tag then becomes a handle on the data that can be used in other parse points. This is useful if a field has an offset or size that is represented by a data field in the file.
 
-The offset and size in a parse point can be a simplified mathematical function that may also include other tags. These dependencies can be multple levels deep. (Parsing of this depth is controlled with the \fB-p x\fR option.
+The offset and size in a parse point can be a simplified mathematical function that may also include other tags. These dependencies can be multiple levels deep. (Parsing of this depth is controlled with the \fB-p x\fR option.
 
 A tag is a reference to a data item. Data parse points are called implicit tags - as the tag is a secondary effect of defining a data point. Explicit tags are tag definitions for things like offsets or basic formulae that are too annoying to include on every BPF parse point line.
 
-Enums are a method of decoding data into a string representation. Speccific values are represented not as numeric, but as their string representation. Enums require a default value if the numeric is not matched. (See \fBbp(5)\fR for syntax of enum definitions.
+Enums are a method of decoding data into a string representation. Specific values are represented not as numeric, but as their string representation. Enums require a default value if the numeric is not matched. (See \fBbp(5)\fR for syntax of enum definitions.
 
 Default output is to print each parse point on a single line using the following format: <label><separator><data>. All three items are configurable using the \fB-l\fR, \fB-f\fR, \fB-x\fR, and \fB-X\fR options.
 .RE
 
 .SH Method
-Parsing and resolving data takes several passes (phases) of the BPF file. The phases are actually passes of the config file, but are named differentely so as not to be confused with passes of the data when reading the binary file. So; phases are iterative reads of the BPF file and its data, while passes are iterative retrieval of binary file data items until all dependencies are resolved. 
+Parsing and resolving data takes several passes (phases) of the BPF file. The phases are actually passes of the config file, but are named differently so as not to be confused with passes of the data when reading the binary file. So; phases are iterative reads of the BPF file and its data, while passes are iterative retrieval of binary file data items until all dependencies are resolved. 
 
 The phases are:
 .TP
